@@ -83,7 +83,7 @@ The workflow will:
 
 NuGet publishing secret (GitHub Actions):
 
-- `PGSEARCH_API_KEY`
+- `NUGET_API_KEY`
 
 ## Testing and CI Expectations
 

@@ -90,12 +90,12 @@ jobs:
 
       - name: Publish to NuGet
         env:
-          NUGET_API_KEY: ${{ secrets.PGSEARCH_API_KEY }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           set -euo pipefail
 
           if [[ -z "${NUGET_API_KEY:-}" ]]; then
-            echo "Missing NuGet secret (PGSEARCH_API_KEY)"
+            echo "Missing NuGet secret (NUGET_API_KEY)"
             exit 1
           fi
 

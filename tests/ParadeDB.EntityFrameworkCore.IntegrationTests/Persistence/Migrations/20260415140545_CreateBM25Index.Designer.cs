@@ -25,7 +25,7 @@ namespace ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_search");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("EFCore.ParadeDB.PgSearch.IntegrationTests.TestModels.Item", b =>
+            modelBuilder.Entity("ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence.Entities.Item", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -50,7 +50,7 @@ namespace ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence.Migrations
                     b.ToTable("items", (string)null);
                 });
 
-            modelBuilder.Entity("EFCore.ParadeDB.PgSearch.IntegrationTests.TestModels.Product", b =>
+            modelBuilder.Entity("ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence.Entities.Product", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
