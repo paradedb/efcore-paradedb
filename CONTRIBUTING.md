@@ -42,13 +42,13 @@ dotnet restore build.slnf
 Unit tests:
 
 ```bash
-dotnet test --project tests/ParadeDB.EFCore.Tests/ParadeDB.EFCore.Tests.csproj --configuration Release
+dotnet test --project tests/ParadeDB.EntityFrameworkCore.Tests/ParadeDB.EntityFrameworkCore.Tests.csproj --configuration Release
 ```
 
 Integration tests:
 
 ```bash
-dotnet test --project tests/ParadeDB.EFCore.IntegrationTests/ParadeDB.EFCore.IntegrationTests.csproj --configuration Release
+dotnet test --project tests/ParadeDB.EntityFrameworkCore.IntegrationTests/ParadeDB.EntityFrameworkCore.IntegrationTests.csproj --configuration Release
 ```
 
 ### Linting and Formatting

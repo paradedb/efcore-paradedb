@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <NoWarn>$(NoWarn);EF1001</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageTags>ParadeDB;entity-framework-core;efcore;orm;sql;</PackageTags>
+    <Description>ParadeDB search integration for Npgsql.EntityFrameworkCore.PostgreSQL.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+  </ItemGroup>
+
+</Project>

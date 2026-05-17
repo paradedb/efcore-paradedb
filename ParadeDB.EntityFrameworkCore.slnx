@@ -1,0 +1,53 @@
+<Solution>
+  <Folder Name="/.solution/">
+    <File Path=".csharpierignore" />
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="build.slnf" />
+    <File Path="CHANGELOG.md" />
+    <File Path="CLAUDE.md" />
+    <File Path="CONTRIBUTING.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="NUGET-README.md" />
+    <File Path="README.md" />
+    <File Path="RELEASE.md" />
+  </Folder>
+  <Folder Name="/.solution/.config/">
+    <File Path=".config\dotnet-tools.json" />
+  </Folder>
+  <Folder Name="/.solution/actions/">
+    <File Path=".github\workflows\assign-github-issue.yml" />
+    <File Path=".github\workflows\check-typo.yml" />
+    <File Path=".github\workflows\ci.yml" />
+    <File Path=".github\workflows\lint-bash.yml" />
+    <File Path=".github\workflows\lint-format.yml" />
+    <File Path=".github\workflows\lint-markdown.yml" />
+    <File Path=".github\workflows\lint-pr-title.yml" />
+    <File Path=".github\workflows\lint-yaml.yml" />
+    <File Path=".github\workflows\release.yml" />
+  </Folder>
+  <Folder Name="/examples/">
+    <File Path="examples\Directory.Build.props" />
+    <File Path="examples\README.md" />
+    <Project Path="examples\Autocomplete\Autocomplete.csproj" />
+    <Project Path="examples\FacetedSearch\FacetedSearch.csproj" />
+    <Project Path="examples\HybridRrf\HybridRrf.csproj" />
+    <Project Path="examples\MoreLikeThis\MoreLikeThis.csproj" />
+    <Project Path="examples\Quickstart\Quickstart.csproj" />
+    <Project Path="examples\Rag\Rag.csproj" />
+    <Project Path="examples\Shared\Shared.csproj" />
+  </Folder>
+  <Folder Name="/scripts/">
+    <File Path="scripts\run_paradedb.sh" />
+  </Folder>
+  <Folder Name="/src/">
+    <File Path="src\Directory.Build.props" />
+    <Project Path="src\ParadeDB.EntityFrameworkCore\ParadeDB.EntityFrameworkCore.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests\ParadeDB.EntityFrameworkCore.IntegrationTests\ParadeDB.EntityFrameworkCore.IntegrationTests.csproj" />
+    <Project Path="tests\ParadeDB.EntityFrameworkCore.Tests\ParadeDB.EntityFrameworkCore.Tests.csproj" />
+  </Folder>
+</Solution>

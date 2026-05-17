@@ -8,8 +8,8 @@ Make sure to run the following to verify your changes:
 dotnet tool restore
 dotnet csharpier check .
 dotnet build build.slnf --configuration Release
-dotnet test tests/ParadeDB.EFCore.Tests/ParadeDB.EFCore.Tests.csproj --configuration Release
-dotnet test tests/ParadeDB.EFCore.IntegrationTests/ParadeDB.EFCore.IntegrationTests.csproj --configuration Release
+dotnet test tests/ParadeDB.EntityFrameworkCore.Tests/ParadeDB.EntityFrameworkCore.Tests.csproj --configuration Release
+dotnet test tests/ParadeDB.EntityFrameworkCore.IntegrationTests/ParadeDB.EntityFrameworkCore.IntegrationTests.csproj --configuration Release
 ```
 
 All must pass with 0 failures.

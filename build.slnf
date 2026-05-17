@@ -1,10 +1,10 @@
 {
   "solution": {
-    "path": "ParadeDB.EFCore.slnx",
+    "path": "ParadeDB.EntityFrameworkCore.slnx",
     "projects": [
-      "src/ParadeDB.EFCore/ParadeDB.EFCore.csproj",
-      "tests/ParadeDB.EFCore.Tests/ParadeDB.EFCore.Tests.csproj",
-      "tests/ParadeDB.EFCore.IntegrationTests/ParadeDB.EFCore.IntegrationTests.csproj"
+      "src/ParadeDB.EntityFrameworkCore/ParadeDB.EntityFrameworkCore.csproj",
+      "tests/ParadeDB.EntityFrameworkCore.Tests/ParadeDB.EntityFrameworkCore.Tests.csproj",
+      "tests/ParadeDB.EntityFrameworkCore.IntegrationTests/ParadeDB.EntityFrameworkCore.IntegrationTests.csproj"
     ]
   }
 }

@@ -30,7 +30,7 @@ We've organized the examples into three categories:
 
 ### 🔹 Essentials
 
-#### 1. Quickstart (`examples/ParadeDB.EFCore.Quickstart`)
+#### 1. Quickstart (`examples/Quickstart`)
 
 _The "Hello World" of ParadeDB._
 
@@ -44,10 +44,10 @@ This script demonstrates the fundamental building blocks of search. You will lea
 **Run it:**
 
 ```bash
-dotnet run --project examples/ParadeDB.EFCore.Quickstart
+dotnet run --project examples/Quickstart
 ```
 
-#### 2. Faceted Search (`examples/ParadeDB.EFCore.FacetedSearch`)
+#### 2. Faceted Search (`examples/FacetedSearch`)
 
 _Building an E-commerce Sidebar._
 
@@ -61,14 +61,14 @@ Facets are the "filters" you see on shopping sites (e.g., "Brand (5)", "Color (3
 **Run it:**
 
 ```bash
-dotnet run --project examples/ParadeDB.EFCore.FacetedSearch
+dotnet run --project examples/FacetedSearch
 ```
 
 ---
 
 ### 🔹 Smart Features
 
-#### 3. Autocomplete (`examples/ParadeDB.EFCore.Autocomplete`)
+#### 3. Autocomplete (`examples/Autocomplete`)
 
 _Instant "As-You-Type" Suggestions._
 
@@ -82,10 +82,10 @@ Standard search requires hitting "Enter". Autocomplete gives immediate feedback.
 **Run it:**
 
 ```bash
-dotnet run --project examples/ParadeDB.EFCore.Autocomplete
+dotnet run --project examples/Autocomplete
 ```
 
-#### 4. More Like This (`examples/ParadeDB.EFCore.MoreLikeThis`)
+#### 4. More Like This (`examples/MoreLikeThis`)
 
 _Recommendations & "Related Content"._
 
@@ -94,14 +94,14 @@ Want to show "Related Articles" or "Customers also bought"? This feature analyze
 **Run it:**
 
 ```bash
-dotnet run --project examples/ParadeDB.EFCore.MoreLikeThis
+dotnet run --project examples/MoreLikeThis
 ```
 
 ---
 
 ### 🔹 AI & Vectors
 
-#### 5. Hybrid Search with RRF (`examples/ParadeDB.EFCore.HybridRrf`)
+#### 5. Hybrid Search with RRF (`examples/HybridRrf`)
 
 _The Best of Both Worlds: Keywords + Semantics._
 
@@ -110,10 +110,10 @@ Keyword search (BM25) is great for exact matches ("Part #123"). Vector search is
 **Run it:**
 
 ```bash
-dotnet run --project examples/ParadeDB.EFCore.HybridRrf
+dotnet run --project examples/HybridRrf
 ```
 
-#### 6. RAG: Retrieval-Augmented Generation (`examples/ParadeDB.EFCore.Rag`)
+#### 6. RAG: Retrieval-Augmented Generation (`examples/Rag`)
 
 _Chat with your Data._
 
@@ -127,6 +127,6 @@ This example builds a mini QA system. It searches your data for relevant context
 **Run it:**
 
 ```bash
-dotnet user-secrets set "OpenRouter:ApiKey" "sk-..." --project examples/ParadeDB.EFCore.Rag
-dotnet run --project examples/ParadeDB.EFCore.Rag
+dotnet user-secrets set "OpenRouter:ApiKey" "sk-..." --project examples/Rag
+dotnet run --project examples/Rag
 ```
