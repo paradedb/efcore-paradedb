@@ -5,7 +5,6 @@ using ParadeDB.EFCore.Internal.Storage;
 
 namespace ParadeDB.EFCore.Internal.Query.Expressions;
 
-#pragma warning disable EF1001
 internal sealed class PdbBoolExpression : PgUnknownBinaryExpression
 {
     private static readonly FrozenDictionary<PdbOperatorType, string> OperatorMap = new Dictionary<

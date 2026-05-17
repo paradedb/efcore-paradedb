@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using ParadeDB.EFCore.Autocomplete.Data;
 using ParadeDB.EFCore.Extensions;

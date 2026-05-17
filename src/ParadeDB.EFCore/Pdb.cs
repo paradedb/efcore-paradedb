@@ -2,7 +2,7 @@ using ParadeDB.EFCore.Modifiers;
 
 namespace ParadeDB.EFCore;
 
-public static class Pdb
+public static partial class Pdb
 {
     public static Boost Boost(float factor) => new(factor);
 

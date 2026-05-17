@@ -323,14 +323,8 @@ public static class ParadeDbFunctionsExtensions
     ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Snippet)));
 
     [DbFunction]
-    public static bool Proximity<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string token1,
-        string token2,
-        int maxDistance,
-        bool ordered = false
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Proximity)));
+    public static bool Match<TProperty>(this DbFunctions _, TProperty property, PdbQuery query) =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Match)));
 
     /*
      TODO https://docs.paradedb.com/documentation/full-text/phrase#using-a-custom-tokenizer

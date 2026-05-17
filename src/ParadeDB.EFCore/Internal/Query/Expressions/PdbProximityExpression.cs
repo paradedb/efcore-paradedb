@@ -4,7 +4,6 @@ using ParadeDB.EFCore.Internal.Storage;
 
 namespace ParadeDB.EFCore.Internal.Query.Expressions;
 
-#pragma warning disable EF1001
 internal sealed class PdbProximityExpression : PgUnknownBinaryExpression
 {
     public PdbProximityExpression(SqlExpression left, SqlExpression right, bool ordered = false)

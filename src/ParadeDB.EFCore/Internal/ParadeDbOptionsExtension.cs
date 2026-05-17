@@ -19,6 +19,10 @@ internal sealed class ParadeDbOptionsExtension : IDbContextOptionsExtension
         services.AddScoped<IMethodCallTranslatorPlugin, ParadeDbMethodCallTranslatorPlugin>();
         services.AddScoped<IMemberTranslatorPlugin, ParadeDbMemberTranslatorPlugin>();
         services.AddSingleton<IConventionSetPlugin, ParadeDbConventionSetPlugin>();
+        services.AddSingleton<
+            IEvaluatableExpressionFilterPlugin,
+            ParadeDbEvaluatableExpressionFilterPlugin
+        >();
     }
 
     public void Validate(IDbContextOptions options) { }

@@ -62,10 +62,10 @@ internal sealed class OperatorTranslator : IMethodCallTranslator
 
         RelationalTypeMapping? typeMapping = value switch
         {
-            Fuzzy fuzzy => new FuzzyTypeMapping(fuzzy),
-            Boost boost => new BoostTypeMapping(boost),
-            Slop slop => new SlopTypeMapping(slop),
-            Const @const => new ConstTypeMapping(@const),
+            Fuzzy fuzzy => new PdbModifierTypeMapping<Fuzzy>(fuzzy),
+            Boost boost => new PdbModifierTypeMapping<Boost>(boost),
+            Slop slop => new PdbModifierTypeMapping<Slop>(slop),
+            Const @const => new PdbModifierTypeMapping<Const>(@const),
             _ => null,
         };
 

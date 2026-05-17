@@ -1,14 +1,16 @@
+using System.Collections;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Expressions.Internal;
 using ParadeDB.EFCore.Extensions;
 using ParadeDB.EFCore.Internal.Query.Expressions;
+using ParadeDB.EFCore.Internal.Storage;
 
 namespace ParadeDB.EFCore.Internal.Query.Translators;
 
-#pragma warning disable EF1001
 internal sealed class ProximityTranslator : IMethodCallTranslator
 {
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -25,28 +27,104 @@ internal sealed class ProximityTranslator : IMethodCallTranslator
         IDiagnosticsLogger<DbLoggerCategory.Query> logger
     )
     {
-        if (method.Name != nameof(ParadeDbFunctionsExtensions.Proximity))
+        var declaring = method.DeclaringType;
+
+        if (
+            declaring == typeof(ParadeDbFunctionsExtensions)
+            && method.Name == nameof(ParadeDbFunctionsExtensions.Match)
+        )
         {
-            return null;
+            var column = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[1]);
+            var query = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2]);
+            return new PdbBoolExpression(column, query, PdbOperatorType.Function);
         }
 
-        if (arguments[5] is not SqlConstantExpression { Value: bool ordered })
+        if (declaring == typeof(Pdb))
         {
-            return null;
+            return method.Name switch
+            {
+                nameof(Pdb.Proximity) => _sqlExpressionFactory.ApplyDefaultTypeMapping(
+                    arguments[0]
+                ),
+                nameof(Pdb.ProximityRegex) => BuildPdbFunction("prox_regex", arguments),
+                nameof(Pdb.ProximityArray) => BuildPdbFunction("prox_array", arguments),
+                _ => null,
+            };
         }
 
-        var leftProximity = new PdbProximityExpression(
-            _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2]),
-            _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[4]),
-            ordered
-        );
+        if (declaring == typeof(PdbProximityQueryExtensions))
+        {
+            return method.Name switch
+            {
+                nameof(PdbProximityQueryExtensions.Within) => BuildProximity(arguments, false),
+                nameof(PdbProximityQueryExtensions.WithinOrdered) => BuildProximity(
+                    arguments,
+                    true
+                ),
+                _ => null,
+            };
+        }
 
-        var fullProximity = new PdbProximityExpression(
-            leftProximity,
-            _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[3]),
-            ordered
-        );
+        return null;
+    }
 
-        return new PdbBoolExpression(arguments[1], fullProximity, PdbOperatorType.Function);
+    private PdbProximityExpression BuildProximity(
+        IReadOnlyList<SqlExpression> arguments,
+        bool ordered
+    )
+    {
+        var left = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[0]);
+        var distance = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[1]);
+        var right = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2]);
+
+        var withDistance = new PdbProximityExpression(left, distance, ordered);
+        return new PdbProximityExpression(withDistance, right, ordered);
+    }
+
+    private SqlExpression BuildPdbFunction(string name, IReadOnlyList<SqlExpression> arguments)
+    {
+        var flattened = Flatten(arguments);
+        var mapped = flattened
+            .Select(a => _sqlExpressionFactory.ApplyDefaultTypeMapping(a))
+            .ToArray();
+
+        return _sqlExpressionFactory.Function(
+            schema: "pdb",
+            name: name,
+            arguments: mapped,
+            nullable: true,
+            argumentsPropagateNullability: new bool[mapped.Length],
+            returnType: typeof(PdbQuery),
+            typeMapping: PdbTypeMappings.Text
+        );
+    }
+
+    private IReadOnlyList<SqlExpression> Flatten(IReadOnlyList<SqlExpression> arguments)
+    {
+        if (arguments.Count != 1)
+        {
+            return arguments;
+        }
+
+        var arg = arguments[0];
+
+        if (arg is PgNewArrayExpression pgArray)
+        {
+            return pgArray.Expressions;
+        }
+
+        if (arg is SqlConstantExpression { Value: IEnumerable enumerable and not string })
+        {
+            var result = new List<SqlExpression>();
+
+            foreach (var item in enumerable)
+            {
+                result.Add(_sqlExpressionFactory.Constant(item));
+            }
+
+            return result;
+        }
+
+        return arguments;
     }
 }
