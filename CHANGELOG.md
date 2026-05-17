@@ -7,3 +7,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Added
 
 - Proximity query support via `EF.Functions.Match()` with `Pdb.Proximity()`, `Pdb.ProximityRegex()`, and `Pdb.ProximityArray()`
+
+### Changed
+
+- Updated solution, workflow, and docs references to the `ParadeDB.EntityFrameworkCore` project and example paths
