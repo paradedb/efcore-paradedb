@@ -39,7 +39,7 @@ repos:
     hooks:
       - id: csharpier
         name: csharpier format
-        entry: dotnet csharpier check
+        entry: dotnet csharpier format .
         language: system
         files: \.(cs|csproj|props|slnx)$
         pass_filenames: false

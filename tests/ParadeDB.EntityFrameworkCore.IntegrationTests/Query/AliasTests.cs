@@ -13,7 +13,7 @@ public sealed class AliasTests : TestBase
 
         var results = await context
             .Items.Where(p =>
-                EF.Functions.MatchDisjunction(
+                EF.Functions.MatchAny(
                     EF.Functions.Alias(p.Description, "description_simple"),
                     "sleek"
                 )
@@ -33,7 +33,7 @@ public sealed class AliasTests : TestBase
 
         var results = await context
             .Items.Where(p =>
-                EF.Functions.MatchDisjunction(EF.Functions.Alias(p.Description, aliasName), "sleek")
+                EF.Functions.MatchAny(EF.Functions.Alias(p.Description, aliasName), "sleek")
             )
             .Select(p => p.Description)
             .ToListAsync();

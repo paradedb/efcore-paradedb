@@ -26,8 +26,8 @@ internal sealed class OperatorTranslator : IMethodCallTranslator
     {
         PdbOperatorType? operatorType = method.Name switch
         {
-            nameof(ParadeDbFunctionsExtensions.MatchDisjunction) => PdbOperatorType.Disjunction,
-            nameof(ParadeDbFunctionsExtensions.MatchConjunction) => PdbOperatorType.Conjunction,
+            nameof(ParadeDbFunctionsExtensions.MatchAny) => PdbOperatorType.Disjunction,
+            nameof(ParadeDbFunctionsExtensions.MatchAll) => PdbOperatorType.Conjunction,
             nameof(ParadeDbFunctionsExtensions.Phrase) => PdbOperatorType.Phrase,
             nameof(ParadeDbFunctionsExtensions.Term) => PdbOperatorType.Term,
             _ => null,
