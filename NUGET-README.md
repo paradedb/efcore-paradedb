@@ -40,7 +40,7 @@ The following ParadeDB operations are available through the `EF.Functions` API:
 
 | ParadeDB Operation                                                          | LINQ Methods                               |
 | --------------------------------------------------------------------------- | ------------------------------------------ |
-| [Match](https://docs.paradedb.com/documentation/full-text/match)            | `MatchDisjunction()`, `MatchConjunction()` |
+| [Match](https://docs.paradedb.com/documentation/full-text/match)            | `MatchAny()`, `MatchAll()`                 |
 | [Phrase](https://docs.paradedb.com/documentation/full-text/phrase)          | `Phrase()`                                 |
 | [Term](https://docs.paradedb.com/documentation/full-text/term)              | `Term()`                                   |
 | [Highlighting](https://docs.paradedb.com/documentation/full-text/highlight) | `Snippet()`                                |
@@ -53,7 +53,7 @@ The following ParadeDB operations are available through the `EF.Functions` API:
 ```csharp
 var products = await dbContext
     .Products.Where(p =>
-        EF.Functions.MatchDisjunction(
+        EF.Functions.MatchAny(
             p.Description,
             "with shoes and",
             Pdb.Fuzzy(1),

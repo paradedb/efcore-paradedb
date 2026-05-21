@@ -9,36 +9,26 @@ namespace ParadeDB.EntityFrameworkCore.Extensions;
 public static class ParadeDbFunctionsExtensions
 {
     [DbFunction]
-    public static bool MatchDisjunction<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchDisjunction)));
+    public static bool MatchAny<TProperty>(this DbFunctions _, TProperty property, string value) =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchAny)));
 
     [DbFunction]
-    public static bool MatchDisjunction<TProperty>(
+    public static bool MatchAny<TProperty>(
         this DbFunctions _,
         TProperty property,
         string[] values
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchDisjunction)));
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchAny)));
 
     [DbFunction]
-    public static bool MatchConjunction<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchConjunction)));
+    public static bool MatchAll<TProperty>(this DbFunctions _, TProperty property, string value) =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchAll)));
 
     [DbFunction]
-    public static bool MatchConjunction<TProperty>(
+    public static bool MatchAll<TProperty>(
         this DbFunctions _,
         TProperty property,
         string[] values
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchConjunction)));
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchAll)));
 
     [DbFunction]
     public static bool Phrase<TProperty>(this DbFunctions _, TProperty property, string value) =>

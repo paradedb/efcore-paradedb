@@ -40,7 +40,7 @@ static async Task DemoBasicSearch(AppDbContext db)
     Console.WriteLine("\n--- Basic Search: 'shoes' ---");
 
     var results = await db
-        .MockItems.Where(x => EF.Functions.MatchConjunction(x.Description, "shoes"))
+        .MockItems.Where(x => EF.Functions.MatchAll(x.Description, "shoes"))
         .Take(5)
         .ToListAsync();
 
@@ -53,7 +53,7 @@ static async Task DemoScoredSearch(AppDbContext db)
     Console.WriteLine("\n--- Scored Search: 'running' ---");
 
     var results = await db
-        .MockItems.Where(x => EF.Functions.MatchConjunction(x.Description, "running"))
+        .MockItems.Where(x => EF.Functions.MatchAll(x.Description, "running"))
         .Select(x => new { Item = x, Score = EF.Functions.Score(x.Id) })
         .OrderByDescending(x => x.Score)
         .Take(5)
@@ -87,7 +87,7 @@ static async Task DemoSnippetHighlighting(AppDbContext db)
     Console.WriteLine("\n--- Snippet Highlighting: 'shoes' ---");
 
     var results = await db
-        .MockItems.Where(x => EF.Functions.MatchConjunction(x.Description, "shoes"))
+        .MockItems.Where(x => EF.Functions.MatchAll(x.Description, "shoes"))
         .Select(x => new
         {
             Score = EF.Functions.Score(x.Id),
@@ -107,7 +107,7 @@ static async Task DemoFilteredSearch(AppDbContext db)
 
     var results = await db
         .MockItems.Where(x =>
-            EF.Functions.MatchConjunction(x.Description, "shoes") && x.InStock && x.Rating >= 4
+            EF.Functions.MatchAll(x.Description, "shoes") && x.InStock && x.Rating >= 4
         )
         .Select(x => new { Item = x, Score = EF.Functions.Score(x.Id) })
         .OrderByDescending(x => x.Score)
