@@ -54,31 +54,20 @@ internal sealed class ProximityTranslator : IMethodCallTranslator
 
         if (declaring == typeof(PdbProximityQueryExtensions))
         {
-            return method.Name switch
+            if (method.Name is not nameof(PdbProximityQueryExtensions.Within))
             {
-                nameof(PdbProximityQueryExtensions.Within) => BuildProximity(arguments, false),
-                nameof(PdbProximityQueryExtensions.WithinOrdered) => BuildProximity(
-                    arguments,
-                    true
-                ),
-                _ => null,
-            };
+                return null;
+            }
+
+            var left = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[0]);
+            var distance = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[1]);
+            var right = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2]);
+            var ordered = arguments[3] is SqlConstantExpression { Value: true };
+            var withDistance = new PdbProximityExpression(left, distance, ordered);
+            return new PdbProximityExpression(withDistance, right, ordered);
         }
 
         return null;
-    }
-
-    private PdbProximityExpression BuildProximity(
-        IReadOnlyList<SqlExpression> arguments,
-        bool ordered
-    )
-    {
-        var left = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[0]);
-        var distance = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[1]);
-        var right = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2]);
-
-        var withDistance = new PdbProximityExpression(left, distance, ordered);
-        return new PdbProximityExpression(withDistance, right, ordered);
     }
 
     private SqlExpression BuildPdbFunction(string name, IReadOnlyList<SqlExpression> arguments)

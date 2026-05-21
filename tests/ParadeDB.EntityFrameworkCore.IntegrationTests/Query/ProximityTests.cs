@@ -27,7 +27,10 @@ public sealed class ProximityTests : TestBase
 
         var results = await context
             .Products.Where(p =>
-                EF.Functions.Match(p.Description, Pdb.Proximity("sleek").WithinOrdered(1, "shoes"))
+                EF.Functions.Match(
+                    p.Description,
+                    Pdb.Proximity("sleek").Within(1, "shoes", ordered: true)
+                )
             )
             .ToListAsync();
 
