@@ -1,14 +1,10 @@
-using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Storage;
 using ParadeDB.EntityFrameworkCore.Extensions;
 using ParadeDB.EntityFrameworkCore.Internal.Query.Expressions;
-using ParadeDB.EntityFrameworkCore.Internal.Storage;
-using ParadeDB.EntityFrameworkCore.Modifiers;
 
 namespace ParadeDB.EntityFrameworkCore.Internal.Query.Translators;
 
@@ -45,40 +41,6 @@ internal sealed class OperatorTranslator : IMethodCallTranslator
         var left = arguments[1];
         var right = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2]);
 
-        for (int i = 3; i < arguments.Count; i++)
-        {
-            right = ApplyModifier(right, arguments[i]) ?? right;
-        }
-
         return new PdbBoolExpression(left, right, operatorType.Value);
-    }
-
-    private SqlExpression? ApplyModifier(SqlExpression expression, SqlExpression modifierExpression)
-    {
-        if (modifierExpression is not SqlConstantExpression { Value: var value })
-        {
-            return expression;
-        }
-
-        RelationalTypeMapping? typeMapping = value switch
-        {
-            Fuzzy fuzzy => new PdbModifierTypeMapping<Fuzzy>(fuzzy),
-            Boost boost => new PdbModifierTypeMapping<Boost>(boost),
-            Slop slop => new PdbModifierTypeMapping<Slop>(slop),
-            Const @const => new PdbModifierTypeMapping<Const>(@const),
-            _ => null,
-        };
-
-        if (typeMapping is null)
-        {
-            return expression;
-        }
-
-        return _sqlExpressionFactory.MakeUnary(
-            ExpressionType.Convert,
-            expression,
-            typeMapping.ClrType,
-            typeMapping
-        );
     }
 }

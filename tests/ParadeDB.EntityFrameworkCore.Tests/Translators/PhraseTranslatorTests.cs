@@ -77,7 +77,7 @@ public sealed class PhraseTranslatorTests
         using var context = new TestDbContext();
 
         var sql = context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, "running shoes", Pdb.Boost(2)))
+            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Boost("running shoes", 2)))
             .ToQueryString();
 
         sql.ShouldContain("p.description ### 'running shoes'::pdb.boost(2)");
@@ -91,7 +91,7 @@ public sealed class PhraseTranslatorTests
         string searchTerm = "running shoes";
 
         var sql = context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, searchTerm, Pdb.Boost(2)))
+            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Boost(searchTerm, 2)))
             .ToQueryString();
 
         sql.ShouldMatch(
@@ -109,7 +109,7 @@ public sealed class PhraseTranslatorTests
         string[] searchTerms = ["running", "shoes"];
 
         var sql = context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, searchTerms, Pdb.Boost(2)))
+            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Boost(searchTerms, 2)))
             .ToQueryString();
 
         sql.ShouldMatch(
@@ -126,7 +126,7 @@ public sealed class PhraseTranslatorTests
 
         var sql = context
             .Products.Where(p =>
-                EF.Functions.Phrase(p.Description, new[] { "running", "shoes" }, Pdb.Boost(2))
+                EF.Functions.Phrase(p.Description, Pdb.Boost(new[] { "running", "shoes" }, 2))
             )
             .ToQueryString();
 
@@ -144,7 +144,7 @@ public sealed class PhraseTranslatorTests
 
         var sql = context
             .Products.Where(p =>
-                EF.Functions.Phrase(p.Description, "running shoes", Pdb.Const(20.3f))
+                EF.Functions.Phrase(p.Description, Pdb.Const("running shoes", 20.3f))
             )
             .ToQueryString();
 
@@ -159,7 +159,7 @@ public sealed class PhraseTranslatorTests
         string searchTerm = "running shoes";
 
         var sql = context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, searchTerm, Pdb.Const(20.3f)))
+            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Const(searchTerm, 20.3f)))
             .ToQueryString();
 
         sql.ShouldMatch(
@@ -177,7 +177,7 @@ public sealed class PhraseTranslatorTests
         string[] searchTerms = ["running", "shoes"];
 
         var sql = context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, searchTerms, Pdb.Const(20.3f)))
+            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Const(searchTerms, 20.3f)))
             .ToQueryString();
 
         sql.ShouldMatch(
@@ -194,7 +194,7 @@ public sealed class PhraseTranslatorTests
 
         var sql = context
             .Products.Where(p =>
-                EF.Functions.Phrase(p.Description, new[] { "running", "shoes" }, Pdb.Const(20.3f))
+                EF.Functions.Phrase(p.Description, Pdb.Const(new[] { "running", "shoes" }, 20.3f))
             )
             .ToQueryString();
 
@@ -211,7 +211,7 @@ public sealed class PhraseTranslatorTests
         using var context = new TestDbContext();
 
         var sql = context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, "running shoes", Pdb.Slop(2)))
+            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Slop("running shoes", 2)))
             .ToQueryString();
 
         sql.ShouldContain("p.description ### 'running shoes'::pdb.slop(2)");
@@ -225,7 +225,7 @@ public sealed class PhraseTranslatorTests
         string searchTerm = "running shoes";
 
         var sql = context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, searchTerm, Pdb.Slop(2)))
+            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Slop(searchTerm, 2)))
             .ToQueryString();
 
         sql.ShouldMatch(
@@ -243,7 +243,7 @@ public sealed class PhraseTranslatorTests
         string[] searchTerms = ["running", "shoes"];
 
         var sql = context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, searchTerms, Pdb.Slop(2)))
+            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Slop(searchTerms, 2)))
             .ToQueryString();
 
         sql.ShouldMatch("""p\.description ### @\w+::pdb\.slop\(2\)""");
@@ -256,7 +256,7 @@ public sealed class PhraseTranslatorTests
 
         var sql = context
             .Products.Where(p =>
-                EF.Functions.Phrase(p.Description, new[] { "running", "shoes" }, Pdb.Slop(2))
+                EF.Functions.Phrase(p.Description, Pdb.Slop(new[] { "running", "shoes" }, 2))
             )
             .ToQueryString();
 

@@ -9,6 +9,7 @@ internal sealed class ParadeDbMethodCallTranslatorPlugin : IMethodCallTranslator
     {
         Translators =
         [
+            new ModifierTranslator(sqlExpressionFactory),
             new OperatorTranslator(sqlExpressionFactory),
             new ScoreTranslator(sqlExpressionFactory),
             new SnippetTranslator(sqlExpressionFactory),

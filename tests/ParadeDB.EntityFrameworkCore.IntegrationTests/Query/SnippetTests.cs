@@ -123,7 +123,7 @@ public sealed class SnippetTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var results = await context
-            .Products.Where(p => EF.Functions.MatchDisjunction(p.Description, "your", Pdb.Fuzzy(2)))
+            .Products.Where(p => EF.Functions.MatchDisjunction(p.Description, Pdb.Fuzzy("your", 2)))
             .Select(p => new { p.Id, Description = EF.Functions.Snippet(p.Description) })
             .ToListAsync();
 
