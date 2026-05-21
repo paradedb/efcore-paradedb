@@ -76,11 +76,27 @@ jobs:
           dotnet test --project tests/ParadeDB.EntityFrameworkCore.Tests/ParadeDB.EntityFrameworkCore.Tests.csproj \
             --no-build \
             --configuration Release \
-            --framework ${{ matrix.framework }}
+            --framework ${{ matrix.framework }} \
+            --results-directory TestResults/${{ matrix.framework }}/unit \
+            --coverlet \
+            --coverlet-output-format cobertura
 
       - name: Test integration
         run: |
           dotnet test --project tests/ParadeDB.EntityFrameworkCore.IntegrationTests/ParadeDB.EntityFrameworkCore.IntegrationTests.csproj \
             --no-build \
             --configuration Release \
-            --framework ${{ matrix.framework }}
+            --framework ${{ matrix.framework }} \
+            --results-directory TestResults/${{ matrix.framework }}/integration \
+            --coverlet \
+            --coverlet-output-format cobertura
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v6
+        with:
+          directory: TestResults/${{ matrix.framework }}
+          flags: ${{ matrix.framework }}
+          fail_ci_if_error: false
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
