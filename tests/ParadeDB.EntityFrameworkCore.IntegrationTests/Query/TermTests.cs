@@ -50,7 +50,7 @@ public sealed class TermTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var results = await context
-            .Products.Where(p => EF.Functions.Term(p.Description, "rich", Pdb.Fuzzy(2)))
+            .Products.Where(p => EF.Functions.Term(p.Description, Pdb.Fuzzy("rich", 2)))
             .ToListAsync();
 
         results.ShouldNotBeNull();
@@ -63,7 +63,7 @@ public sealed class TermTests : TestBase
 
         var results = await context
             .Products.Where(p =>
-                EF.Functions.Term(p.Description, new[] { "rich", "cream" }, Pdb.Fuzzy(2))
+                EF.Functions.Term(p.Description, Pdb.Fuzzy(new[] { "rich", "cream" }, 2))
             )
             .ToListAsync();
 
@@ -78,7 +78,7 @@ public sealed class TermTests : TestBase
         string[] terms = ["rich", "cream"];
 
         var results = await context
-            .Products.Where(p => EF.Functions.Term(p.Description, terms, Pdb.Fuzzy(2)))
+            .Products.Where(p => EF.Functions.Term(p.Description, Pdb.Fuzzy(terms, 2)))
             .ToListAsync();
 
         results.ShouldNotBeNull();
@@ -90,7 +90,7 @@ public sealed class TermTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var results = await context
-            .Products.Where(p => EF.Functions.Term(p.Description, "rich", Pdb.Boost(2.3f)))
+            .Products.Where(p => EF.Functions.Term(p.Description, Pdb.Boost("rich", 2.3f)))
             .ToListAsync();
 
         results.ShouldNotBeNull();
@@ -103,7 +103,7 @@ public sealed class TermTests : TestBase
 
         var results = await context
             .Products.Where(p =>
-                EF.Functions.Term(p.Description, new[] { "rich", "cream" }, Pdb.Boost(2.3f))
+                EF.Functions.Term(p.Description, Pdb.Boost(new[] { "rich", "cream" }, 2.3f))
             )
             .ToListAsync();
 
@@ -118,7 +118,7 @@ public sealed class TermTests : TestBase
         string[] terms = ["rich", "cream"];
 
         var results = await context
-            .Products.Where(p => EF.Functions.Term(p.Description, terms, Pdb.Boost(2.3f)))
+            .Products.Where(p => EF.Functions.Term(p.Description, Pdb.Boost(terms, 2.3f)))
             .ToListAsync();
 
         results.ShouldNotBeNull();
@@ -130,7 +130,7 @@ public sealed class TermTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var results = await context
-            .Products.Where(p => EF.Functions.Term(p.Description, "rich", Pdb.Const(20.3f)))
+            .Products.Where(p => EF.Functions.Term(p.Description, Pdb.Const("rich", 20.3f)))
             .ToListAsync();
 
         results.ShouldNotBeNull();
@@ -143,7 +143,7 @@ public sealed class TermTests : TestBase
 
         var results = await context
             .Products.Where(p =>
-                EF.Functions.Term(p.Description, new[] { "rich", "cream" }, Pdb.Const(20.3f))
+                EF.Functions.Term(p.Description, Pdb.Const(new[] { "rich", "cream" }, 20.3f))
             )
             .ToListAsync();
 
@@ -158,7 +158,7 @@ public sealed class TermTests : TestBase
         string[] terms = ["rich", "cream"];
 
         var results = await context
-            .Products.Where(p => EF.Functions.Term(p.Description, terms, Pdb.Const(20.3f)))
+            .Products.Where(p => EF.Functions.Term(p.Description, Pdb.Const(terms, 20.3f)))
             .ToListAsync();
 
         results.ShouldNotBeNull();
@@ -171,7 +171,7 @@ public sealed class TermTests : TestBase
 
         var results = await context
             .Products.Where(p =>
-                EF.Functions.Term(p.Description, "rich", Pdb.Fuzzy(2), Pdb.Boost(2.3f))
+                EF.Functions.Term(p.Description, Pdb.Boost(Pdb.Fuzzy("rich", 2), 2.3f))
             )
             .ToListAsync();
 

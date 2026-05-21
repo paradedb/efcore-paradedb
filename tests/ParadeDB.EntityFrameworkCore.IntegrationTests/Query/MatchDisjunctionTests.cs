@@ -53,7 +53,7 @@ public sealed class MatchDisjunctionTests : TestBase
 
         var results = await context
             .Products.Where(p =>
-                EF.Functions.MatchDisjunction(p.Description, "these", Pdb.Fuzzy(2))
+                EF.Functions.MatchDisjunction(p.Description, Pdb.Fuzzy("these", 2))
             )
             .ToListAsync();
 
@@ -69,8 +69,7 @@ public sealed class MatchDisjunctionTests : TestBase
             .Products.Where(p =>
                 EF.Functions.MatchDisjunction(
                     p.Description,
-                    new[] { "these", "shoes" },
-                    Pdb.Fuzzy(2)
+                    Pdb.Fuzzy(new[] { "these", "shoes" }, 2)
                 )
             )
             .ToListAsync();
@@ -86,7 +85,7 @@ public sealed class MatchDisjunctionTests : TestBase
         string[] terms = ["these", "shoes"];
 
         var results = await context
-            .Products.Where(p => EF.Functions.MatchDisjunction(p.Description, terms, Pdb.Fuzzy(2)))
+            .Products.Where(p => EF.Functions.MatchDisjunction(p.Description, Pdb.Fuzzy(terms, 2)))
             .ToListAsync();
 
         results.ShouldNotBeNull();
@@ -99,7 +98,7 @@ public sealed class MatchDisjunctionTests : TestBase
 
         var results = await context
             .Products.Where(p =>
-                EF.Functions.MatchDisjunction(p.Description, "these", Pdb.Boost(2.3f))
+                EF.Functions.MatchDisjunction(p.Description, Pdb.Boost("these", 2.3f))
             )
             .ToListAsync();
 
@@ -115,8 +114,7 @@ public sealed class MatchDisjunctionTests : TestBase
             .Products.Where(p =>
                 EF.Functions.MatchDisjunction(
                     p.Description,
-                    new[] { "these", "shoes" },
-                    Pdb.Boost(2.3f)
+                    Pdb.Boost(new[] { "these", "shoes" }, 2.3f)
                 )
             )
             .ToListAsync();
@@ -133,7 +131,7 @@ public sealed class MatchDisjunctionTests : TestBase
 
         var results = await context
             .Products.Where(p =>
-                EF.Functions.MatchDisjunction(p.Description, terms, Pdb.Boost(2.3f))
+                EF.Functions.MatchDisjunction(p.Description, Pdb.Boost(terms, 2.3f))
             )
             .ToListAsync();
 
@@ -147,7 +145,7 @@ public sealed class MatchDisjunctionTests : TestBase
 
         var results = await context
             .Products.Where(p =>
-                EF.Functions.MatchDisjunction(p.Description, "these", Pdb.Const(20.3f))
+                EF.Functions.MatchDisjunction(p.Description, Pdb.Const("these", 20.3f))
             )
             .ToListAsync();
 
@@ -163,8 +161,7 @@ public sealed class MatchDisjunctionTests : TestBase
             .Products.Where(p =>
                 EF.Functions.MatchDisjunction(
                     p.Description,
-                    new[] { "these", "shoes" },
-                    Pdb.Const(20.3f)
+                    Pdb.Const(new[] { "these", "shoes" }, 20.3f)
                 )
             )
             .ToListAsync();
@@ -181,7 +178,7 @@ public sealed class MatchDisjunctionTests : TestBase
 
         var results = await context
             .Products.Where(p =>
-                EF.Functions.MatchDisjunction(p.Description, terms, Pdb.Const(20.3f))
+                EF.Functions.MatchDisjunction(p.Description, Pdb.Const(terms, 20.3f))
             )
             .ToListAsync();
 
@@ -195,7 +192,7 @@ public sealed class MatchDisjunctionTests : TestBase
 
         var results = await context
             .Products.Where(p =>
-                EF.Functions.MatchDisjunction(p.Description, "these", Pdb.Fuzzy(2), Pdb.Boost(2.3f))
+                EF.Functions.MatchDisjunction(p.Description, Pdb.Boost(Pdb.Fuzzy("these", 2), 2.3f))
             )
             .ToListAsync();
 

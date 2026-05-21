@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
-using ParadeDB.EntityFrameworkCore.Modifiers;
 
 namespace ParadeDB.EntityFrameworkCore.Extensions;
 
@@ -26,70 +25,6 @@ public static class ParadeDbFunctionsExtensions
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchDisjunction)));
 
     [DbFunction]
-    public static bool MatchDisjunction<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value,
-        [NotParameterized] Fuzzy fuzzy
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchDisjunction)));
-
-    [DbFunction]
-    public static bool MatchDisjunction<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string[] values,
-        [NotParameterized] Fuzzy fuzzy
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchDisjunction)));
-
-    [DbFunction]
-    public static bool MatchDisjunction<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value,
-        [NotParameterized] Boost boost
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchDisjunction)));
-
-    [DbFunction]
-    public static bool MatchDisjunction<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string[] values,
-        [NotParameterized] Boost boost
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchDisjunction)));
-
-    [DbFunction]
-    public static bool MatchDisjunction<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value,
-        [NotParameterized] Const @const
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchDisjunction)));
-
-    [DbFunction]
-    public static bool MatchDisjunction<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string[] values,
-        [NotParameterized] Const @const
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchDisjunction)));
-
-    [DbFunction]
-    public static bool MatchDisjunction<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value,
-        [NotParameterized] Fuzzy fuzzy,
-        [NotParameterized] Boost boost
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchDisjunction)));
-
-    [DbFunction]
     public static bool MatchConjunction<TProperty>(
         this DbFunctions _,
         TProperty property,
@@ -106,70 +41,6 @@ public static class ParadeDbFunctionsExtensions
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchConjunction)));
 
     [DbFunction]
-    public static bool MatchConjunction<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value,
-        [NotParameterized] Fuzzy fuzzy
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchConjunction)));
-
-    [DbFunction]
-    public static bool MatchConjunction<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string[] values,
-        [NotParameterized] Fuzzy fuzzy
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchConjunction)));
-
-    [DbFunction]
-    public static bool MatchConjunction<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value,
-        [NotParameterized] Boost boost
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchConjunction)));
-
-    [DbFunction]
-    public static bool MatchConjunction<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string[] values,
-        [NotParameterized] Boost boost
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchConjunction)));
-
-    [DbFunction]
-    public static bool MatchConjunction<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value,
-        [NotParameterized] Const @const
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchConjunction)));
-
-    [DbFunction]
-    public static bool MatchConjunction<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string[] values,
-        [NotParameterized] Const @const
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchConjunction)));
-
-    [DbFunction]
-    public static bool MatchConjunction<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value,
-        [NotParameterized] Fuzzy fuzzy,
-        [NotParameterized] Boost boost
-    ) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchConjunction)));
-
-    [DbFunction]
     public static bool Phrase<TProperty>(this DbFunctions _, TProperty property, string value) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Phrase)));
 
@@ -178,117 +49,12 @@ public static class ParadeDbFunctionsExtensions
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Phrase)));
 
     [DbFunction]
-    public static bool Phrase<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value,
-        [NotParameterized] Boost boost
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Phrase)));
-
-    [DbFunction]
-    public static bool Phrase<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string[] values,
-        [NotParameterized] Boost boost
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Phrase)));
-
-    [DbFunction]
-    public static bool Phrase<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value,
-        [NotParameterized] Const @const
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Phrase)));
-
-    [DbFunction]
-    public static bool Phrase<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string[] values,
-        [NotParameterized] Const @const
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Phrase)));
-
-    [DbFunction]
-    public static bool Phrase<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value,
-        [NotParameterized] Slop slop
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Phrase)));
-
-    [DbFunction]
-    public static bool Phrase<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string[] values,
-        [NotParameterized] Slop slop
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Phrase)));
-
-    [DbFunction]
     public static bool Term<TProperty>(this DbFunctions _, TProperty property, string value) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Term)));
 
     [DbFunction]
     public static bool Term<TProperty>(this DbFunctions _, TProperty property, string[] values) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Term)));
-
-    [DbFunction]
-    public static bool Term<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value,
-        [NotParameterized] Fuzzy fuzzy
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Term)));
-
-    [DbFunction]
-    public static bool Term<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string[] values,
-        [NotParameterized] Fuzzy fuzzy
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Term)));
-
-    [DbFunction]
-    public static bool Term<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value,
-        [NotParameterized] Boost boost
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Term)));
-
-    [DbFunction]
-    public static bool Term<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string[] values,
-        [NotParameterized] Boost boost
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Term)));
-
-    [DbFunction]
-    public static bool Term<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value,
-        [NotParameterized] Const @const
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Term)));
-
-    [DbFunction]
-    public static bool Term<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string[] values,
-        [NotParameterized] Const @const
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Term)));
-
-    [DbFunction]
-    public static bool Term<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string value,
-        [NotParameterized] Fuzzy fuzzy,
-        [NotParameterized] Boost boost
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Term)));
 
     [DbFunction]
     public static float Score<TProperty>(this DbFunctions _, TProperty property) =>

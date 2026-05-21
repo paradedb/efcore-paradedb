@@ -50,7 +50,7 @@ public sealed class PhraseTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var results = await context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, "with", Pdb.Boost(2.5f)))
+            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Boost("with", 2.5f)))
             .ToListAsync();
 
         results.ShouldNotBeNull();
@@ -63,7 +63,7 @@ public sealed class PhraseTests : TestBase
 
         var results = await context
             .Products.Where(p =>
-                EF.Functions.Phrase(p.Description, new[] { "these", "shoes" }, Pdb.Boost(2.5f))
+                EF.Functions.Phrase(p.Description, Pdb.Boost(new[] { "these", "shoes" }, 2.5f))
             )
             .ToListAsync();
 
@@ -78,7 +78,7 @@ public sealed class PhraseTests : TestBase
         string[] terms = ["these", "shoes"];
 
         var results = await context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, terms, Pdb.Boost(2.5f)))
+            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Boost(terms, 2.5f)))
             .ToListAsync();
 
         results.ShouldNotBeNull();
@@ -90,7 +90,7 @@ public sealed class PhraseTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var results = await context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, "with", Pdb.Const(20.3f)))
+            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Const("with", 20.3f)))
             .ToListAsync();
 
         results.ShouldNotBeNull();
@@ -103,7 +103,7 @@ public sealed class PhraseTests : TestBase
 
         var results = await context
             .Products.Where(p =>
-                EF.Functions.Phrase(p.Description, new[] { "these", "shoes" }, Pdb.Const(20.3f))
+                EF.Functions.Phrase(p.Description, Pdb.Const(new[] { "these", "shoes" }, 20.3f))
             )
             .ToListAsync();
 
@@ -118,7 +118,7 @@ public sealed class PhraseTests : TestBase
         string[] terms = ["these", "shoes"];
 
         var results = await context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, terms, Pdb.Const(20.3f)))
+            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Const(terms, 20.3f)))
             .ToListAsync();
 
         results.ShouldNotBeNull();
@@ -130,7 +130,7 @@ public sealed class PhraseTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var results = await context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, "with", Pdb.Slop(2)))
+            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Slop("with", 2)))
             .ToListAsync();
 
         results.ShouldNotBeNull();
@@ -143,7 +143,7 @@ public sealed class PhraseTests : TestBase
 
         var results = await context
             .Products.Where(p =>
-                EF.Functions.Phrase(p.Description, new[] { "these", "shoes" }, Pdb.Slop(2))
+                EF.Functions.Phrase(p.Description, Pdb.Slop(new[] { "these", "shoes" }, 2))
             )
             .ToListAsync();
 
@@ -158,7 +158,7 @@ public sealed class PhraseTests : TestBase
         string[] terms = ["these", "shoes"];
 
         var results = await context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, terms, Pdb.Slop(2)))
+            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Slop(terms, 2)))
             .ToListAsync();
 
         results.ShouldNotBeNull();
