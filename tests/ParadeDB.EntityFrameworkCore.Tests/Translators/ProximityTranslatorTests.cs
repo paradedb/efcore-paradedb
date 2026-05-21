@@ -28,7 +28,10 @@ public sealed class ProximityTranslatorTests
 
         var sql = context
             .Products.Where(p =>
-                EF.Functions.Match(p.Description, Pdb.Proximity("sleek").WithinOrdered(1, "shoes"))
+                EF.Functions.Match(
+                    p.Description,
+                    Pdb.Proximity("sleek").Within(1, "shoes", ordered: true)
+                )
             )
             .ToQueryString();
 
@@ -70,7 +73,7 @@ public sealed class ProximityTranslatorTests
             .Products.Where(p =>
                 EF.Functions.Match(
                     p.Description,
-                    Pdb.Proximity(left).WithinOrdered(distance, right)
+                    Pdb.Proximity(left).Within(distance, right, ordered: true)
                 )
             )
             .ToQueryString();
