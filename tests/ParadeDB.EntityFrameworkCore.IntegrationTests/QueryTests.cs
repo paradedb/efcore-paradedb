@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using ParadeDB.EntityFrameworkCore.Extensions;
 using Shouldly;
@@ -6,16 +7,31 @@ namespace ParadeDB.EntityFrameworkCore.IntegrationTests.Query;
 
 public sealed class MatchAllTests : TestBase
 {
+    private static void AssertSql(IQueryable query, string expected) =>
+        NormalizeSql(query.ToQueryString()).ShouldBe(NormalizeSql(expected));
+
+    private static string NormalizeSql(string sql) =>
+        Regex.Replace(
+            Regex.Replace(sql.ReplaceLineEndings("\n"), @"@__(\w+?)_\d+", "@$1"),
+            "(?m)(^-- .+\n)\n(?=SELECT)",
+            "$1"
+        );
+
     [Test]
     public async Task MatchAll_ExecutesSuccessfully()
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p => EF.Functions.MatchAll(p.Description, "these"))
-            .ToListAsync();
+        var query = context.Products.Where(p => EF.Functions.MatchAll(p.Description, "these"));
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description &&& 'these'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -23,11 +39,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p => EF.Functions.MatchAll(p.Description, new[] { "these", "shoes" }))
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.MatchAll(p.Description, new[] { "these", "shoes" })
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description &&& ARRAY['these','shoes']::text[]
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -37,11 +60,17 @@ public sealed class MatchAllTests : TestBase
 
         string[] terms = ["these", "shoes"];
 
-        var results = await context
-            .Products.Where(p => EF.Functions.MatchAll(p.Description, terms))
-            .ToListAsync();
+        var query = context.Products.Where(p => EF.Functions.MatchAll(p.Description, terms));
 
-        results.ShouldNotBeNull();
+        var sql = """
+            -- @terms={ 'these', 'shoes' } (DbType = Object)
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description &&& @terms
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -49,11 +78,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p => EF.Functions.MatchAll(p.Description, Pdb.Fuzzy("these", 2)))
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.MatchAll(p.Description, Pdb.Fuzzy("these", 2))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description &&& 'these'::pdb.fuzzy(2)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -61,13 +97,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p =>
-                EF.Functions.MatchAll(p.Description, Pdb.Fuzzy(new[] { "these", "shoes" }, 2))
-            )
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.MatchAll(p.Description, Pdb.Fuzzy(new[] { "these", "shoes" }, 2))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description &&& ARRAY['these','shoes']::text[]::pdb.fuzzy(2)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -77,11 +118,19 @@ public sealed class MatchAllTests : TestBase
 
         string[] terms = ["these", "shoes"];
 
-        var results = await context
-            .Products.Where(p => EF.Functions.MatchAll(p.Description, Pdb.Fuzzy(terms, 2)))
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.MatchAll(p.Description, Pdb.Fuzzy(terms, 2))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            -- @terms={ 'these', 'shoes' } (DbType = Object)
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description &&& @terms::pdb.fuzzy(2)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -89,11 +138,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p => EF.Functions.MatchAll(p.Description, Pdb.Boost("these", 2.3f)))
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.MatchAll(p.Description, Pdb.Boost("these", 2.3f))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description &&& 'these'::pdb.boost(2.3)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -101,13 +157,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p =>
-                EF.Functions.MatchAll(p.Description, Pdb.Boost(new[] { "these", "shoes" }, 2.3f))
-            )
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.MatchAll(p.Description, Pdb.Boost(new[] { "these", "shoes" }, 2.3f))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description &&& ARRAY['these','shoes']::text[]::pdb.boost(2.3)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -117,11 +178,19 @@ public sealed class MatchAllTests : TestBase
 
         string[] terms = ["these", "shoes"];
 
-        var results = await context
-            .Products.Where(p => EF.Functions.MatchAll(p.Description, Pdb.Boost(terms, 2.3f)))
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.MatchAll(p.Description, Pdb.Boost(terms, 2.3f))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            -- @terms={ 'these', 'shoes' } (DbType = Object)
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description &&& @terms::pdb.boost(2.3)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -129,11 +198,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p => EF.Functions.MatchAll(p.Description, Pdb.Const("these", 20.3f)))
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.MatchAll(p.Description, Pdb.Const("these", 20.3f))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description &&& 'these'::pdb.const(20.3)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -141,13 +217,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p =>
-                EF.Functions.MatchAll(p.Description, Pdb.Const(new[] { "these", "shoes" }, 20.3f))
-            )
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.MatchAll(p.Description, Pdb.Const(new[] { "these", "shoes" }, 20.3f))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description &&& ARRAY['these','shoes']::text[]::pdb.const(20.3)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -157,11 +238,19 @@ public sealed class MatchAllTests : TestBase
 
         string[] terms = ["these", "shoes"];
 
-        var results = await context
-            .Products.Where(p => EF.Functions.MatchAll(p.Description, Pdb.Const(terms, 20.3f)))
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.MatchAll(p.Description, Pdb.Const(terms, 20.3f))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            -- @terms={ 'these', 'shoes' } (DbType = Object)
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description &&& @terms::pdb.const(20.3)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -169,13 +258,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p =>
-                EF.Functions.MatchAll(p.Description, Pdb.Boost(Pdb.Fuzzy("these", 2), 2.3f))
-            )
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.MatchAll(p.Description, Pdb.Boost(Pdb.Fuzzy("these", 2), 2.3f))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description &&& 'these'::pdb.fuzzy(2)::pdb.boost(2.3)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -183,11 +277,16 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p => EF.Functions.MatchAny(p.Description, "these"))
-            .ToListAsync();
+        var query = context.Products.Where(p => EF.Functions.MatchAny(p.Description, "these"));
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description ||| 'these'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -195,11 +294,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p => EF.Functions.MatchAny(p.Description, new[] { "these", "shoes" }))
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.MatchAny(p.Description, new[] { "these", "shoes" })
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description ||| ARRAY['these','shoes']::text[]
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -209,11 +315,17 @@ public sealed class MatchAllTests : TestBase
 
         string[] terms = ["these", "shoes"];
 
-        var results = await context
-            .Products.Where(p => EF.Functions.MatchAny(p.Description, terms))
-            .ToListAsync();
+        var query = context.Products.Where(p => EF.Functions.MatchAny(p.Description, terms));
 
-        results.ShouldNotBeNull();
+        var sql = """
+            -- @terms={ 'these', 'shoes' } (DbType = Object)
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description ||| @terms
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -221,11 +333,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p => EF.Functions.MatchAny(p.Description, Pdb.Const("these", 20.3f)))
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.MatchAny(p.Description, Pdb.Const("these", 20.3f))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description ||| 'these'::pdb.const(20.3)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -233,11 +352,16 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, "with"))
-            .ToListAsync();
+        var query = context.Products.Where(p => EF.Functions.Phrase(p.Description, "with"));
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description ### 'with'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -245,11 +369,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, new[] { "these", "shoes" }))
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.Phrase(p.Description, new[] { "these", "shoes" })
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description ### ARRAY['these','shoes']::text[]
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -259,11 +390,17 @@ public sealed class MatchAllTests : TestBase
 
         string[] terms = ["these", "shoes"];
 
-        var results = await context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, terms))
-            .ToListAsync();
+        var query = context.Products.Where(p => EF.Functions.Phrase(p.Description, terms));
 
-        results.ShouldNotBeNull();
+        var sql = """
+            -- @terms={ 'these', 'shoes' } (DbType = Object)
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description ### @terms
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -271,11 +408,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Boost("with", 2.5f)))
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.Phrase(p.Description, Pdb.Boost("with", 2.5f))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description ### 'with'::pdb.boost(2.5)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -283,11 +427,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Slop("with", 2)))
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.Phrase(p.Description, Pdb.Slop("with", 2))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description ### 'with'::pdb.slop(2)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -295,13 +446,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p =>
-                EF.Functions.Phrase(p.Description, Pdb.Slop(new[] { "these", "shoes" }, 2))
-            )
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.Phrase(p.Description, Pdb.Slop(new[] { "these", "shoes" }, 2))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description ### ARRAY['these','shoes']::text[]::pdb.slop(2)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -311,11 +467,19 @@ public sealed class MatchAllTests : TestBase
 
         string[] terms = ["these", "shoes"];
 
-        var results = await context
-            .Products.Where(p => EF.Functions.Phrase(p.Description, Pdb.Slop(terms, 2)))
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.Phrase(p.Description, Pdb.Slop(terms, 2))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            -- @terms={ 'these', 'shoes' } (DbType = Object)
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description ### @terms::pdb.slop(2)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -323,13 +487,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p =>
-                EF.Functions.Match(p.Description, Pdb.Proximity("sleek").Within(1, "shoes"))
-            )
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.Match(p.Description, Pdb.Proximity("sleek").Within(1, "shoes"))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description @@@ (('sleek' ## 1) ## 'shoes')
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -337,16 +506,21 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p =>
-                EF.Functions.Match(
-                    p.Description,
-                    Pdb.Proximity("sleek").Within(1, "shoes", ordered: true)
-                )
+        var query = context.Products.Where(p =>
+            EF.Functions.Match(
+                p.Description,
+                Pdb.Proximity("sleek").Within(1, "shoes", ordered: true)
             )
-            .ToListAsync();
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description @@@ (('sleek' ##> 1) ##> 'shoes')
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -358,13 +532,21 @@ public sealed class MatchAllTests : TestBase
         string right = "shoes";
         int distance = 1;
 
-        var results = await context
-            .Products.Where(p =>
-                EF.Functions.Match(p.Description, Pdb.Proximity(left).Within(distance, right))
-            )
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.Match(p.Description, Pdb.Proximity(left).Within(distance, right))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            -- @left='sleek'
+            -- @distance='1'
+            -- @right='shoes'
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description @@@ ((@left ## @distance) ## @right)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -372,13 +554,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p =>
-                EF.Functions.Match(p.Description, Pdb.ProximityRegex("sl.*").Within(1, "shoes"))
-            )
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.Match(p.Description, Pdb.ProximityRegex("sl.*").Within(1, "shoes"))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description @@@ ((pdb.prox_regex('sl.*') ## 1) ## 'shoes')
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -388,13 +575,19 @@ public sealed class MatchAllTests : TestBase
 
         string pattern = "sl.*";
 
-        var results = await context
-            .Products.Where(p =>
-                EF.Functions.Match(p.Description, Pdb.ProximityRegex(pattern).Within(1, "shoes"))
-            )
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.Match(p.Description, Pdb.ProximityRegex(pattern).Within(1, "shoes"))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            -- @pattern='sl.*'
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description @@@ ((pdb.prox_regex(@pattern) ## 1) ## 'shoes')
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -402,16 +595,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p =>
-                EF.Functions.Match(
-                    p.Description,
-                    Pdb.ProximityRegex("sl.*", 100).Within(1, "shoes")
-                )
-            )
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.Match(p.Description, Pdb.ProximityRegex("sl.*", 100).Within(1, "shoes"))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description @@@ ((pdb.prox_regex('sl.*', 100) ## 1) ## 'shoes')
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -419,16 +614,21 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p =>
-                EF.Functions.Match(
-                    p.Description,
-                    Pdb.ProximityArray("sleek", "white").Within(1, "shoes")
-                )
+        var query = context.Products.Where(p =>
+            EF.Functions.Match(
+                p.Description,
+                Pdb.ProximityArray("sleek", "white").Within(1, "shoes")
             )
-            .ToListAsync();
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description @@@ ((pdb.prox_array('sleek', 'white') ## 1) ## 'shoes')
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -439,13 +639,20 @@ public sealed class MatchAllTests : TestBase
         string t1 = "sleek";
         string t2 = "white";
 
-        var results = await context
-            .Products.Where(p =>
-                EF.Functions.Match(p.Description, Pdb.ProximityArray(t1, t2).Within(1, "shoes"))
-            )
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.Match(p.Description, Pdb.ProximityArray(t1, t2).Within(1, "shoes"))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            -- @t1='sleek'
+            -- @t2='white'
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description @@@ ((pdb.prox_array(@t1, @t2) ## 1) ## 'shoes')
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -453,17 +660,22 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p =>
-                EF.Functions.Match(
-                    p.Description,
-                    Pdb.ProximityArray(Pdb.ProximityRegex("sl.*"), Pdb.ProximityArray("white"))
-                        .Within(1, "shoes")
-                )
+        var query = context.Products.Where(p =>
+            EF.Functions.Match(
+                p.Description,
+                Pdb.ProximityArray(Pdb.ProximityRegex("sl.*"), Pdb.ProximityArray("white"))
+                    .Within(1, "shoes")
             )
-            .ToListAsync();
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description @@@ ((pdb.prox_array(pdb.prox_regex('sl.*'), pdb.prox_array('white')) ## 1) ## 'shoes')
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -471,16 +683,21 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p =>
-                EF.Functions.Match(
-                    p.Description,
-                    Pdb.Proximity("sleek").Within(1, "running").Within(2, "shoes")
-                )
+        var query = context.Products.Where(p =>
+            EF.Functions.Match(
+                p.Description,
+                Pdb.Proximity("sleek").Within(1, "running").Within(2, "shoes")
             )
-            .ToListAsync();
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description @@@ (((('sleek' ## 1) ## 'running') ## 2) ## 'shoes')
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -488,17 +705,23 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
+        var query = context
             .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
             .Select(p => new
             {
                 p.Id,
                 p.Name,
                 Score = EF.Functions.Score(p.Description),
-            })
-            .ToListAsync();
+            });
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id AS "Id", p.name AS "Name", pdb.score(p.description) AS "Score"
+            FROM products AS p
+            WHERE p.description === 'rich'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -506,12 +729,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
+        var query = context
             .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
-            .Select(p => EF.Functions.Snippet(p.Description))
-            .ToListAsync();
+            .Select(p => EF.Functions.Snippet(p.Description));
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT pdb.snippet(p.description)
+            FROM products AS p
+            WHERE p.description === 'rich'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -519,12 +748,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
+        var query = context
             .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
-            .Select(p => EF.Functions.Snippet(p.Description, 50))
-            .ToListAsync();
+            .Select(p => EF.Functions.Snippet(p.Description, 50));
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT pdb.snippet(p.description, '<b>', '</b>', 50)
+            FROM products AS p
+            WHERE p.description === 'rich'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -534,12 +769,19 @@ public sealed class MatchAllTests : TestBase
 
         int maxNumChars = 50;
 
-        var results = await context
+        var query = context
             .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
-            .Select(p => EF.Functions.Snippet(p.Description, maxNumChars))
-            .ToListAsync();
+            .Select(p => EF.Functions.Snippet(p.Description, maxNumChars));
 
-        results.ShouldNotBeNull();
+        var sql = """
+            -- @maxNumChars='50'
+            SELECT pdb.snippet(p.description, '<b>', '</b>', @maxNumChars)
+            FROM products AS p
+            WHERE p.description === 'rich'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -547,12 +789,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
+        var query = context
             .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
-            .Select(p => EF.Functions.Snippet(p.Description, "<a>", "</a>"))
-            .ToListAsync();
+            .Select(p => EF.Functions.Snippet(p.Description, "<a>", "</a>"));
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT pdb.snippet(p.description, '<a>', '</a>')
+            FROM products AS p
+            WHERE p.description === 'rich'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -563,12 +811,20 @@ public sealed class MatchAllTests : TestBase
         string startTag = "<a>";
         string endTag = "</a>";
 
-        var results = await context
+        var query = context
             .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
-            .Select(p => EF.Functions.Snippet(p.Description, startTag, endTag))
-            .ToListAsync();
+            .Select(p => EF.Functions.Snippet(p.Description, startTag, endTag));
 
-        results.ShouldNotBeNull();
+        var sql = """
+            -- @startTag='<a>'
+            -- @endTag='</a>'
+            SELECT pdb.snippet(p.description, @startTag, @endTag)
+            FROM products AS p
+            WHERE p.description === 'rich'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -576,12 +832,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
+        var query = context
             .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
-            .Select(p => EF.Functions.Snippet(p.Description, "<a>", "</a>", 50))
-            .ToListAsync();
+            .Select(p => EF.Functions.Snippet(p.Description, "<a>", "</a>", 50));
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT pdb.snippet(p.description, '<a>', '</a>', 50)
+            FROM products AS p
+            WHERE p.description === 'rich'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -593,12 +855,21 @@ public sealed class MatchAllTests : TestBase
         string endTag = "</a>";
         int maxNumChars = 50;
 
-        var results = await context
+        var query = context
             .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
-            .Select(p => EF.Functions.Snippet(p.Description, startTag, endTag, maxNumChars))
-            .ToListAsync();
+            .Select(p => EF.Functions.Snippet(p.Description, startTag, endTag, maxNumChars));
 
-        results.ShouldNotBeNull();
+        var sql = """
+            -- @startTag='<a>'
+            -- @endTag='</a>'
+            -- @maxNumChars='50'
+            SELECT pdb.snippet(p.description, @startTag, @endTag, @maxNumChars)
+            FROM products AS p
+            WHERE p.description === 'rich'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -606,10 +877,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
+        var query = context
             .Products.Where(p => EF.Functions.MatchAny(p.Description, Pdb.Fuzzy("your", 2)))
-            .Select(p => new { p.Id, Description = EF.Functions.Snippet(p.Description) })
-            .ToListAsync();
+            .Select(p => new { p.Id, Description = EF.Functions.Snippet(p.Description) });
+
+        var sql = """
+            SELECT p.id AS "Id", pdb.snippet(p.description) AS "Description"
+            FROM products AS p
+            WHERE p.description ||| 'your'::pdb.fuzzy(2)
+            """;
+
+        AssertSql(query, sql);
+        var results = await query.ToListAsync();
 
         results.ShouldAllBe(r => r.Description == null);
     }
@@ -619,11 +898,16 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
-            .ToListAsync();
+        var query = context.Products.Where(p => EF.Functions.Term(p.Description, "rich"));
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description === 'rich'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -631,11 +915,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p => EF.Functions.Term(p.Description, new[] { "rich", "cream" }))
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.Term(p.Description, new[] { "rich", "cream" })
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description === ARRAY['rich','cream']::text[]
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -645,11 +936,17 @@ public sealed class MatchAllTests : TestBase
 
         string[] terms = ["rich", "cream"];
 
-        var results = await context
-            .Products.Where(p => EF.Functions.Term(p.Description, terms))
-            .ToListAsync();
+        var query = context.Products.Where(p => EF.Functions.Term(p.Description, terms));
 
-        results.ShouldNotBeNull();
+        var sql = """
+            -- @terms={ 'rich', 'cream' } (DbType = Object)
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description === @terms
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -657,11 +954,18 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
-            .Products.Where(p => EF.Functions.Term(p.Description, Pdb.Fuzzy("rich", 2)))
-            .ToListAsync();
+        var query = context.Products.Where(p =>
+            EF.Functions.Term(p.Description, Pdb.Fuzzy("rich", 2))
+        );
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description === 'rich'::pdb.fuzzy(2)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -669,17 +973,23 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var results = await context
+        var query = context
             .Items.Where(p =>
                 EF.Functions.MatchAny(
                     EF.Functions.Alias(p.Description, "description_simple"),
                     "sleek"
                 )
             )
-            .Select(p => p.Description)
-            .ToListAsync();
+            .Select(p => p.Description);
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT i.description
+            FROM items AS i
+            WHERE i.description::pdb.alias('description_simple') ||| 'sleek'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 
     [Test]
@@ -689,13 +999,19 @@ public sealed class MatchAllTests : TestBase
 
         string aliasName = "description_simple";
 
-        var results = await context
+        var query = context
             .Items.Where(p =>
                 EF.Functions.MatchAny(EF.Functions.Alias(p.Description, aliasName), "sleek")
             )
-            .Select(p => p.Description)
-            .ToListAsync();
+            .Select(p => p.Description);
 
-        results.ShouldNotBeNull();
+        var sql = """
+            SELECT i.description
+            FROM items AS i
+            WHERE i.description::pdb.alias('description_simple') ||| 'sleek'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
     }
 }
