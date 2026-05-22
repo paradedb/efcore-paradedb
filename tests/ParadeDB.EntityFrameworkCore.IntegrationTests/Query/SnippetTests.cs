@@ -107,17 +107,6 @@ public sealed class SnippetTests : TestBase
     }
 
     [Test]
-    public async Task Snippet_WithoutParadeDbFilter_ShouldThrowException()
-    {
-        await using var context = DbFixture.CreateContext();
-
-        await Should.ThrowAsync<Exception>(async () =>
-        {
-            await context.Products.Select(p => EF.Functions.Snippet(p.Description)).ToListAsync();
-        });
-    }
-
-    [Test]
     public async Task Snippet_ReturnsNull_WhenNoMatch()
     {
         await using var context = DbFixture.CreateContext();

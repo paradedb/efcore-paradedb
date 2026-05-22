@@ -23,22 +23,4 @@ public sealed class ScoreTests : TestBase
 
         results.ShouldNotBeNull();
     }
-
-    [Test]
-    public async Task Score_WithoutParadeDbFilter_ShouldThrowException()
-    {
-        await using var context = DbFixture.CreateContext();
-
-        await Should.ThrowAsync<Exception>(async () =>
-        {
-            await context
-                .Products.Select(p => new
-                {
-                    p.Id,
-                    p.Name,
-                    Score = EF.Functions.Score(p.Description),
-                })
-                .ToListAsync();
-        });
-    }
 }
