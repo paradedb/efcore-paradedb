@@ -8,14 +8,12 @@ public sealed class TestDbContext : DbContext
     public TestDbContext(DbContextOptions<TestDbContext> options)
         : base(options) { }
 
-    public DbSet<Product> Products => Set<Product>();
-    public DbSet<Item> Items => Set<Item>();
+    public DbSet<MockItem> MockItems => Set<MockItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Product>().HasKey(p => p.Id);
-        modelBuilder.Entity<Item>().HasKey(p => p.Id);
+        modelBuilder.Entity<MockItem>().HasKey(p => p.Id);
     }
 }

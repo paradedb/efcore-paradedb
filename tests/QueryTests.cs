@@ -22,12 +22,12 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p => EF.Functions.MatchAll(p.Description, "these"));
+        var query = context.MockItems.Where(p => EF.Functions.MatchAll(p.Description, "these"));
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description &&& 'these'
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description &&& 'these'
             """;
 
         AssertSql(query, sql);
@@ -39,14 +39,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.MatchAll(p.Description, new[] { "these", "shoes" })
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description &&& ARRAY['these','shoes']::text[]
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description &&& ARRAY['these','shoes']::text[]
             """;
 
         AssertSql(query, sql);
@@ -60,13 +60,13 @@ public sealed class MatchAllTests : TestBase
 
         string[] terms = ["these", "shoes"];
 
-        var query = context.Products.Where(p => EF.Functions.MatchAll(p.Description, terms));
+        var query = context.MockItems.Where(p => EF.Functions.MatchAll(p.Description, terms));
 
         var sql = """
             -- @terms={ 'these', 'shoes' } (DbType = Object)
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description &&& @terms
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description &&& @terms
             """;
 
         AssertSql(query, sql);
@@ -78,14 +78,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.MatchAll(p.Description, Pdb.Fuzzy("these", 2))
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description &&& 'these'::pdb.fuzzy(2)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description &&& 'these'::pdb.fuzzy(2)
             """;
 
         AssertSql(query, sql);
@@ -97,14 +97,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.MatchAll(p.Description, Pdb.Fuzzy(new[] { "these", "shoes" }, 2))
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description &&& ARRAY['these','shoes']::text[]::pdb.fuzzy(2)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description &&& ARRAY['these','shoes']::text[]::pdb.fuzzy(2)
             """;
 
         AssertSql(query, sql);
@@ -118,15 +118,15 @@ public sealed class MatchAllTests : TestBase
 
         string[] terms = ["these", "shoes"];
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.MatchAll(p.Description, Pdb.Fuzzy(terms, 2))
         );
 
         var sql = """
             -- @terms={ 'these', 'shoes' } (DbType = Object)
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description &&& @terms::pdb.fuzzy(2)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description &&& @terms::pdb.fuzzy(2)
             """;
 
         AssertSql(query, sql);
@@ -138,14 +138,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.MatchAll(p.Description, Pdb.Boost("these", 2.3f))
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description &&& 'these'::pdb.boost(2.3)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description &&& 'these'::pdb.boost(2.3)
             """;
 
         AssertSql(query, sql);
@@ -157,14 +157,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.MatchAll(p.Description, Pdb.Boost(new[] { "these", "shoes" }, 2.3f))
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description &&& ARRAY['these','shoes']::text[]::pdb.boost(2.3)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description &&& ARRAY['these','shoes']::text[]::pdb.boost(2.3)
             """;
 
         AssertSql(query, sql);
@@ -178,15 +178,15 @@ public sealed class MatchAllTests : TestBase
 
         string[] terms = ["these", "shoes"];
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.MatchAll(p.Description, Pdb.Boost(terms, 2.3f))
         );
 
         var sql = """
             -- @terms={ 'these', 'shoes' } (DbType = Object)
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description &&& @terms::pdb.boost(2.3)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description &&& @terms::pdb.boost(2.3)
             """;
 
         AssertSql(query, sql);
@@ -198,14 +198,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.MatchAll(p.Description, Pdb.Const("these", 20.3f))
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description &&& 'these'::pdb.const(20.3)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description &&& 'these'::pdb.const(20.3)
             """;
 
         AssertSql(query, sql);
@@ -217,14 +217,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.MatchAll(p.Description, Pdb.Const(new[] { "these", "shoes" }, 20.3f))
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description &&& ARRAY['these','shoes']::text[]::pdb.const(20.3)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description &&& ARRAY['these','shoes']::text[]::pdb.const(20.3)
             """;
 
         AssertSql(query, sql);
@@ -238,15 +238,15 @@ public sealed class MatchAllTests : TestBase
 
         string[] terms = ["these", "shoes"];
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.MatchAll(p.Description, Pdb.Const(terms, 20.3f))
         );
 
         var sql = """
             -- @terms={ 'these', 'shoes' } (DbType = Object)
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description &&& @terms::pdb.const(20.3)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description &&& @terms::pdb.const(20.3)
             """;
 
         AssertSql(query, sql);
@@ -258,14 +258,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.MatchAll(p.Description, Pdb.Boost(Pdb.Fuzzy("these", 2), 2.3f))
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description &&& 'these'::pdb.fuzzy(2)::pdb.boost(2.3)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description &&& 'these'::pdb.fuzzy(2)::pdb.boost(2.3)
             """;
 
         AssertSql(query, sql);
@@ -322,7 +322,7 @@ public sealed class MatchAllTests : TestBase
         foreach (var tokenizerVariation in TokenizerVariations)
         {
             var query = context
-                .Products.Where(p =>
+                .MockItems.Where(p =>
                     EF.Functions.MatchAll(
                         p.Description,
                         EF.Functions.Tokenize("running shoes", tokenizerVariation.Tokenizer)
@@ -331,9 +331,9 @@ public sealed class MatchAllTests : TestBase
                 .Select(p => new { p.Id, p.Description });
 
             var sql = $$"""
-                SELECT p.id AS "Id", p.description AS "Description"
-                FROM products AS p
-                WHERE p.description &&& 'running shoes'{{tokenizerVariation.ExpectedSqlSnippet}}
+                SELECT m.id AS "Id", m.description AS "Description"
+                FROM mock_items AS m
+                WHERE m.description &&& 'running shoes'{{tokenizerVariation.ExpectedSqlSnippet}}
                 """;
 
             AssertSql(query, sql);
@@ -375,12 +375,12 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p => EF.Functions.MatchAny(p.Description, "these"));
+        var query = context.MockItems.Where(p => EF.Functions.MatchAny(p.Description, "these"));
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description ||| 'these'
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description ||| 'these'
             """;
 
         AssertSql(query, sql);
@@ -392,14 +392,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.MatchAny(p.Description, new[] { "these", "shoes" })
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description ||| ARRAY['these','shoes']::text[]
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description ||| ARRAY['these','shoes']::text[]
             """;
 
         AssertSql(query, sql);
@@ -413,13 +413,13 @@ public sealed class MatchAllTests : TestBase
 
         string[] terms = ["these", "shoes"];
 
-        var query = context.Products.Where(p => EF.Functions.MatchAny(p.Description, terms));
+        var query = context.MockItems.Where(p => EF.Functions.MatchAny(p.Description, terms));
 
         var sql = """
             -- @terms={ 'these', 'shoes' } (DbType = Object)
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description ||| @terms
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description ||| @terms
             """;
 
         AssertSql(query, sql);
@@ -431,14 +431,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.MatchAny(p.Description, Pdb.Const("these", 20.3f))
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description ||| 'these'::pdb.const(20.3)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description ||| 'these'::pdb.const(20.3)
             """;
 
         AssertSql(query, sql);
@@ -450,12 +450,12 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p => EF.Functions.Phrase(p.Description, "with"));
+        var query = context.MockItems.Where(p => EF.Functions.Phrase(p.Description, "with"));
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description ### 'with'
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description ### 'with'
             """;
 
         AssertSql(query, sql);
@@ -467,14 +467,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Phrase(p.Description, new[] { "these", "shoes" })
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description ### ARRAY['these','shoes']::text[]
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description ### ARRAY['these','shoes']::text[]
             """;
 
         AssertSql(query, sql);
@@ -488,13 +488,13 @@ public sealed class MatchAllTests : TestBase
 
         string[] terms = ["these", "shoes"];
 
-        var query = context.Products.Where(p => EF.Functions.Phrase(p.Description, terms));
+        var query = context.MockItems.Where(p => EF.Functions.Phrase(p.Description, terms));
 
         var sql = """
             -- @terms={ 'these', 'shoes' } (DbType = Object)
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description ### @terms
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description ### @terms
             """;
 
         AssertSql(query, sql);
@@ -506,14 +506,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Phrase(p.Description, Pdb.Boost("with", 2.5f))
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description ### 'with'::pdb.boost(2.5)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description ### 'with'::pdb.boost(2.5)
             """;
 
         AssertSql(query, sql);
@@ -525,14 +525,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Phrase(p.Description, Pdb.Slop("with", 2))
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description ### 'with'::pdb.slop(2)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description ### 'with'::pdb.slop(2)
             """;
 
         AssertSql(query, sql);
@@ -544,14 +544,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Phrase(p.Description, Pdb.Slop(new[] { "these", "shoes" }, 2))
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description ### ARRAY['these','shoes']::text[]::pdb.slop(2)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description ### ARRAY['these','shoes']::text[]::pdb.slop(2)
             """;
 
         AssertSql(query, sql);
@@ -565,15 +565,15 @@ public sealed class MatchAllTests : TestBase
 
         string[] terms = ["these", "shoes"];
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Phrase(p.Description, Pdb.Slop(terms, 2))
         );
 
         var sql = """
             -- @terms={ 'these', 'shoes' } (DbType = Object)
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description ### @terms::pdb.slop(2)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description ### @terms::pdb.slop(2)
             """;
 
         AssertSql(query, sql);
@@ -585,14 +585,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Match(p.Description, Pdb.Proximity("sleek").Within(1, "shoes"))
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description @@@ (('sleek' ## 1) ## 'shoes')
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description @@@ (('sleek' ## 1) ## 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -604,7 +604,7 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Match(
                 p.Description,
                 Pdb.Proximity("sleek").Within(1, "shoes", ordered: true)
@@ -612,9 +612,9 @@ public sealed class MatchAllTests : TestBase
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description @@@ (('sleek' ##> 1) ##> 'shoes')
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description @@@ (('sleek' ##> 1) ##> 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -630,7 +630,7 @@ public sealed class MatchAllTests : TestBase
         string right = "shoes";
         int distance = 1;
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Match(p.Description, Pdb.Proximity(left).Within(distance, right))
         );
 
@@ -638,9 +638,9 @@ public sealed class MatchAllTests : TestBase
             -- @left='sleek'
             -- @distance='1'
             -- @right='shoes'
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description @@@ ((@left ## @distance) ## @right)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description @@@ ((@left ## @distance) ## @right)
             """;
 
         AssertSql(query, sql);
@@ -652,14 +652,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Match(p.Description, Pdb.ProximityRegex("sl.*").Within(1, "shoes"))
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description @@@ ((pdb.prox_regex('sl.*') ## 1) ## 'shoes')
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description @@@ ((pdb.prox_regex('sl.*') ## 1) ## 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -673,15 +673,15 @@ public sealed class MatchAllTests : TestBase
 
         string pattern = "sl.*";
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Match(p.Description, Pdb.ProximityRegex(pattern).Within(1, "shoes"))
         );
 
         var sql = """
             -- @pattern='sl.*'
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description @@@ ((pdb.prox_regex(@pattern) ## 1) ## 'shoes')
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description @@@ ((pdb.prox_regex(@pattern) ## 1) ## 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -693,14 +693,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Match(p.Description, Pdb.ProximityRegex("sl.*", 100).Within(1, "shoes"))
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description @@@ ((pdb.prox_regex('sl.*', 100) ## 1) ## 'shoes')
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description @@@ ((pdb.prox_regex('sl.*', 100) ## 1) ## 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -712,7 +712,7 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Match(
                 p.Description,
                 Pdb.ProximityArray("sleek", "white").Within(1, "shoes")
@@ -720,9 +720,9 @@ public sealed class MatchAllTests : TestBase
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description @@@ ((pdb.prox_array('sleek', 'white') ## 1) ## 'shoes')
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description @@@ ((pdb.prox_array('sleek', 'white') ## 1) ## 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -737,16 +737,16 @@ public sealed class MatchAllTests : TestBase
         string t1 = "sleek";
         string t2 = "white";
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Match(p.Description, Pdb.ProximityArray(t1, t2).Within(1, "shoes"))
         );
 
         var sql = """
             -- @t1='sleek'
             -- @t2='white'
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description @@@ ((pdb.prox_array(@t1, @t2) ## 1) ## 'shoes')
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description @@@ ((pdb.prox_array(@t1, @t2) ## 1) ## 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -758,7 +758,7 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Match(
                 p.Description,
                 Pdb.ProximityArray(Pdb.ProximityRegex("sl.*"), Pdb.ProximityArray("white"))
@@ -767,9 +767,9 @@ public sealed class MatchAllTests : TestBase
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description @@@ ((pdb.prox_array(pdb.prox_regex('sl.*'), pdb.prox_array('white')) ## 1) ## 'shoes')
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description @@@ ((pdb.prox_array(pdb.prox_regex('sl.*'), pdb.prox_array('white')) ## 1) ## 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -781,7 +781,7 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Match(
                 p.Description,
                 Pdb.Proximity("sleek").Within(1, "running").Within(2, "shoes")
@@ -789,9 +789,9 @@ public sealed class MatchAllTests : TestBase
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description @@@ (((('sleek' ## 1) ## 'running') ## 2) ## 'shoes')
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description @@@ (((('sleek' ## 1) ## 'running') ## 2) ## 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -804,18 +804,18 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context
-            .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
+            .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
             .Select(p => new
             {
                 p.Id,
-                p.Name,
+                p.Category,
                 Score = EF.Functions.Score(p.Description),
             });
 
         var sql = """
-            SELECT p.id AS "Id", p.name AS "Name", pdb.score(p.description) AS "Score"
-            FROM products AS p
-            WHERE p.description === 'rich'
+            SELECT m.id AS "Id", m.category AS "Category", pdb.score(m.description) AS "Score"
+            FROM mock_items AS m
+            WHERE m.description === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -828,13 +828,13 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context
-            .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
+            .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
             .Select(p => EF.Functions.Snippet(p.Description));
 
         var sql = """
-            SELECT pdb.snippet(p.description)
-            FROM products AS p
-            WHERE p.description === 'rich'
+            SELECT pdb.snippet(m.description)
+            FROM mock_items AS m
+            WHERE m.description === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -847,13 +847,13 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context
-            .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
+            .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
             .Select(p => EF.Functions.Snippet(p.Description, 50));
 
         var sql = """
-            SELECT pdb.snippet(p.description, '<b>', '</b>', 50)
-            FROM products AS p
-            WHERE p.description === 'rich'
+            SELECT pdb.snippet(m.description, '<b>', '</b>', 50)
+            FROM mock_items AS m
+            WHERE m.description === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -868,14 +868,14 @@ public sealed class MatchAllTests : TestBase
         int maxNumChars = 50;
 
         var query = context
-            .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
+            .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
             .Select(p => EF.Functions.Snippet(p.Description, maxNumChars));
 
         var sql = """
             -- @maxNumChars='50'
-            SELECT pdb.snippet(p.description, '<b>', '</b>', @maxNumChars)
-            FROM products AS p
-            WHERE p.description === 'rich'
+            SELECT pdb.snippet(m.description, '<b>', '</b>', @maxNumChars)
+            FROM mock_items AS m
+            WHERE m.description === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -888,13 +888,13 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context
-            .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
+            .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
             .Select(p => EF.Functions.Snippet(p.Description, "<a>", "</a>"));
 
         var sql = """
-            SELECT pdb.snippet(p.description, '<a>', '</a>')
-            FROM products AS p
-            WHERE p.description === 'rich'
+            SELECT pdb.snippet(m.description, '<a>', '</a>')
+            FROM mock_items AS m
+            WHERE m.description === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -910,15 +910,15 @@ public sealed class MatchAllTests : TestBase
         string endTag = "</a>";
 
         var query = context
-            .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
+            .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
             .Select(p => EF.Functions.Snippet(p.Description, startTag, endTag));
 
         var sql = """
             -- @startTag='<a>'
             -- @endTag='</a>'
-            SELECT pdb.snippet(p.description, @startTag, @endTag)
-            FROM products AS p
-            WHERE p.description === 'rich'
+            SELECT pdb.snippet(m.description, @startTag, @endTag)
+            FROM mock_items AS m
+            WHERE m.description === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -931,13 +931,13 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context
-            .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
+            .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
             .Select(p => EF.Functions.Snippet(p.Description, "<a>", "</a>", 50));
 
         var sql = """
-            SELECT pdb.snippet(p.description, '<a>', '</a>', 50)
-            FROM products AS p
-            WHERE p.description === 'rich'
+            SELECT pdb.snippet(m.description, '<a>', '</a>', 50)
+            FROM mock_items AS m
+            WHERE m.description === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -954,16 +954,16 @@ public sealed class MatchAllTests : TestBase
         int maxNumChars = 50;
 
         var query = context
-            .Products.Where(p => EF.Functions.Term(p.Description, "rich"))
+            .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
             .Select(p => EF.Functions.Snippet(p.Description, startTag, endTag, maxNumChars));
 
         var sql = """
             -- @startTag='<a>'
             -- @endTag='</a>'
             -- @maxNumChars='50'
-            SELECT pdb.snippet(p.description, @startTag, @endTag, @maxNumChars)
-            FROM products AS p
-            WHERE p.description === 'rich'
+            SELECT pdb.snippet(m.description, @startTag, @endTag, @maxNumChars)
+            FROM mock_items AS m
+            WHERE m.description === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -976,13 +976,13 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context
-            .Products.Where(p => EF.Functions.MatchAny(p.Description, Pdb.Fuzzy("your", 2)))
+            .MockItems.Where(p => EF.Functions.MatchAny(p.Description, Pdb.Fuzzy("your", 2)))
             .Select(p => new { p.Id, Description = EF.Functions.Snippet(p.Description) });
 
         var sql = """
-            SELECT p.id AS "Id", pdb.snippet(p.description) AS "Description"
-            FROM products AS p
-            WHERE p.description ||| 'your'::pdb.fuzzy(2)
+            SELECT m.id AS "Id", pdb.snippet(m.description) AS "Description"
+            FROM mock_items AS m
+            WHERE m.description ||| 'your'::pdb.fuzzy(2)
             """;
 
         AssertSql(query, sql);
@@ -996,12 +996,12 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p => EF.Functions.Term(p.Description, "rich"));
+        var query = context.MockItems.Where(p => EF.Functions.Term(p.Description, "rich"));
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description === 'rich'
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -1013,14 +1013,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Term(p.Description, new[] { "rich", "cream" })
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description === ARRAY['rich','cream']::text[]
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description === ARRAY['rich','cream']::text[]
             """;
 
         AssertSql(query, sql);
@@ -1034,13 +1034,13 @@ public sealed class MatchAllTests : TestBase
 
         string[] terms = ["rich", "cream"];
 
-        var query = context.Products.Where(p => EF.Functions.Term(p.Description, terms));
+        var query = context.MockItems.Where(p => EF.Functions.Term(p.Description, terms));
 
         var sql = """
             -- @terms={ 'rich', 'cream' } (DbType = Object)
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description === @terms
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description === @terms
             """;
 
         AssertSql(query, sql);
@@ -1052,14 +1052,14 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Term(p.Description, Pdb.Fuzzy("rich", 2))
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description === 'rich'::pdb.fuzzy(2)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description === 'rich'::pdb.fuzzy(2)
             """;
 
         AssertSql(query, sql);
@@ -1071,53 +1071,53 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.Products.Where(p =>
+        var query = context.MockItems.Where(p =>
             EF.Functions.Term(p.Description, Pdb.Fuzzy("rich", 2))
         );
 
         var sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description === 'rich'::pdb.fuzzy(2)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description === 'rich'::pdb.fuzzy(2)
             """;
 
         AssertSql(query, sql);
         await query.ToListAsync();
 
-        query = context.Products.Where(p =>
+        query = context.MockItems.Where(p =>
             EF.Functions.Term(p.Description, Pdb.Fuzzy("rich", 2, true))
         );
 
         sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description === 'rich'::pdb.fuzzy(2, t)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description === 'rich'::pdb.fuzzy(2, t)
             """;
 
         AssertSql(query, sql);
         await query.ToListAsync();
 
-        query = context.Products.Where(p =>
+        query = context.MockItems.Where(p =>
             EF.Functions.Term(p.Description, Pdb.Fuzzy("rich", 2, false, true))
         );
 
         sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description === 'rich'::pdb.fuzzy(2, f, t)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description === 'rich'::pdb.fuzzy(2, f, t)
             """;
 
         AssertSql(query, sql);
         await query.ToListAsync();
 
-        query = context.Products.Where(p =>
+        query = context.MockItems.Where(p =>
             EF.Functions.Term(p.Description, Pdb.Fuzzy("rich", 2, true, true))
         );
 
         sql = """
-            SELECT p.id, p.description, p.name
-            FROM products AS p
-            WHERE p.description === 'rich'::pdb.fuzzy(2, t, t)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description === 'rich'::pdb.fuzzy(2, t, t)
             """;
 
         AssertSql(query, sql);
@@ -1130,7 +1130,7 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context
-            .Items.Where(p =>
+            .MockItems.Where(p =>
                 EF.Functions.MatchAny(
                     EF.Functions.Alias(p.Description, "description_simple"),
                     "sleek"
@@ -1139,9 +1139,9 @@ public sealed class MatchAllTests : TestBase
             .Select(p => p.Description);
 
         var sql = """
-            SELECT i.description
-            FROM items AS i
-            WHERE i.description::pdb.alias('description_simple') ||| 'sleek'
+            SELECT m.description
+            FROM mock_items AS m
+            WHERE m.description::pdb.alias('description_simple') ||| 'sleek'
             """;
 
         AssertSql(query, sql);
@@ -1156,15 +1156,15 @@ public sealed class MatchAllTests : TestBase
         string aliasName = "description_simple";
 
         var query = context
-            .Items.Where(p =>
+            .MockItems.Where(p =>
                 EF.Functions.MatchAny(EF.Functions.Alias(p.Description, aliasName), "sleek")
             )
             .Select(p => p.Description);
 
         var sql = """
-            SELECT i.description
-            FROM items AS i
-            WHERE i.description::pdb.alias('description_simple') ||| 'sleek'
+            SELECT m.description
+            FROM mock_items AS m
+            WHERE m.description::pdb.alias('description_simple') ||| 'sleek'
             """;
 
         AssertSql(query, sql);
