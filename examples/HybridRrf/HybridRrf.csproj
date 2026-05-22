@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.csproj" />
-    <ProjectReference Include="..\..\src\ParadeDB.EntityFrameworkCore\ParadeDB.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\src\ParadeDB.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
