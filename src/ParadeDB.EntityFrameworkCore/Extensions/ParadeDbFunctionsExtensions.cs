@@ -82,17 +82,12 @@ public static class ParadeDbFunctionsExtensions
     public static bool Match<TProperty>(this DbFunctions _, TProperty property, PdbQuery query) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Match)));
 
-    /*
-     TODO https://docs.paradedb.com/documentation/full-text/phrase#using-a-custom-tokenizer
-     If the tokenizer produces an empty result, the query throws an exception.
-     TODO Keep this internal for now; expose publicly only if that behavior changes.
-   */
-    /*[DbFunction]
+    [DbFunction]
     public static string Tokenize<TProperty>(
         this DbFunctions _,
         TProperty property,
         [NotParameterized] Tokenizer tokenizer
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Tokenize)));*/
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Tokenize)));
 
     [DbFunction]
     public static IEnumerable<string> TokenizeAsArray<TProperty>(

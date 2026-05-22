@@ -27,7 +27,7 @@ internal sealed class TokenizeTranslator : IMethodCallTranslator
     {
         bool? asArray = method.Name switch
         {
-            // nameof(ParadeDbFunctionsExtensions.Tokenize) => false,
+            nameof(ParadeDbFunctionsExtensions.Tokenize) => false,
             nameof(ParadeDbFunctionsExtensions.TokenizeAsArray) => true,
             _ => null,
         };
