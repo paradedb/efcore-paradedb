@@ -1,4 +1,4 @@
-namespace ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence.Entities;
+namespace ParadeDB.EntityFrameworkCore.Tests.Persistence.Entities;
 
 public sealed class Item
 {

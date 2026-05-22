@@ -3,7 +3,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence.Migrations
+namespace ParadeDB.EntityFrameworkCore.Tests.Persistence.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

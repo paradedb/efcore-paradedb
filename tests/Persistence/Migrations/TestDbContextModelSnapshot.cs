@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence.Migrations
+namespace ParadeDB.EntityFrameworkCore.Tests.Persistence.Migrations
 {
     [DbContext(typeof(TestDbContext))]
     partial class TestDbContextModelSnapshot : ModelSnapshot
@@ -22,7 +22,7 @@ namespace ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_search");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence.Entities.Item", b =>
+            modelBuilder.Entity("ParadeDB.EntityFrameworkCore.Tests.Persistence.Entities.Item", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -47,7 +47,7 @@ namespace ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence.Migrations
                     b.ToTable("items", (string)null);
                 });
 
-            modelBuilder.Entity("ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence.Entities.Product", b =>
+            modelBuilder.Entity("ParadeDB.EntityFrameworkCore.Tests.Persistence.Entities.Product", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()

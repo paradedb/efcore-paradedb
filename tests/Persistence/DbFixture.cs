@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using ParadeDB.EntityFrameworkCore.Extensions;
-using ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence.Entities;
+using ParadeDB.EntityFrameworkCore.Tests.Persistence.Entities;
 using Testcontainers.PostgreSql;
 using TUnit.Core.Interfaces;
 
-namespace ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence;
+namespace ParadeDB.EntityFrameworkCore.Tests.Persistence;
 
 public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
 {

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence.Entities;
+using ParadeDB.EntityFrameworkCore.Tests.Persistence.Entities;
 
-namespace ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence;
+namespace ParadeDB.EntityFrameworkCore.Tests.Persistence;
 
 public sealed class TestDbContext : DbContext
 {

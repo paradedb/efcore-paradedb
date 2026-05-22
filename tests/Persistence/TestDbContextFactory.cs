@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence;
+namespace ParadeDB.EntityFrameworkCore.Tests.Persistence;
 
 [ExcludeFromCodeCoverage]
 public sealed class TestDbContextFactory : IDesignTimeDbContextFactory<TestDbContext>

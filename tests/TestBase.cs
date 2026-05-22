@@ -1,6 +1,6 @@
-using ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence;
+using ParadeDB.EntityFrameworkCore.Tests.Persistence;
 
-namespace ParadeDB.EntityFrameworkCore.IntegrationTests;
+namespace ParadeDB.EntityFrameworkCore.Tests;
 
 public class TestBase
 {

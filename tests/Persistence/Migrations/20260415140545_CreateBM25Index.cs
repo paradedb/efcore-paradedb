@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace ParadeDB.EntityFrameworkCore.IntegrationTests.Persistence.Migrations
+namespace ParadeDB.EntityFrameworkCore.Tests.Persistence.Migrations
 {
     public partial class CreateBM25Index : Migration
     {

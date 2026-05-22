@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ParadeDB.EntityFrameworkCore.Extensions;
 using Shouldly;
 
-namespace ParadeDB.EntityFrameworkCore.IntegrationTests.Query;
+namespace ParadeDB.EntityFrameworkCore.Tests.Query;
 
 public sealed class MatchAllTests : TestBase
 {
