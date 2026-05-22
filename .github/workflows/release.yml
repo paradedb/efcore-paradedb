@@ -82,7 +82,7 @@ jobs:
       - name: Pack ParadeDB.EntityFrameworkCore
         run: |
           set -euo pipefail
-          dotnet pack src/ParadeDB.EntityFrameworkCore/ParadeDB.EntityFrameworkCore.csproj \
+          dotnet pack src/ParadeDB.EntityFrameworkCore.csproj \
             --configuration Release \
             --output "${PACKAGES_OUTPUT_DIR}" \
             -p:PackageVersion="${VERSION}"

@@ -2,7 +2,7 @@
   "solution": {
     "path": "ParadeDB.EntityFrameworkCore.slnx",
     "projects": [
-      "src/ParadeDB.EntityFrameworkCore/ParadeDB.EntityFrameworkCore.csproj",
+      "src/ParadeDB.EntityFrameworkCore.csproj",
       "tests/ParadeDB.EntityFrameworkCore.Tests.csproj"
     ]
   }

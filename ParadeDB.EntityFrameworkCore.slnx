@@ -44,7 +44,7 @@
   </Folder>
   <Folder Name="/src/">
     <File Path="src\Directory.Build.props" />
-    <Project Path="src\ParadeDB.EntityFrameworkCore\ParadeDB.EntityFrameworkCore.csproj" />
+    <Project Path="src\ParadeDB.EntityFrameworkCore.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/ParadeDB.EntityFrameworkCore.Tests.csproj" />
