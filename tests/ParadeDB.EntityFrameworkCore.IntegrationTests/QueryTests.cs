@@ -1038,6 +1038,25 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
+    public async Task FuzzyWithAllParameters()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context.Products.Where(p =>
+            EF.Functions.Term(p.Description, Pdb.Fuzzy("rich", 2, false, true))
+        );
+
+        var sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description === 'rich'::pdb.fuzzy(2, f, t)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
     public async Task Alias_WithInlineAlias()
     {
         await using var context = DbFixture.CreateContext();
