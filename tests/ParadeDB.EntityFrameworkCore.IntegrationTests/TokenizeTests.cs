@@ -86,7 +86,7 @@ public sealed class TokenizeTests : TestBase
         return TokenizerBuilders().Select(build => build(AllFilters));
     }
 
-    /*[Test]
+    [Test]
     [MethodDataSource(nameof(Tokenizers))]
     public async Task Tokenize_Predicate_ExecutesSuccessfully(Tokenizer tokenizer)
     {
@@ -110,13 +110,16 @@ public sealed class TokenizeTests : TestBase
 
         var results = await context
             .Products.Where(p =>
-                EF.Functions.Phrase(p.Description, EF.Functions.Tokenize(p.Description, tokenizer))
+                EF.Functions.MatchAll(
+                    p.Description,
+                    EF.Functions.Tokenize(p.Description, tokenizer)
+                )
             )
             .Select(p => p.Description)
             .ToListAsync();
 
         results.ShouldNotBeNull();
-    }*/
+    }
 
     [Test]
     [MethodDataSource(nameof(Tokenizers))]

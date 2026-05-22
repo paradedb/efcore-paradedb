@@ -71,23 +71,13 @@ jobs:
       - name: Build
         run: dotnet build build.slnf --configuration Release --framework ${{ matrix.framework }} --no-restore
 
-      - name: Test unit
+      - name: Test
         run: |
-          dotnet test --project tests/ParadeDB.EntityFrameworkCore.Tests/ParadeDB.EntityFrameworkCore.Tests.csproj \
+          dotnet test \
             --no-build \
             --configuration Release \
             --framework ${{ matrix.framework }} \
-            --results-directory TestResults/${{ matrix.framework }}/unit \
-            --coverlet \
-            --coverlet-output-format cobertura
-
-      - name: Test integration
-        run: |
-          dotnet test --project tests/ParadeDB.EntityFrameworkCore.IntegrationTests/ParadeDB.EntityFrameworkCore.IntegrationTests.csproj \
-            --no-build \
-            --configuration Release \
-            --framework ${{ matrix.framework }} \
-            --results-directory TestResults/${{ matrix.framework }}/integration \
+            --results-directory TestResults/${{ matrix.framework }} \
             --coverlet \
             --coverlet-output-format cobertura
 
