@@ -3,8 +3,7 @@
     "path": "ParadeDB.EntityFrameworkCore.slnx",
     "projects": [
       "src/ParadeDB.EntityFrameworkCore/ParadeDB.EntityFrameworkCore.csproj",
-      "tests/ParadeDB.EntityFrameworkCore.Tests/ParadeDB.EntityFrameworkCore.Tests.csproj",
-      "tests/ParadeDB.EntityFrameworkCore.IntegrationTests/ParadeDB.EntityFrameworkCore.IntegrationTests.csproj"
+      "tests/ParadeDB.EntityFrameworkCore.Tests.csproj"
     ]
   }
 }

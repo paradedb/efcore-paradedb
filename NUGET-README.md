@@ -38,15 +38,15 @@ builder.Services.AddDbContextPool<AppDbContext>(opt =>
 
 The following ParadeDB operations are available through the `EF.Functions` API:
 
-| ParadeDB Operation                                                          | LINQ Methods                               |
-| --------------------------------------------------------------------------- | ------------------------------------------ |
-| [Match](https://docs.paradedb.com/documentation/full-text/match)            | `MatchAny()`, `MatchAll()`                 |
-| [Phrase](https://docs.paradedb.com/documentation/full-text/phrase)          | `Phrase()`                                 |
-| [Term](https://docs.paradedb.com/documentation/full-text/term)              | `Term()`                                   |
-| [Highlighting](https://docs.paradedb.com/documentation/full-text/highlight) | `Snippet()`                                |
-| [Proximity](https://docs.paradedb.com/documentation/full-text/proximity)    | `Proximity()`                              |
-| [BM25 scoring](https://docs.paradedb.com/documentation/sorting/score)       | `Score()`                                  |
-| [Tokenizers](https://docs.paradedb.com/documentation/tokenizers/overview)   | `TokenizeAsArray()`                        |
+| ParadeDB Operation                                                          | LINQ Methods               |
+| --------------------------------------------------------------------------- | -------------------------- |
+| [Match](https://docs.paradedb.com/documentation/full-text/match)            | `MatchAny()`, `MatchAll()` |
+| [Phrase](https://docs.paradedb.com/documentation/full-text/phrase)          | `Phrase()`                 |
+| [Term](https://docs.paradedb.com/documentation/full-text/term)              | `Term()`                   |
+| [Highlighting](https://docs.paradedb.com/documentation/full-text/highlight) | `Snippet()`                |
+| [Proximity](https://docs.paradedb.com/documentation/full-text/proximity)    | `Proximity()`              |
+| [BM25 scoring](https://docs.paradedb.com/documentation/sorting/score)       | `Score()`                  |
+| [Tokenizers](https://docs.paradedb.com/documentation/tokenizers/overview)   | `TokenizeAsArray()`        |
 
 ## Usage Example
 

@@ -39,16 +39,16 @@ dotnet restore build.slnf
 
 ### Running Tests
 
-Unit tests:
+Run for against a single .NET version for speed:
 
 ```bash
-dotnet test --project tests/ParadeDB.EntityFrameworkCore.Tests/ParadeDB.EntityFrameworkCore.Tests.csproj --configuration Release
+dotnet test -f net10.0
 ```
 
-Integration tests:
+Or against 8, 9, and 10:
 
 ```bash
-dotnet test --project tests/ParadeDB.EntityFrameworkCore.IntegrationTests/ParadeDB.EntityFrameworkCore.IntegrationTests.csproj --configuration Release
+dotnet test
 ```
 
 ### Linting and Formatting
