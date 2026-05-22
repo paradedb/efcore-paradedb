@@ -1043,13 +1043,52 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context.Products.Where(p =>
-            EF.Functions.Term(p.Description, Pdb.Fuzzy("rich", 2, false, true))
+            EF.Functions.Term(p.Description, Pdb.Fuzzy("rich", 2))
         );
 
         var sql = """
             SELECT p.id, p.description, p.name
             FROM products AS p
+            WHERE p.description === 'rich'::pdb.fuzzy(2)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+
+        query = context.Products.Where(p =>
+            EF.Functions.Term(p.Description, Pdb.Fuzzy("rich", 2, true))
+        );
+
+        sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description === 'rich'::pdb.fuzzy(2, t)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+
+        query = context.Products.Where(p =>
+            EF.Functions.Term(p.Description, Pdb.Fuzzy("rich", 2, false, true))
+        );
+
+        sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
             WHERE p.description === 'rich'::pdb.fuzzy(2, f, t)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+
+        query = context.Products.Where(p =>
+            EF.Functions.Term(p.Description, Pdb.Fuzzy("rich", 2, true, true))
+        );
+
+        sql = """
+            SELECT p.id, p.description, p.name
+            FROM products AS p
+            WHERE p.description === 'rich'::pdb.fuzzy(2, t, t)
             """;
 
         AssertSql(query, sql);
