@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
+using ParadeDB.EntityFrameworkCore.Extensions;
 
 namespace ParadeDB.EntityFrameworkCore.Internal.Query;
 
@@ -19,6 +20,12 @@ internal sealed class ParadeDbEvaluatableExpressionFilterPlugin : IEvaluatableEx
                             or nameof(Pdb.Fuzzy)
                             or nameof(Pdb.Slop)
                     && call.Arguments.Count > 1
+                )
+                || (
+                    call.Method.DeclaringType == typeof(ParadeDbFunctionsExtensions)
+                    && call.Method.Name
+                        is nameof(ParadeDbFunctionsExtensions.Tokenize)
+                            or nameof(ParadeDbFunctionsExtensions.TokenizeAsArray)
                 )
             )
         )

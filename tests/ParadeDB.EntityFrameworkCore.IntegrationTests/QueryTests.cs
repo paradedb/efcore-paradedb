@@ -272,6 +272,75 @@ public sealed class MatchAllTests : TestBase
         await query.ToListAsync();
     }
 
+    private static readonly (
+        Tokenizer Tokenizer,
+        string ExpectedSqlSnippet
+    )[] TokenizerVariations =
+    [
+        (
+            Tokenizer.Unicode(new() { ["remove_emojis"] = true }),
+            "::pdb.unicode_words('remove_emojis=true')"
+        ),
+        (
+            Tokenizer.Simple(new() { ["stemmer"] = "english", ["alias"] = "simple_description" }),
+            "::pdb.simple('stemmer=english','alias=simple_description')"
+        ),
+        (Tokenizer.Icu([]), "::pdb.icu"),
+        (Tokenizer.ChineseCompatible([]), "::pdb.chinese_compatible"),
+        (Tokenizer.Jieba([]), "::pdb.jieba"),
+        (
+            Tokenizer.Lindera(LinderaLanguage.Chinese, new() { ["keep_whitespace"] = true }),
+            "::pdb.lindera('chinese','keep_whitespace=true')"
+        ),
+        (Tokenizer.Literal([]), "::pdb.literal"),
+        (
+            Tokenizer.LiteralNormalized(new() { ["trim"] = true }),
+            "::pdb.literal_normalized('trim=true')"
+        ),
+        (
+            Tokenizer.Ngram(3, 3, new() { ["positions"] = true, ["prefix_only"] = true }),
+            "::pdb.ngram(3,3,'positions=true','prefix_only=true')"
+        ),
+        (
+            Tokenizer.EdgeNgram(2, 5, new() { ["token_chars"] = "letter,digit,punctuation" }),
+            "::pdb.edge_ngram(2,5,'token_chars=letter,digit,punctuation')"
+        ),
+        (Tokenizer.RegexPattern("[a-z]+", []), "::pdb.regex_pattern('[a-z]+')"),
+        (Tokenizer.SourceCode([]), "::pdb.source_code"),
+        (Tokenizer.Whitespace([]), "::pdb.whitespace"),
+        (
+            Tokenizer.Whitespace(new() { ["alias"] = "'escape me'" }),
+            "::pdb.whitespace('alias=''escape me''')"
+        ),
+    ];
+
+    [Test]
+    public async Task MatchAll_WithTokenizerVariations_ExecutesSuccessfully()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        foreach (var tokenizerVariation in TokenizerVariations)
+        {
+            var query = context
+                .Products.Where(p =>
+                    EF.Functions.MatchAll(
+                        p.Description,
+                        EF.Functions.Tokenize("running shoes", tokenizerVariation.Tokenizer)
+                    )
+                )
+                .Select(p => new { p.Id, p.Description });
+
+            var sql = $$"""
+                SELECT p.id AS "Id", p.description AS "Description"
+                FROM products AS p
+                WHERE p.description &&& 'running shoes'{{tokenizerVariation.ExpectedSqlSnippet}}
+                """;
+
+            AssertSql(query, sql);
+            await query.ToListAsync();
+        }
+    }
+
     [Test]
     public async Task MatchAny_ExecutesSuccessfully()
     {
