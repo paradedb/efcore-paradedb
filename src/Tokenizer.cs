@@ -19,11 +19,13 @@ public sealed class Tokenizer
             { LinderaLanguage.Korean, "korean" },
         }.ToFrozenDictionary();
 
-    private Tokenizer(string name, string[] args, Dictionary<string, object> options)
+    private Tokenizer(string name, string[] args, Dictionary<string, object>? options)
     {
         _name = name;
         _args = args;
-        _options = new ReadOnlyDictionary<string, object>(new Dictionary<string, object>(options));
+        _options = new ReadOnlyDictionary<string, object>(
+            new Dictionary<string, object>(options ?? [])
+        );
     }
 
     public override string ToString()
@@ -54,45 +56,52 @@ public sealed class Tokenizer
 
     private static string Quote(string value) => value.Replace("'", "''");
 
-    public static Tokenizer Unicode(Dictionary<string, object> options) =>
+    public static Tokenizer Unicode(Dictionary<string, object>? options = null) =>
         new("unicode_words", [], options);
 
-    public static Tokenizer Literal(Dictionary<string, object> options) =>
+    public static Tokenizer Literal(Dictionary<string, object>? options = null) =>
         new("literal", [], options);
 
-    public static Tokenizer LiteralNormalized(Dictionary<string, object> options) =>
+    public static Tokenizer LiteralNormalized(Dictionary<string, object>? options = null) =>
         new("literal_normalized", [], options);
 
-    public static Tokenizer Whitespace(Dictionary<string, object> options) =>
+    public static Tokenizer Whitespace(Dictionary<string, object>? options = null) =>
         new("whitespace", [], options);
 
-    public static Tokenizer Ngram(int minGram, int maxGram, Dictionary<string, object> options) =>
-        new("ngram", [$"{minGram},{maxGram}"], options);
+    public static Tokenizer Ngram(
+        int minGram,
+        int maxGram,
+        Dictionary<string, object>? options = null
+    ) => new("ngram", [$"{minGram},{maxGram}"], options);
 
     public static Tokenizer EdgeNgram(
         int minGram,
         int maxGram,
-        Dictionary<string, object> options
+        Dictionary<string, object>? options = null
     ) => new("edge_ngram", [$"{minGram},{maxGram}"], options);
 
-    public static Tokenizer Simple(Dictionary<string, object> options) =>
+    public static Tokenizer Simple(Dictionary<string, object>? options = null) =>
         new("simple", [], options);
 
     public static Tokenizer RegexPattern(
         [StringSyntax(StringSyntaxAttribute.Regex)] string pattern,
-        Dictionary<string, object> options
+        Dictionary<string, object>? options = null
     ) => new("regex_pattern", [$"'{Quote(pattern)}'"], options);
 
-    public static Tokenizer ChineseCompatible(Dictionary<string, object> options) =>
+    public static Tokenizer ChineseCompatible(Dictionary<string, object>? options = null) =>
         new("chinese_compatible", [], options);
 
-    public static Tokenizer Lindera(LinderaLanguage language, Dictionary<string, object> options) =>
-        new("lindera", [$"'{LinderaLanguageArgs[language]}'"], options);
+    public static Tokenizer Lindera(
+        LinderaLanguage language,
+        Dictionary<string, object>? options = null
+    ) => new("lindera", [$"'{LinderaLanguageArgs[language]}'"], options);
 
-    public static Tokenizer Icu(Dictionary<string, object> options) => new("icu", [], options);
+    public static Tokenizer Icu(Dictionary<string, object>? options = null) =>
+        new("icu", [], options);
 
-    public static Tokenizer Jieba(Dictionary<string, object> options) => new("jieba", [], options);
+    public static Tokenizer Jieba(Dictionary<string, object>? options = null) =>
+        new("jieba", [], options);
 
-    public static Tokenizer SourceCode(Dictionary<string, object> options) =>
+    public static Tokenizer SourceCode(Dictionary<string, object>? options = null) =>
         new("source_code", [], options);
 }

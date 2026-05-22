@@ -285,14 +285,14 @@ public sealed class MatchAllTests : TestBase
             Tokenizer.Simple(new() { ["stemmer"] = "english", ["alias"] = "simple_description" }),
             "::pdb.simple('stemmer=english','alias=simple_description')"
         ),
-        (Tokenizer.Icu([]), "::pdb.icu"),
+        (Tokenizer.Icu(), "::pdb.icu"),
         (Tokenizer.ChineseCompatible([]), "::pdb.chinese_compatible"),
-        (Tokenizer.Jieba([]), "::pdb.jieba"),
+        (Tokenizer.Jieba(), "::pdb.jieba"),
         (
             Tokenizer.Lindera(LinderaLanguage.Chinese, new() { ["keep_whitespace"] = true }),
             "::pdb.lindera('chinese','keep_whitespace=true')"
         ),
-        (Tokenizer.Literal([]), "::pdb.literal"),
+        (Tokenizer.Literal(), "::pdb.literal"),
         (
             Tokenizer.LiteralNormalized(new() { ["trim"] = true }),
             "::pdb.literal_normalized('trim=true')"
@@ -306,8 +306,8 @@ public sealed class MatchAllTests : TestBase
             "::pdb.edge_ngram(2,5,'token_chars=letter,digit,punctuation')"
         ),
         (Tokenizer.RegexPattern("[a-z]+", []), "::pdb.regex_pattern('[a-z]+')"),
-        (Tokenizer.SourceCode([]), "::pdb.source_code"),
-        (Tokenizer.Whitespace([]), "::pdb.whitespace"),
+        (Tokenizer.SourceCode(), "::pdb.source_code"),
+        (Tokenizer.Whitespace(), "::pdb.whitespace"),
         (
             Tokenizer.Whitespace(new() { ["alias"] = "'escape me'" }),
             "::pdb.whitespace('alias=''escape me''')"
