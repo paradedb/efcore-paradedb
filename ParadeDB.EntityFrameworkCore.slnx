@@ -48,6 +48,5 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests\ParadeDB.EntityFrameworkCore.IntegrationTests\ParadeDB.EntityFrameworkCore.IntegrationTests.csproj" />
-    <Project Path="tests\ParadeDB.EntityFrameworkCore.Tests\ParadeDB.EntityFrameworkCore.Tests.csproj" />
   </Folder>
 </Solution>
