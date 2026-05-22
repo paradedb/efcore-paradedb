@@ -18,7 +18,7 @@ public sealed class MatchAllTests : TestBase
         );
 
     [Test]
-    public async Task MatchAll_ExecutesSuccessfully()
+    public async Task MatchAll()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -35,7 +35,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task MatchAll_WithInlineArray_ExecutesSuccessfully()
+    public async Task MatchAll_WithInlineArray()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -54,7 +54,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task MatchAll_WithArrayVariable_ExecutesSuccessfully()
+    public async Task MatchAll_WithArrayVariable()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -74,7 +74,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task MatchAll_WithFuzzy_ExecutesSuccessfully()
+    public async Task MatchAll_WithFuzzy()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -93,7 +93,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task MatchAll_WithInlineArrayAndFuzzy_ExecutesSuccessfully()
+    public async Task MatchAll_WithInlineArrayAndFuzzy()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -112,7 +112,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task MatchAll_WithArrayVariableAndFuzzy_ExecutesSuccessfully()
+    public async Task MatchAll_WithArrayVariableAndFuzzy()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -134,7 +134,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task MatchAll_WithBoost_ExecutesSuccessfully()
+    public async Task MatchAll_WithBoost()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -153,7 +153,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task MatchAll_WithInlineArrayAndBoost_ExecutesSuccessfully()
+    public async Task MatchAll_WithInlineArrayAndBoost()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -172,7 +172,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task MatchAll_WithArrayVariableAndBoost_ExecutesSuccessfully()
+    public async Task MatchAll_WithArrayVariableAndBoost()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -194,7 +194,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task MatchAll_WithConst_ExecutesSuccessfully()
+    public async Task MatchAll_WithConst()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -213,7 +213,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task MatchAll_WithInlineArrayAndConst_ExecutesSuccessfully()
+    public async Task MatchAll_WithInlineArrayAndConst()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -232,7 +232,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task MatchAll_WithArrayVariableAndConst_ExecutesSuccessfully()
+    public async Task MatchAll_WithArrayVariableAndConst()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -254,7 +254,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task MatchAll_WithFuzzyAndBoost_ExecutesSuccessfully()
+    public async Task MatchAll_WithFuzzyAndBoost()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -315,7 +315,7 @@ public sealed class MatchAllTests : TestBase
     ];
 
     [Test]
-    public async Task MatchAll_WithTokenizerVariations_ExecutesSuccessfully()
+    public async Task MatchAll_WithTokenizerVariations()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -342,7 +342,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task MatchAny_ExecutesSuccessfully()
+    public async Task MatchAny()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -359,7 +359,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task MatchAny_WithInlineArray_ExecutesSuccessfully()
+    public async Task MatchAny_WithInlineArray()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -378,7 +378,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task MatchAny_WithArrayVariable_ExecutesSuccessfully()
+    public async Task MatchAny_WithArrayVariable()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -398,7 +398,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task MatchAny_WithConst_ExecutesSuccessfully()
+    public async Task MatchAny_WithConst()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -417,7 +417,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Phrase_ExecutesSuccessfully()
+    public async Task Phrase()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -434,7 +434,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Phrase_WithInlineArray_ExecutesSuccessfully()
+    public async Task Phrase_WithInlineArray()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -453,7 +453,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Phrase_WithArrayVariable_ExecutesSuccessfully()
+    public async Task Phrase_WithArrayVariable()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -473,7 +473,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Phrase_WithBoost_ExecutesSuccessfully()
+    public async Task Phrase_WithBoost()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -492,7 +492,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Phrase_WithSlop_ExecutesSuccessfully()
+    public async Task Phrase_WithSlop()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -511,7 +511,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Phrase_WithInlineArrayAndSlop_ExecutesSuccessfully()
+    public async Task Phrase_WithInlineArrayAndSlop()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -530,7 +530,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Phrase_WithArrayVariableAndSlop_ExecutesSuccessfully()
+    public async Task Phrase_WithArrayVariableAndSlop()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -552,7 +552,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Proximity_ExecutesSuccessfully()
+    public async Task Proximity()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -571,7 +571,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Proximity_Ordered_ExecutesSuccessfully()
+    public async Task Proximity_Ordered()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -593,7 +593,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Proximity_WithVariableArguments_ExecutesSuccessfully()
+    public async Task Proximity_WithVariableArguments()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -619,7 +619,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Proximity_WithRegex_ExecutesSuccessfully()
+    public async Task Proximity_WithRegex()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -638,7 +638,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Proximity_WithRegexVariablePattern_ExecutesSuccessfully()
+    public async Task Proximity_WithRegexVariablePattern()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -660,7 +660,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Proximity_WithRegexAndMaxExpansions_ExecutesSuccessfully()
+    public async Task Proximity_WithRegexAndMaxExpansions()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -679,7 +679,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Proximity_WithArrayOfTokens_ExecutesSuccessfully()
+    public async Task Proximity_WithArrayOfTokens()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -701,7 +701,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Proximity_WithArrayOfVariableTokens_ExecutesSuccessfully()
+    public async Task Proximity_WithArrayOfVariableTokens()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -725,7 +725,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Proximity_WithArrayOfMixedOperands_ExecutesSuccessfully()
+    public async Task Proximity_WithArrayOfMixedOperands()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -748,7 +748,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Proximity_Chained_ExecutesSuccessfully()
+    public async Task Proximity_Chained()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -770,7 +770,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Score_ExecutesSuccessfully()
+    public async Task Score()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -794,7 +794,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Snippet_ExecutesSuccessfully()
+    public async Task Snippet()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -813,7 +813,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Snippet_WithInlineMaxNumChars_ExecutesSuccessfully()
+    public async Task Snippet_WithInlineMaxNumChars()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -832,7 +832,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Snippet_WithVariableMaxNumChars_ExecutesSuccessfully()
+    public async Task Snippet_WithVariableMaxNumChars()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -854,7 +854,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Snippet_WithInlineTags_ExecutesSuccessfully()
+    public async Task Snippet_WithInlineTags()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -873,7 +873,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Snippet_WithVariableTags_ExecutesSuccessfully()
+    public async Task Snippet_WithVariableTags()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -897,7 +897,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Snippet_WithInlineTagsAndMaxNumChars_ExecutesSuccessfully()
+    public async Task Snippet_WithInlineTagsAndMaxNumChars()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -916,7 +916,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Snippet_WithVariableTagsAndMaxNumChars_ExecutesSuccessfully()
+    public async Task Snippet_WithVariableTagsAndMaxNumChars()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -963,7 +963,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Term_ExecutesSuccessfully()
+    public async Task Term()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -980,7 +980,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Term_WithInlineArray_ExecutesSuccessfully()
+    public async Task Term_WithInlineArray()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -999,7 +999,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Term_WithArrayVariable_ExecutesSuccessfully()
+    public async Task Term_WithArrayVariable()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -1019,7 +1019,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Term_WithFuzzy_ExecutesSuccessfully()
+    public async Task Term_WithFuzzy()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -1038,7 +1038,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Alias_WithInlineAlias_ExecutesSuccessfully()
+    public async Task Alias_WithInlineAlias()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -1062,7 +1062,7 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Alias_WithVariableAlias_ExecutesSuccessfully()
+    public async Task Alias_WithVariableAlias()
     {
         await using var context = DbFixture.CreateContext();
 
