@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using ParadeDB.EntityFrameworkCore.Tests.Persistence.Entities;
 
 namespace ParadeDB.EntityFrameworkCore.Tests.Persistence;
 

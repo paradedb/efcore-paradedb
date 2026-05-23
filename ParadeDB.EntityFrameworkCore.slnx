@@ -5,14 +5,12 @@
     <File Path=".gitignore" />
     <File Path="build.slnf" />
     <File Path="CHANGELOG.md" />
-    <File Path="CLAUDE.md" />
     <File Path="CONTRIBUTING.md" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
     <File Path="global.json" />
     <File Path="NUGET-README.md" />
     <File Path="README.md" />
-    <File Path="RELEASE.md" />
   </Folder>
   <Folder Name="/.solution/.config/">
     <File Path=".config\dotnet-tools.json" />

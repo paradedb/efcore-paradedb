@@ -1,9 +1,12 @@
 using System.Text.RegularExpressions;
+
 using Microsoft.EntityFrameworkCore;
+
 using ParadeDB.EntityFrameworkCore.Extensions;
+
 using Shouldly;
 
-namespace ParadeDB.EntityFrameworkCore.Tests.Query;
+namespace ParadeDB.EntityFrameworkCore.Tests;
 
 public sealed class MatchAllTests : TestBase
 {
