@@ -83,7 +83,7 @@ internal sealed class ProximityTranslator : IMethodCallTranslator
             arguments: mapped,
             nullable: true,
             argumentsPropagateNullability: new bool[mapped.Length],
-            returnType: typeof(PdbQuery),
+            returnType: typeof(PdbProximityQuery),
             typeMapping: PdbTypeMappings.Text
         );
     }
