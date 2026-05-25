@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ParadeDB.EntityFrameworkCore.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class PdbMoreLikeThisQueryExtensions
 {
     extension(PdbMoreLikeThisQuery source)

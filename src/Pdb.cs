@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using ParadeDB.EntityFrameworkCore.Modifiers;
 
 namespace ParadeDB.EntityFrameworkCore;
 
+[ExcludeFromCodeCoverage]
 public static partial class Pdb
 {
     public static Boost Boost(float factor) => new(factor);
