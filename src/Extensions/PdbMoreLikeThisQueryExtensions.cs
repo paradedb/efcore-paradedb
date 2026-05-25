@@ -14,11 +14,6 @@ public static class PdbMoreLikeThisQueryExtensions
                 CoreStrings.FunctionOnClient(nameof(MinTermFrequency))
             );
 
-        public PdbMoreLikeThisQuery MaxTermFrequency(int value) =>
-            throw new InvalidOperationException(
-                CoreStrings.FunctionOnClient(nameof(MaxTermFrequency))
-            );
-
         public PdbMoreLikeThisQuery MinDocFrequency(int value) =>
             throw new InvalidOperationException(
                 CoreStrings.FunctionOnClient(nameof(MinDocFrequency))

@@ -50,10 +50,6 @@ internal sealed class MoreLikeThisTranslator : IMethodCallTranslator
                     "min_term_frequency",
                     value
                 ),
-                nameof(PdbMoreLikeThisQueryExtensions.MaxTermFrequency) => carrier.AppendNamed(
-                    "max_term_frequency",
-                    value
-                ),
                 nameof(PdbMoreLikeThisQueryExtensions.MinDocFrequency) => carrier.AppendNamed(
                     "min_doc_frequency",
                     value
