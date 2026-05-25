@@ -102,7 +102,7 @@ public static class ParadeDbFunctionsExtensions
         TProperty property,
         PdbMoreLikeThisQuery query
     ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MoreLikeThis)));
-    
+
     [DbFunction]
     public static string Alias<TProperty>(
         this DbFunctions _,

@@ -1,10 +1,6 @@
 using System.Text.RegularExpressions;
-
 using Microsoft.EntityFrameworkCore;
-
-using ParadeDB.EntityFrameworkCore;
 using ParadeDB.EntityFrameworkCore.Extensions;
-
 using Shouldly;
 
 namespace ParadeDB.EntityFrameworkCore.Tests;
@@ -1180,9 +1176,7 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.MockItems.Where(p =>
-            EF.Functions.MoreLikeThis(p.Id, Pdb.Mlt(5))
-        );
+        var query = context.MockItems.Where(p => EF.Functions.MoreLikeThis(p.Id, Pdb.Mlt(5)));
 
         var sql = """
             SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
@@ -1193,7 +1187,7 @@ public sealed class MatchAllTests : TestBase
         AssertSql(query, sql);
         await query.ToListAsync();
     }
-    
+
     [Test]
     public async Task MoreLikeThis_WithVariableId()
     {
@@ -1201,16 +1195,14 @@ public sealed class MatchAllTests : TestBase
 
         int id = 5;
 
-        var query = context.MockItems.Where(p =>
-            EF.Functions.MoreLikeThis(p.Id, Pdb.Mlt(id))
-        );
+        var query = context.MockItems.Where(p => EF.Functions.MoreLikeThis(p.Id, Pdb.Mlt(id)));
 
         var sql = """
-                  -- @p='5'
-                  SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-                  FROM mock_items AS m
-                  WHERE m.id @@@ pdb.more_like_this(@p)
-                  """;
+            -- @p='5'
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.id @@@ pdb.more_like_this(@p)
+            """;
 
         AssertSql(query, sql);
         await query.ToListAsync();
@@ -1222,10 +1214,7 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.MoreLikeThis(
-                p.Id,
-                Pdb.Mlt("""{"description":"running shoes"}""")
-            )
+            EF.Functions.MoreLikeThis(p.Id, Pdb.Mlt("""{"description":"running shoes"}"""))
         );
 
         var sql = """
@@ -1237,7 +1226,7 @@ public sealed class MatchAllTests : TestBase
         AssertSql(query, sql);
         await query.ToListAsync();
     }
-    
+
     [Test]
     public async Task MoreLikeThis_WithVariableDocument()
     {
@@ -1246,18 +1235,15 @@ public sealed class MatchAllTests : TestBase
         string document = """{"description":"running shoes"}""";
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.MoreLikeThis(
-                p.Id,
-                Pdb.Mlt(document)
-            )
+            EF.Functions.MoreLikeThis(p.Id, Pdb.Mlt(document))
         );
 
         var sql = """
-                  -- @document='{"description":"running shoes"}'
-                  SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-                  FROM mock_items AS m
-                  WHERE m.id @@@ pdb.more_like_this(@document)
-                  """;
+            -- @document='{"description":"running shoes"}'
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.id @@@ pdb.more_like_this(@document)
+            """;
 
         AssertSql(query, sql);
         await query.ToListAsync();
@@ -1324,19 +1310,19 @@ public sealed class MatchAllTests : TestBase
         );
 
         var sql = """
-                  -- @p='5'
-                  -- @fields={ 'description', 'category' } (DbType = Object)
-                  -- @minTermFrequency='2'
-                  -- @minDocFrequency='3'
-                  -- @maxDocFrequency='100'
-                  -- @maxQueryTerms='12'
-                  -- @minWordLength='3'
-                  -- @maxWordLength='20'
-                  -- @stopwords={ 'the', 'and' } (DbType = Object)
-                  SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-                  FROM mock_items AS m
-                  WHERE m.id @@@ pdb.more_like_this(@p, @fields, min_term_frequency => @minTermFrequency, min_doc_frequency => @minDocFrequency, max_doc_frequency => @maxDocFrequency, max_query_terms => @maxQueryTerms, min_word_length => @minWordLength, max_word_length => @maxWordLength, stopwords => @stopwords)
-                  """;
+            -- @p='5'
+            -- @fields={ 'description', 'category' } (DbType = Object)
+            -- @minTermFrequency='2'
+            -- @minDocFrequency='3'
+            -- @maxDocFrequency='100'
+            -- @maxQueryTerms='12'
+            -- @minWordLength='3'
+            -- @maxWordLength='20'
+            -- @stopwords={ 'the', 'and' } (DbType = Object)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.id @@@ pdb.more_like_this(@p, @fields, min_term_frequency => @minTermFrequency, min_doc_frequency => @minDocFrequency, max_doc_frequency => @maxDocFrequency, max_query_terms => @maxQueryTerms, min_word_length => @minWordLength, max_word_length => @maxWordLength, stopwords => @stopwords)
+            """;
 
         AssertSql(query, sql);
         await query.ToListAsync();
