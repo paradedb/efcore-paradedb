@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -22,9 +23,8 @@ internal sealed class PdbAccumulatorExpression : SqlExpression
     private const string NotSupportedMessage =
         $"{nameof(PdbAccumulatorExpression)} is an intermediate carrier consumed during translation and must never appear in a final SQL expression tree.";
 
-    protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
-
 #if NET9_0_OR_GREATER
+    [ExcludeFromCodeCoverage]
     public override Expression Quote() => throw new NotSupportedException(NotSupportedMessage);
 #endif
 
@@ -41,11 +41,7 @@ internal sealed class PdbAccumulatorExpression : SqlExpression
     public PdbAccumulatorExpression AppendNamed(string name, SqlExpression argument) =>
         With(argument, name);
 
+    [ExcludeFromCodeCoverage]
     protected override void Print(ExpressionPrinter expressionPrinter) =>
         throw new NotSupportedException(NotSupportedMessage);
-
-    public override bool Equals(object? obj) =>
-        throw new NotSupportedException(NotSupportedMessage);
-
-    public override int GetHashCode() => throw new NotSupportedException(NotSupportedMessage);
 }

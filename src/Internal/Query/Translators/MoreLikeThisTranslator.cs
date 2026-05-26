@@ -115,7 +115,7 @@ internal sealed class MoreLikeThisTranslator : IMethodCallTranslator
             name: "pdb.more_like_this",
             arguments: carrier.Arguments,
             argumentNames: carrier.ArgumentNames,
-            nullable: true,
+            nullable: false,
             argumentsPropagateNullability: new bool[carrier.Arguments.Count],
             builtIn: false,
             type: typeof(PdbMoreLikeThisQuery),
