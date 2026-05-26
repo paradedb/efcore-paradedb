@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 
 namespace ParadeDB.EntityFrameworkCore.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class PdbProximityQueryExtensions
 {
     extension(PdbProximityQuery left)

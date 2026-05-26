@@ -15,6 +15,7 @@ internal sealed class ParadeDbMethodCallTranslatorPlugin : IMethodCallTranslator
             new SnippetTranslator(sqlExpressionFactory),
             new ProximityTranslator(sqlExpressionFactory),
             new TokenizeTranslator(sqlExpressionFactory),
+            new MoreLikeThisTranslator(sqlExpressionFactory),
             new AliasTranslator(sqlExpressionFactory),
         ];
     }

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using NpgsqlTypes;
 
-namespace ParadeDB.EntityFrameworkCore.Tests.Persistence.Entities;
+namespace ParadeDB.EntityFrameworkCore.Tests.Persistence;
 
 public sealed class MockItem
 {

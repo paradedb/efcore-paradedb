@@ -97,6 +97,13 @@ public static class ParadeDbFunctionsExtensions
     ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(TokenizeAsArray)));
 
     [DbFunction]
+    public static bool MoreLikeThis<TProperty>(
+        this DbFunctions _,
+        TProperty property,
+        PdbMoreLikeThisQuery query
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MoreLikeThis)));
+
+    [DbFunction]
     public static string Alias<TProperty>(
         this DbFunctions _,
         TProperty property,

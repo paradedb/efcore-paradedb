@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace ParadeDB.EntityFrameworkCore;
 
 [ExcludeFromCodeCoverage]
-public abstract class PdbQuery
+public abstract class PdbMoreLikeThisQuery : PdbQuery
 {
-    private protected PdbQuery() { }
+    private protected PdbMoreLikeThisQuery() { }
 }
