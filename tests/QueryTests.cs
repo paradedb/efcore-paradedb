@@ -1331,4 +1331,22 @@ public sealed class MatchAllTests : TestBase
         AssertSql(query, sql);
         await query.ToListAsync();
     }
+
+    [Test]
+    public async Task Aggregate_ValueCount()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context.MockItems.Select(p =>
+            EF.Functions.Agg(new { value_count = new { field = "rating" } })
+        );
+
+        var sql = """
+            SELECT pdb.agg('{"value_count":{"field":"rating"}}', TRUE)
+            FROM mock_items AS m
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
 }
