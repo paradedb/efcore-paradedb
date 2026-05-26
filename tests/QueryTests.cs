@@ -1176,7 +1176,9 @@ public sealed class MatchAllTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.MockItems.Where(p => EF.Functions.MoreLikeThis(p.Id, Pdb.Mlt(5)));
+        var query = context.MockItems.Where(p =>
+            EF.Functions.MoreLikeThis(p.Id, Pdb.DocumentId(5))
+        );
 
         var sql = """
             SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
@@ -1195,7 +1197,9 @@ public sealed class MatchAllTests : TestBase
 
         int id = 5;
 
-        var query = context.MockItems.Where(p => EF.Functions.MoreLikeThis(p.Id, Pdb.Mlt(id)));
+        var query = context.MockItems.Where(p =>
+            EF.Functions.MoreLikeThis(p.Id, Pdb.DocumentId(id))
+        );
 
         var sql = """
             -- @p='5'
@@ -1214,7 +1218,7 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.MoreLikeThis(p.Id, Pdb.Mlt("""{"description":"running shoes"}"""))
+            EF.Functions.MoreLikeThis(p.Id, Pdb.Document("""{"description":"running shoes"}"""))
         );
 
         var sql = """
@@ -1235,7 +1239,7 @@ public sealed class MatchAllTests : TestBase
         string document = """{"description":"running shoes"}""";
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.MoreLikeThis(p.Id, Pdb.Mlt(document))
+            EF.Functions.MoreLikeThis(p.Id, Pdb.Document(document))
         );
 
         var sql = """
@@ -1257,7 +1261,7 @@ public sealed class MatchAllTests : TestBase
         var query = context.MockItems.Where(p =>
             EF.Functions.MoreLikeThis(
                 p.Id,
-                Pdb.Mlt(5)
+                Pdb.DocumentId(5)
                     .Fields("description", "category")
                     .MinTermFrequency(2)
                     .MinDocFrequency(3)
@@ -1297,7 +1301,7 @@ public sealed class MatchAllTests : TestBase
         var query = context.MockItems.Where(p =>
             EF.Functions.MoreLikeThis(
                 p.Id,
-                Pdb.Mlt(id)
+                Pdb.DocumentId(id)
                     .Fields(fields)
                     .MinTermFrequency(minTermFrequency)
                     .MinDocFrequency(minDocFrequency)

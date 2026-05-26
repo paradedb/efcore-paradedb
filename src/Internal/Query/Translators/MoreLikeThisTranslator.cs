@@ -28,7 +28,10 @@ internal sealed class MoreLikeThisTranslator : IMethodCallTranslator
     {
         var declaring = method.DeclaringType;
 
-        if (declaring == typeof(Pdb) && method.Name == nameof(Pdb.Mlt))
+        if (
+            declaring == typeof(Pdb)
+            && (method.Name == nameof(Pdb.DocumentId) || method.Name == nameof(Pdb.Document))
+        )
         {
             return TranslateMlt(arguments);
         }
