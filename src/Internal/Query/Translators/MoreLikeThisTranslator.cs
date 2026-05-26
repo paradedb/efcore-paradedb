@@ -30,76 +30,98 @@ internal sealed class MoreLikeThisTranslator : IMethodCallTranslator
 
         if (declaring == typeof(Pdb) && method.Name == nameof(Pdb.Mlt))
         {
-            var seed = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[0]);
-            return new PdbAccumulatorExpression([seed], [null]);
+            return TranslateMlt(arguments);
         }
 
         if (declaring == typeof(PdbMoreLikeThisQueryExtensions))
         {
-            if (arguments[0] is not PdbAccumulatorExpression carrier)
-            {
-                return null;
-            }
-
-            var value = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[1]);
-
-            return method.Name switch
-            {
-                nameof(PdbMoreLikeThisQueryExtensions.Fields) => carrier.AppendPositional(value),
-                nameof(PdbMoreLikeThisQueryExtensions.MinTermFrequency) => carrier.AppendNamed(
-                    "min_term_frequency",
-                    value
-                ),
-                nameof(PdbMoreLikeThisQueryExtensions.MinDocFrequency) => carrier.AppendNamed(
-                    "min_doc_frequency",
-                    value
-                ),
-                nameof(PdbMoreLikeThisQueryExtensions.MaxDocFrequency) => carrier.AppendNamed(
-                    "max_doc_frequency",
-                    value
-                ),
-                nameof(PdbMoreLikeThisQueryExtensions.MaxQueryTerms) => carrier.AppendNamed(
-                    "max_query_terms",
-                    value
-                ),
-                nameof(PdbMoreLikeThisQueryExtensions.MinWordLength) => carrier.AppendNamed(
-                    "min_word_length",
-                    value
-                ),
-                nameof(PdbMoreLikeThisQueryExtensions.MaxWordLength) => carrier.AppendNamed(
-                    "max_word_length",
-                    value
-                ),
-                nameof(PdbMoreLikeThisQueryExtensions.Stopwords) => carrier.AppendNamed(
-                    "stopwords",
-                    value
-                ),
-                _ => null,
-            };
+            return TranslateExtension(method, arguments);
         }
 
         if (
             declaring == typeof(ParadeDbFunctionsExtensions)
             && method.Name == nameof(ParadeDbFunctionsExtensions.MoreLikeThis)
-            && arguments[2] is PdbAccumulatorExpression matchCarrier
         )
         {
-            var column = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[1]);
-
-            var function = PgFunctionExpression.CreateWithNamedArguments(
-                name: "pdb.more_like_this",
-                arguments: matchCarrier.Arguments,
-                argumentNames: matchCarrier.ArgumentNames,
-                nullable: true,
-                argumentsPropagateNullability: new bool[matchCarrier.Arguments.Count],
-                builtIn: false,
-                type: typeof(PdbMoreLikeThisQuery),
-                typeMapping: PdbTypeMappings.Text
-            );
-
-            return new PdbBoolExpression(column, function, PdbOperatorType.Function);
+            return TranslateMoreLikeThis(arguments);
         }
 
         return null;
+    }
+
+    private PdbAccumulatorExpression TranslateMlt(IReadOnlyList<SqlExpression> arguments)
+    {
+        var seed = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[0]);
+        return new PdbAccumulatorExpression([seed], [null]);
+    }
+
+    private PdbAccumulatorExpression? TranslateExtension(
+        MethodInfo method,
+        IReadOnlyList<SqlExpression> arguments
+    )
+    {
+        if (arguments[0] is not PdbAccumulatorExpression carrier)
+        {
+            return null;
+        }
+
+        var value = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[1]);
+
+        return method.Name switch
+        {
+            nameof(PdbMoreLikeThisQueryExtensions.Fields) => carrier.AppendPositional(value),
+            nameof(PdbMoreLikeThisQueryExtensions.MinTermFrequency) => carrier.AppendNamed(
+                "min_term_frequency",
+                value
+            ),
+            nameof(PdbMoreLikeThisQueryExtensions.MinDocFrequency) => carrier.AppendNamed(
+                "min_doc_frequency",
+                value
+            ),
+            nameof(PdbMoreLikeThisQueryExtensions.MaxDocFrequency) => carrier.AppendNamed(
+                "max_doc_frequency",
+                value
+            ),
+            nameof(PdbMoreLikeThisQueryExtensions.MaxQueryTerms) => carrier.AppendNamed(
+                "max_query_terms",
+                value
+            ),
+            nameof(PdbMoreLikeThisQueryExtensions.MinWordLength) => carrier.AppendNamed(
+                "min_word_length",
+                value
+            ),
+            nameof(PdbMoreLikeThisQueryExtensions.MaxWordLength) => carrier.AppendNamed(
+                "max_word_length",
+                value
+            ),
+            nameof(PdbMoreLikeThisQueryExtensions.Stopwords) => carrier.AppendNamed(
+                "stopwords",
+                value
+            ),
+            _ => null,
+        };
+    }
+
+    private PdbBoolExpression? TranslateMoreLikeThis(IReadOnlyList<SqlExpression> arguments)
+    {
+        if (arguments[2] is not PdbAccumulatorExpression carrier)
+        {
+            return null;
+        }
+
+        var column = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[1]);
+
+        var function = PgFunctionExpression.CreateWithNamedArguments(
+            name: "pdb.more_like_this",
+            arguments: carrier.Arguments,
+            argumentNames: carrier.ArgumentNames,
+            nullable: true,
+            argumentsPropagateNullability: new bool[carrier.Arguments.Count],
+            builtIn: false,
+            type: typeof(PdbMoreLikeThisQuery),
+            typeMapping: PdbTypeMappings.Text
+        );
+
+        return new PdbBoolExpression(column, function, PdbOperatorType.Function);
     }
 }
