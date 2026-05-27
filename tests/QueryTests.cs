@@ -832,7 +832,7 @@ public sealed class MatchAllTests : TestBase
         var sql = """
             SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
             FROM mock_items AS m
-            WHERE m.id @@@ pdb."all"()
+            WHERE m.id @@@ pdb.all()
             """;
 
         AssertSql(query, sql);
