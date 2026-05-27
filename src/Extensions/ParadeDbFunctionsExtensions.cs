@@ -59,25 +59,19 @@ public static class ParadeDbFunctionsExtensions
     public static string? Snippet<TProperty>(
         this DbFunctions _,
         TProperty property,
-        int maxNumChars
+        [NotParameterized] SnippetOptions? options
     ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Snippet)));
 
     [DbFunction]
-    public static string? Snippet<TProperty>(
-        this DbFunctions _,
-        TProperty property,
-        string startTag,
-        string endTag
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Snippet)));
+    public static string[]? Snippets<TProperty>(this DbFunctions _, TProperty property) =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Snippets)));
 
     [DbFunction]
-    public static string? Snippet<TProperty>(
+    public static string[]? Snippets<TProperty>(
         this DbFunctions _,
         TProperty property,
-        string startTag,
-        string endTag,
-        int maxNumChars
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Snippet)));
+        [NotParameterized] SnippetsOptions? options
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Snippets)));
 
     [DbFunction]
     public static bool Query<TProperty>(this DbFunctions _, TProperty property, PdbQuery query) =>

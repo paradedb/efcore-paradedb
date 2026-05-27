@@ -18,6 +18,7 @@ internal sealed class Translator : IMethodCallTranslator
 {
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly RelationalTypeMapping _jsonbTypeMapping;
+    private readonly RelationalTypeMapping _stringArrayTypeMapping;
 
     public Translator(
         ISqlExpressionFactory sqlExpressionFactory,
@@ -26,6 +27,7 @@ internal sealed class Translator : IMethodCallTranslator
     {
         _sqlExpressionFactory = sqlExpressionFactory;
         _jsonbTypeMapping = typeMappingSource.FindMapping(typeof(JsonElement), "jsonb")!;
+        _stringArrayTypeMapping = typeMappingSource.FindMapping(typeof(string[]))!;
     }
 
     public SqlExpression? Translate(
@@ -72,6 +74,7 @@ internal sealed class Translator : IMethodCallTranslator
                 returnType: typeof(bool)
             ),
             nameof(ParadeDbFunctionsExtensions.Snippet) => BuildSnippet(arguments),
+            nameof(ParadeDbFunctionsExtensions.Snippets) => BuildSnippets(arguments),
             nameof(ParadeDbFunctionsExtensions.Query)
                 when method.DeclaringType == typeof(ParadeDbFunctionsExtensions) =>
                 BuildQueryBuilder(arguments),
@@ -136,37 +139,80 @@ internal sealed class Translator : IMethodCallTranslator
 
     private SqlExpression? BuildSnippet(IReadOnlyList<SqlExpression> arguments)
     {
+        var options =
+            arguments.Count == 3
+                ? (SnippetOptions?)((SqlConstantExpression)arguments[2]).Value
+                : null;
         List<SqlExpression> args = [arguments[1]];
-        List<bool> argsNullability = [false];
+        List<string?> argNames = [null];
 
-        if (arguments.Count == 3)
-        {
-            args.AddRange([
-                _sqlExpressionFactory.Constant("<b>"),
-                _sqlExpressionFactory.Constant("</b>"),
-                arguments[2],
-            ]);
+        Add(options?.startTag, "start_tag");
+        Add(options?.endTag, "end_tag");
+        Add(options?.maxNumChars, "max_num_chars");
 
-            argsNullability.AddRange([false, false, false]);
-        }
-        else if (arguments.Count == 4)
+        void Add(object? value, string name)
         {
-            args.AddRange([arguments[2], arguments[3]]);
-            argsNullability.AddRange([false, false]);
-        }
-        else if (arguments.Count == 5)
-        {
-            args.AddRange([arguments[2], arguments[3], arguments[4]]);
-            argsNullability.AddRange([false, false, false]);
+            if (value is null)
+            {
+                return;
+            }
+
+            args.Add(
+                _sqlExpressionFactory.ApplyDefaultTypeMapping(_sqlExpressionFactory.Constant(value))
+            );
+            argNames.Add(name);
         }
 
-        return _sqlExpressionFactory.Function(
-            name: "snippet",
-            schema: "pdb",
-            nullable: true,
+        return PgFunctionExpression.CreateWithNamedArguments(
+            name: "pdb.snippet",
             arguments: args,
-            argumentsPropagateNullability: argsNullability,
-            returnType: typeof(string)
+            argumentNames: argNames,
+            nullable: true,
+            argumentsPropagateNullability: new bool[args.Count],
+            builtIn: false,
+            type: typeof(string),
+            typeMapping: null
+        );
+    }
+
+    private SqlExpression? BuildSnippets(IReadOnlyList<SqlExpression> arguments)
+    {
+        var options =
+            arguments.Count == 3
+                ? (SnippetsOptions?)((SqlConstantExpression)arguments[2]).Value
+                : null;
+        List<SqlExpression> args = [arguments[1]];
+        List<string?> argNames = [null];
+
+        Add(options?.startTag, "start_tag");
+        Add(options?.endTag, "end_tag");
+        Add(options?.maxNumChars, "max_num_chars");
+        Add(options?.limit, "\"limit\"");
+        Add(options?.offset, "\"offset\"");
+        Add(options?.sortBy, "sort_by");
+
+        void Add(object? value, string name)
+        {
+            if (value is null)
+            {
+                return;
+            }
+
+            args.Add(
+                _sqlExpressionFactory.ApplyDefaultTypeMapping(_sqlExpressionFactory.Constant(value))
+            );
+            argNames.Add(name);
+        }
+
+        return PgFunctionExpression.CreateWithNamedArguments(
+            name: "pdb.snippets",
+            arguments: args,
+            argumentNames: argNames,
+            nullable: true,
+            argumentsPropagateNullability: new bool[args.Count],
+            builtIn: false,
+            type: typeof(string[]),
+            typeMapping: _stringArrayTypeMapping
         );
     }
 
