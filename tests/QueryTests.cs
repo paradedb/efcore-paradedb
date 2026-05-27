@@ -1595,4 +1595,49 @@ public sealed class QueryTests : TestBase
         AssertSql(query, sql);
         await query.ToListAsync();
     }
+
+    [Test]
+    public async Task PhrasePrefix()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Where(p =>
+                EF.Functions.Query(p.Description, Pdb.PhrasePrefix(new[] { "running", "shoes" }))
+            )
+            .Select(p => p.Description);
+
+        var sql = """
+            SELECT m.description
+            FROM mock_items AS m
+            WHERE m.description @@@ pdb.phrase_prefix(ARRAY['running','shoes']::text[])
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
+    public async Task PhrasePrefixMaxExpansions()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Where(p =>
+                EF.Functions.Query(
+                    p.Description,
+                    Pdb.PhrasePrefix(new[] { "running", "shoes" }, 100)
+                )
+            )
+            .Select(p => p.Description);
+
+        var sql = """
+            SELECT m.description
+            FROM mock_items AS m
+            WHERE m.description @@@ pdb.phrase_prefix(ARRAY['running','shoes']::text[], 100)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
 }

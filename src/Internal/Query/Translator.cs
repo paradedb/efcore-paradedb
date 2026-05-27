@@ -86,6 +86,7 @@ internal sealed class Translator : IMethodCallTranslator
                 argumentsPropagateNullability: [false],
                 returnType: typeof(bool)
             ),
+            nameof(Pdb.PhrasePrefix) => BuildPhrasePrefix(arguments),
             nameof(ParadeDbFunctionsExtensions.Snippet) => BuildSnippet(arguments),
             nameof(ParadeDbFunctionsExtensions.Snippets) => BuildSnippets(arguments),
             nameof(ParadeDbFunctionsExtensions.SnippetPositions) => _sqlExpressionFactory.Function(
@@ -126,6 +127,25 @@ internal sealed class Translator : IMethodCallTranslator
             ),
             _ => null,
         };
+    }
+
+    private SqlExpression? BuildPhrasePrefix(IReadOnlyList<SqlExpression> arguments)
+    {
+        List<SqlExpression> args = [arguments[0]];
+
+        // If the user didn't pass in max_expansions, let the DB do the defaulting
+        if (arguments[1] is not SqlConstantExpression { Value: null })
+        {
+            args.Add(arguments[1]);
+        }
+
+        return _sqlExpressionFactory.Function(
+            name: "pdb.phrase_prefix",
+            nullable: false,
+            arguments: args,
+            argumentsPropagateNullability: new bool[args.Count],
+            returnType: typeof(bool)
+        );
     }
 
     private SqlExpression? BuildModifier(IReadOnlyList<SqlExpression> arguments, string methodName)
