@@ -74,6 +74,10 @@ public static class ParadeDbFunctionsExtensions
     ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Snippets)));
 
     [DbFunction]
+    public static int[,]? SnippetPositions<TProperty>(this DbFunctions _, TProperty property) =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(SnippetPositions)));
+
+    [DbFunction]
     public static bool Query<TProperty>(this DbFunctions _, TProperty property, PdbQuery query) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Query)));
 

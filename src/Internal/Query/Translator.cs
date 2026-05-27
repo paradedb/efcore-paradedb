@@ -74,6 +74,13 @@ internal sealed class Translator : IMethodCallTranslator
             ),
             nameof(ParadeDbFunctionsExtensions.Snippet) => BuildSnippet(arguments),
             nameof(ParadeDbFunctionsExtensions.Snippets) => BuildSnippets(arguments),
+            nameof(ParadeDbFunctionsExtensions.SnippetPositions) => _sqlExpressionFactory.Function(
+                name: "pdb.snippet_positions",
+                nullable: true,
+                arguments: [arguments[1]],
+                argumentsPropagateNullability: [false],
+                returnType: typeof(int[,])
+            ),
             nameof(ParadeDbFunctionsExtensions.Query)
                 when method.DeclaringType == typeof(ParadeDbFunctionsExtensions) =>
                 BuildQueryBuilder(arguments),
