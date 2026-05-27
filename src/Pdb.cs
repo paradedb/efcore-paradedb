@@ -6,7 +6,7 @@ using ParadeDB.EntityFrameworkCore.Modifiers;
 namespace ParadeDB.EntityFrameworkCore;
 
 [ExcludeFromCodeCoverage]
-public static partial class Pdb
+public static class Pdb
 {
     public static Boost Boost(float factor) => new(factor);
 
@@ -68,4 +68,7 @@ public static partial class Pdb
 
     public static PdbProximityQuery ProximityArray(params PdbProximityQuery[] operands) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(ProximityArray)));
+
+    public static AllQuery All() =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AllQuery)));
 }

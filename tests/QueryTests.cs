@@ -586,7 +586,7 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.Proximity(p.Description, Pdb.Proximity("sleek").Within(1, "shoes"))
+            EF.Functions.Query(p.Description, Pdb.Proximity("sleek").Within(1, "shoes"))
         );
 
         var sql = """
@@ -605,7 +605,7 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.Proximity(
+            EF.Functions.Query(
                 p.Description,
                 Pdb.Proximity("sleek").Within(1, "shoes", ordered: true)
             )
@@ -631,7 +631,7 @@ public sealed class MatchAllTests : TestBase
         int distance = 1;
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.Proximity(p.Description, Pdb.Proximity(left).Within(distance, right))
+            EF.Functions.Query(p.Description, Pdb.Proximity(left).Within(distance, right))
         );
 
         var sql = """
@@ -653,7 +653,7 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.Proximity(p.Description, Pdb.ProximityRegex("sl.*").Within(1, "shoes"))
+            EF.Functions.Query(p.Description, Pdb.ProximityRegex("sl.*").Within(1, "shoes"))
         );
 
         var sql = """
@@ -674,7 +674,7 @@ public sealed class MatchAllTests : TestBase
         string pattern = "sl.*";
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.Proximity(p.Description, Pdb.ProximityRegex(pattern).Within(1, "shoes"))
+            EF.Functions.Query(p.Description, Pdb.ProximityRegex(pattern).Within(1, "shoes"))
         );
 
         var sql = """
@@ -694,10 +694,7 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.Proximity(
-                p.Description,
-                Pdb.ProximityRegex("sl.*", 100).Within(1, "shoes")
-            )
+            EF.Functions.Query(p.Description, Pdb.ProximityRegex("sl.*", 100).Within(1, "shoes"))
         );
 
         var sql = """
@@ -716,7 +713,7 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.Proximity(
+            EF.Functions.Query(
                 p.Description,
                 Pdb.ProximityArray("sleek", "white").Within(1, "shoes")
             )
@@ -741,7 +738,7 @@ public sealed class MatchAllTests : TestBase
         string t2 = "white";
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.Proximity(p.Description, Pdb.ProximityArray(t1, t2).Within(1, "shoes"))
+            EF.Functions.Query(p.Description, Pdb.ProximityArray(t1, t2).Within(1, "shoes"))
         );
 
         var sql = """
@@ -762,7 +759,7 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.Proximity(
+            EF.Functions.Query(
                 p.Description,
                 Pdb.ProximityArray(Pdb.ProximityRegex("sl.*"), Pdb.ProximityArray("white"))
                     .Within(1, "shoes")
@@ -785,7 +782,7 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.Proximity(
+            EF.Functions.Query(
                 p.Description,
                 Pdb.Proximity("sleek").Within(1, "running").Within(2, "shoes")
             )
@@ -819,6 +816,23 @@ public sealed class MatchAllTests : TestBase
             SELECT m.id AS "Id", m.category AS "Category", pdb.score(m.description) AS "Score"
             FROM mock_items AS m
             WHERE m.description === 'rich'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
+    public async Task All()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context.MockItems.Where(p => EF.Functions.Query(p.Id, Pdb.All()));
+
+        var sql = """
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.id @@@ pdb."all"()
             """;
 
         AssertSql(query, sql);
