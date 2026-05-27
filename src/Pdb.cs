@@ -71,4 +71,7 @@ public static class Pdb
 
     public static AllQuery All() =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AllQuery)));
+
+    public static ExistsQuery Exists() =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(ExistsQuery)));
 }
