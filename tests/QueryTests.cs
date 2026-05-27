@@ -1028,6 +1028,45 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
+    public async Task Snippets()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
+            .Select(p => EF.Functions.Snippets(p.Description));
+
+        var sql = """
+            SELECT pdb.snippets(m.description)
+            FROM mock_items AS m
+            WHERE m.description === 'rich'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
+    public async Task Snippets_WithOptions()
+    {
+        await using var context = DbFixture.CreateContext();
+        var options = new SnippetsOptions("<a>", "</a>", 15, 1, 1, "position");
+
+        var query = context
+            .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
+            .Select(p => EF.Functions.Snippets(p.Description, options));
+
+        var sql = """
+            SELECT pdb.snippets(m.description, start_tag => '<a>', end_tag => '</a>', max_num_chars => 15, "limit" => 1, "offset" => 1, sort_by => 'position')
+            FROM mock_items AS m
+            WHERE m.description === 'rich'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
     public async Task Term()
     {
         await using var context = DbFixture.CreateContext();
