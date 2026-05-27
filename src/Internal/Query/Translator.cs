@@ -64,10 +64,9 @@ internal sealed class Translator : IMethodCallTranslator
                 returnType: typeof(float)
             ),
             nameof(ParadeDbFunctionsExtensions.Snippet) => BuildSnippet(arguments),
-            nameof(ParadeDbFunctionsExtensions.Proximity)
-                when method.DeclaringType == typeof(ParadeDbFunctionsExtensions) => BuildProximity(
-                arguments
-            ),
+            nameof(ParadeDbFunctionsExtensions.Query)
+                when method.DeclaringType == typeof(ParadeDbFunctionsExtensions) =>
+                BuildQueryBuilder(arguments),
             nameof(Pdb.Proximity) => _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[0]),
             nameof(Pdb.ProximityRegex) => BuildProximityFunction("prox_regex", arguments),
             nameof(Pdb.ProximityArray) => BuildProximityFunction("prox_array", arguments),
@@ -163,7 +162,7 @@ internal sealed class Translator : IMethodCallTranslator
         );
     }
 
-    private SqlExpression? BuildProximity(IReadOnlyList<SqlExpression> arguments)
+    private SqlExpression? BuildQueryBuilder(IReadOnlyList<SqlExpression> arguments)
     {
         var column = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[1]);
         var query = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2]);
