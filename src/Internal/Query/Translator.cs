@@ -86,6 +86,7 @@ internal sealed class Translator : IMethodCallTranslator
                 argumentsPropagateNullability: [false],
                 returnType: typeof(bool)
             ),
+            nameof(Pdb.RangeTerm) => BuildRangeTerm(arguments),
             nameof(Pdb.PhrasePrefix) => BuildPhrasePrefix(arguments),
             nameof(ParadeDbFunctionsExtensions.Snippet) => BuildSnippet(arguments),
             nameof(ParadeDbFunctionsExtensions.Snippets) => BuildSnippets(arguments),
@@ -141,6 +142,28 @@ internal sealed class Translator : IMethodCallTranslator
 
         return _sqlExpressionFactory.Function(
             name: "pdb.phrase_prefix",
+            nullable: false,
+            arguments: args,
+            argumentsPropagateNullability: new bool[args.Count],
+            returnType: typeof(bool)
+        );
+    }
+
+    private SqlExpression? BuildRangeTerm(IReadOnlyList<SqlExpression> arguments)
+    {
+        List<SqlExpression> args = [_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[0])];
+
+        if (arguments.Count > 1)
+        {
+            args.Add(
+                arguments[1] is SqlConstantExpression { Value: RangeTermRelation relation }
+                    ? _sqlExpressionFactory.Constant(relation.ToString())
+                    : arguments[1]
+            );
+        }
+
+        return _sqlExpressionFactory.Function(
+            name: "pdb.range_term",
             nullable: false,
             arguments: args,
             argumentsPropagateNullability: new bool[args.Count],

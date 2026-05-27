@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using NpgsqlTypes;
 using ParadeDB.EntityFrameworkCore.Extensions;
 using Shouldly;
 
@@ -850,6 +851,47 @@ public sealed class QueryTests : TestBase
             SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
             FROM mock_items AS m
             WHERE m.id @@@ pdb.exists()
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
+    public async Task RangeTerm()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context.MockItems.Where(p =>
+            EF.Functions.Query(p.WeightRange, Pdb.RangeTerm(1))
+        );
+
+        var sql = """
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.weight_range @@@ pdb.range_term(1)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
+    public async Task RangeTerm_WithRelation()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var range = new NpgsqlRange<int>(10, false, 12, true);
+
+        var query = context.MockItems.Where(p =>
+            EF.Functions.Query(p.WeightRange, Pdb.RangeTerm(range, RangeTermRelation.Intersects))
+        );
+
+        var sql = """
+            -- @range='(10,12]' (DbType = Object)
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.weight_range @@@ pdb.range_term(@range, 'Intersects')
             """;
 
         AssertSql(query, sql);
