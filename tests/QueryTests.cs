@@ -823,6 +823,23 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
+    public async Task All()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context.MockItems.Where(p => EF.Functions.Query(p.Id, Pdb.All()));
+
+        var sql = """
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.id @@@ pdb."all"()
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
     public async Task Snippet()
     {
         await using var context = DbFixture.CreateContext();

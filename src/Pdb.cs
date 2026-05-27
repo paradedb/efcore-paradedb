@@ -68,4 +68,7 @@ public static class Pdb
 
     public static PdbProximityQuery ProximityArray(params PdbProximityQuery[] operands) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(ProximityArray)));
+
+    public static AllQuery All() =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AllQuery)));
 }

@@ -63,6 +63,14 @@ internal sealed class Translator : IMethodCallTranslator
                 argumentsPropagateNullability: [false],
                 returnType: typeof(float)
             ),
+            nameof(Pdb.All) => _sqlExpressionFactory.Function(
+                name: "all",
+                schema: "pdb",
+                nullable: false,
+                arguments: [],
+                argumentsPropagateNullability: [],
+                returnType: typeof(bool)
+            ),
             nameof(ParadeDbFunctionsExtensions.Snippet) => BuildSnippet(arguments),
             nameof(ParadeDbFunctionsExtensions.Query)
                 when method.DeclaringType == typeof(ParadeDbFunctionsExtensions) =>
