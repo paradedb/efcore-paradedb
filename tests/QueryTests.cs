@@ -1639,6 +1639,94 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
+    public async Task RegexQuery()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Where(p => EF.Functions.Query(p.Description, Pdb.Regex("ru.*")))
+            .Select(p => p.Description);
+
+        var sql = """
+            SELECT m.description
+            FROM mock_items AS m
+            WHERE m.description @@@ pdb.regex('ru.*')
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
+    public async Task RegexPhrase()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Where(p =>
+                EF.Functions.Query(p.Description, Pdb.RegexPhrase(new[] { "ru.*", "shoes" }))
+            )
+            .Select(p => p.Description);
+
+        var sql = """
+            SELECT m.description
+            FROM mock_items AS m
+            WHERE m.description @@@ pdb.regex_phrase(ARRAY['ru.*','shoes']::text[])
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
+    public async Task RegexPhraseSlopAndMaxExpansions()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Where(p =>
+                EF.Functions.Query(
+                    p.Description,
+                    Pdb.RegexPhrase(new[] { "ru.*", "shoes" }, 2, 100)
+                )
+            )
+            .Select(p => p.Description);
+
+        var sql = """
+            SELECT m.description
+            FROM mock_items AS m
+            WHERE m.description @@@ pdb.regex_phrase(ARRAY['ru.*','shoes']::text[], slop => 2, max_expansions => 100)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
+    public async Task RegexPhraseMaxExpansions()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Where(p =>
+                EF.Functions.Query(
+                    p.Description,
+                    Pdb.RegexPhrase(new[] { "ru.*", "shoes" }, null, 100)
+                )
+            )
+            .Select(p => p.Description);
+
+        var sql = """
+            SELECT m.description
+            FROM mock_items AS m
+            WHERE m.description @@@ pdb.regex_phrase(ARRAY['ru.*','shoes']::text[], max_expansions => 100)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
     public async Task PhrasePrefix()
     {
         await using var context = DbFixture.CreateContext();

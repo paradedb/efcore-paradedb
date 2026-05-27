@@ -86,6 +86,14 @@ internal sealed class Translator : IMethodCallTranslator
                 argumentsPropagateNullability: [false],
                 returnType: typeof(bool)
             ),
+            nameof(Pdb.Regex) => _sqlExpressionFactory.Function(
+                name: "pdb.regex",
+                nullable: false,
+                arguments: [arguments[0]],
+                argumentsPropagateNullability: [false],
+                returnType: typeof(bool)
+            ),
+            nameof(Pdb.RegexPhrase) => BuildRegexPhrase(arguments),
             nameof(Pdb.RangeTerm) => BuildRangeTerm(arguments),
             nameof(Pdb.PhrasePrefix) => BuildPhrasePrefix(arguments),
             nameof(ParadeDbFunctionsExtensions.Snippet) => BuildSnippet(arguments),
@@ -146,6 +154,35 @@ internal sealed class Translator : IMethodCallTranslator
             arguments: args,
             argumentsPropagateNullability: new bool[args.Count],
             returnType: typeof(bool)
+        );
+    }
+
+    private SqlExpression? BuildRegexPhrase(IReadOnlyList<SqlExpression> arguments)
+    {
+        List<SqlExpression> args = [_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[0])];
+        List<string?> argNames = [null];
+
+        if (arguments[1] is not SqlConstantExpression { Value: null })
+        {
+            args.Add(_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[1]));
+            argNames.Add("slop");
+        }
+
+        if (arguments[2] is not SqlConstantExpression { Value: null })
+        {
+            args.Add(_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2]));
+            argNames.Add("max_expansions");
+        }
+
+        return PgFunctionExpression.CreateWithNamedArguments(
+            name: "pdb.regex_phrase",
+            arguments: args,
+            argumentNames: argNames,
+            nullable: false,
+            argumentsPropagateNullability: new bool[args.Count],
+            builtIn: false,
+            type: typeof(bool),
+            typeMapping: null
         );
     }
 

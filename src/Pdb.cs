@@ -79,6 +79,9 @@ public static class Pdb
     public static PdbQuery Parse(string pattern) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Parse)));
 
+    public static PdbQuery Regex([StringSyntax(StringSyntaxAttribute.Regex)] string pattern) =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Regex)));
+
     public static PdbQuery RangeTerm<T>(T value) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(RangeTerm)));
 
@@ -91,4 +94,10 @@ public static class Pdb
 
     public static PdbQuery PhrasePrefix(string[] tokens, int? maxExpansions = null) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(PhrasePrefix)));
+
+    public static PdbQuery RegexPhrase(
+        [StringSyntax(StringSyntaxAttribute.Regex)] string[] phrases,
+        int? slop = null,
+        int? maxExpansions = null
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(RegexPhrase)));
 }
