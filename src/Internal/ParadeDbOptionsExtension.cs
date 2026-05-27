@@ -16,6 +16,7 @@ internal sealed class ParadeDbOptionsExtension : IDbContextOptionsExtension
 
     public void ApplyServices(IServiceCollection services)
     {
+        services.AddScoped<IQuerySqlGeneratorFactory, ParadeDbQuerySqlGeneratorFactory>();
         services.AddScoped<IMethodCallTranslatorPlugin, ParadeDbMethodCallTranslatorPlugin>();
         services.AddScoped<IMemberTranslatorPlugin, ParadeDbMemberTranslatorPlugin>();
         services.AddSingleton<IConventionSetPlugin, ParadeDbConventionSetPlugin>();

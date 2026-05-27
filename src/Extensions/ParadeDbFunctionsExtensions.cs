@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
@@ -109,4 +110,18 @@ public static class ParadeDbFunctionsExtensions
         TProperty property,
         [NotParameterized] string aliasName
     ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Alias)));
+
+    [DbFunction]
+    public static JsonElement? Agg(
+        this DbFunctions _,
+        [NotParameterized] object aggregate,
+        [NotParameterized] bool exact = true
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Agg)));
+
+    [DbFunction]
+    public static JsonElement? AggOver(
+        this DbFunctions _,
+        [NotParameterized] object aggregate,
+        [NotParameterized] bool exact = true
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AggOver)));
 }
