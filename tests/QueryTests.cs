@@ -1448,6 +1448,48 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
+    public async Task Aggregate_ValueCountFilter()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context.MockItems.Select(p =>
+            EF.Functions.AggFilter(new { value_count = new { field = "rating" } }, p.Rating >= 4)
+        );
+
+        var sql = """
+            SELECT pdb.agg('{"value_count":{"field":"rating"}}', TRUE) FILTER (WHERE m.rating >= 4)
+            FROM mock_items AS m
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
+    public void Aggregate_ValueCountFilterOver()
+    {
+        using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Select(p =>
+                EF.Functions.AggFilterOver(
+                    new { value_count = new { field = "rating" } },
+                    p.Rating >= 4
+                )
+            )
+            .Take(10);
+
+        var sql = """
+            -- @p='10'
+            SELECT pdb.agg('{"value_count":{"field":"rating"}}', TRUE) FILTER (WHERE m.rating >= 4) OVER ()
+            FROM mock_items AS m
+            LIMIT @p
+            """;
+
+        AssertSql(query, sql);
+    }
+
+    [Test]
     public async Task Aggregate_MultipleMetrics()
     {
         await using var context = DbFixture.CreateContext();

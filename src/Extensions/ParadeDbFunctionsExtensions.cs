@@ -113,9 +113,25 @@ public static class ParadeDbFunctionsExtensions
     ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Agg)));
 
     [DbFunction]
+    public static JsonElement? AggFilter(
+        this DbFunctions _,
+        [NotParameterized] object aggregate,
+        bool filter,
+        [NotParameterized] bool exact = true
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AggFilter)));
+
+    [DbFunction]
     public static JsonElement? AggOver(
         this DbFunctions _,
         [NotParameterized] object aggregate,
         [NotParameterized] bool exact = true
     ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AggOver)));
+
+    [DbFunction]
+    public static JsonElement? AggFilterOver(
+        this DbFunctions _,
+        [NotParameterized] object aggregate,
+        bool filter,
+        [NotParameterized] bool exact = true
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AggFilterOver)));
 }

@@ -3,7 +3,10 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace ParadeDB.EntityFrameworkCore.Internal.Query.Expressions;
 
-internal sealed class PdbOverExpression(SqlFunctionExpression function)
+internal sealed class PdbFilteredAggregateExpression(
+    SqlFunctionExpression function,
+    SqlExpression filter
+)
     : SqlFunctionExpression(
         function.Schema,
         function.Name,
@@ -14,17 +17,14 @@ internal sealed class PdbOverExpression(SqlFunctionExpression function)
         function.TypeMapping
     )
 {
-    public SqlExpression? Filter { get; } =
-        function is PdbFilteredAggregateExpression filtered ? filtered.Filter : null;
+    public SqlExpression Filter { get; } = filter;
 
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
         var function = (SqlFunctionExpression)base.VisitChildren(visitor);
-        var filter = Filter is null ? null : (SqlExpression)visitor.Visit(Filter)!;
+        var filter = (SqlExpression)visitor.Visit(Filter)!;
         return function == this && filter == Filter
             ? this
-            : new PdbOverExpression(
-                filter is null ? function : new PdbFilteredAggregateExpression(function, filter)
-            );
+            : new PdbFilteredAggregateExpression(function, filter);
     }
 }

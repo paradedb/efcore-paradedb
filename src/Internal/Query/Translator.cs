@@ -91,7 +91,19 @@ internal sealed class Translator : IMethodCallTranslator
             nameof(ParadeDbFunctionsExtensions.MoreLikeThis) => BuildMoreLikeThis(arguments),
             nameof(ParadeDbFunctionsExtensions.Alias) => BuildAlias(arguments),
             nameof(ParadeDbFunctionsExtensions.Agg) => BuildAggregate(arguments, false),
+            nameof(ParadeDbFunctionsExtensions.AggFilter) => BuildAggregate(
+                arguments,
+                false,
+                arguments[2],
+                3
+            ),
             nameof(ParadeDbFunctionsExtensions.AggOver) => BuildAggregate(arguments, true),
+            nameof(ParadeDbFunctionsExtensions.AggFilterOver) => BuildAggregate(
+                arguments,
+                true,
+                arguments[2],
+                3
+            ),
             _ => null,
         };
     }
@@ -397,7 +409,12 @@ internal sealed class Translator : IMethodCallTranslator
         );
     }
 
-    private SqlExpression? BuildAggregate(IReadOnlyList<SqlExpression> arguments, bool over)
+    private SqlExpression? BuildAggregate(
+        IReadOnlyList<SqlExpression> arguments,
+        bool over,
+        SqlExpression? filter = null,
+        int exactArgumentIndex = 2
+    )
     {
         if (arguments[1] is not SqlConstantExpression { Value: { } aggregate })
         {
@@ -407,10 +424,10 @@ internal sealed class Translator : IMethodCallTranslator
         List<SqlExpression> args =
         [
             _sqlExpressionFactory.Constant(JsonSerializer.Serialize(aggregate)),
-            arguments[2],
+            arguments[exactArgumentIndex],
         ];
 
-        var function = _sqlExpressionFactory.Function(
+        SqlExpression function = _sqlExpressionFactory.Function(
             name: "agg",
             schema: "pdb",
             nullable: true,
@@ -419,6 +436,11 @@ internal sealed class Translator : IMethodCallTranslator
             returnType: typeof(JsonElement),
             typeMapping: _jsonbTypeMapping
         );
+
+        if (filter is not null)
+        {
+            function = new PdbFilteredAggregateExpression((SqlFunctionExpression)function, filter);
+        }
 
         return over ? new PdbOverExpression((SqlFunctionExpression)function) : function;
     }
