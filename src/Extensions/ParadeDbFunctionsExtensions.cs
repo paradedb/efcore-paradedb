@@ -117,4 +117,11 @@ public static class ParadeDbFunctionsExtensions
         [NotParameterized] object aggregate,
         [NotParameterized] bool exact = true
     ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Agg)));
+
+    [DbFunction]
+    public static JsonElement? AggOver(
+        this DbFunctions _,
+        [NotParameterized] object aggregate,
+        [NotParameterized] bool exact = true
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AggOver)));
 }

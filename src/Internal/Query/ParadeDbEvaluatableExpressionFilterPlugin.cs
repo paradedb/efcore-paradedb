@@ -27,6 +27,7 @@ internal sealed class ParadeDbEvaluatableExpressionFilterPlugin : IEvaluatableEx
                         is nameof(ParadeDbFunctionsExtensions.Tokenize)
                             or nameof(ParadeDbFunctionsExtensions.TokenizeAsArray)
                             or nameof(ParadeDbFunctionsExtensions.Agg)
+                            or nameof(ParadeDbFunctionsExtensions.AggOver)
                 )
             )
         )

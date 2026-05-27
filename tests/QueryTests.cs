@@ -1349,4 +1349,73 @@ public sealed class MatchAllTests : TestBase
         AssertSql(query, sql);
         await query.ToListAsync();
     }
+
+    [Test]
+    public async Task Aggregate_ValueCountOver()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Select(p =>
+                EF.Functions.AggOver(new { value_count = new { field = "rating" } })
+            )
+            .Take(10);
+
+        var sql = """
+            -- @p='10'
+            SELECT pdb.agg('{"value_count":{"field":"rating"}}', TRUE) OVER ()
+            FROM mock_items AS m
+            LIMIT @p
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
+    public async Task Aggregate_MultipleMetrics()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context.MockItems.Select(p => new
+        {
+            Average = EF.Functions.Agg(new { avg = new { field = "rating" } }),
+            Sum = EF.Functions.Agg(new { sum = new { field = "rating" } }),
+        });
+
+        var sql = """
+            SELECT pdb.agg('{"avg":{"field":"rating"}}', TRUE) AS "Average", pdb.agg('{"sum":{"field":"rating"}}', TRUE) AS "Sum"
+            FROM mock_items AS m
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
+    public async Task Aggregate_Range()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context.MockItems.Select(p =>
+            EF.Functions.Agg(
+                new
+                {
+                    range = new
+                    {
+                        field = "rating",
+                        ranges = new object[] { new { to = 3.0 }, new { @from = 3.0, to = 6.0 } },
+                    },
+                }
+            )
+        );
+
+        var sql = """
+            SELECT pdb.agg('{"range":{"field":"rating","ranges":[{"to":3},{"from":3,"to":6}]}}', TRUE)
+            FROM mock_items AS m
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
 }

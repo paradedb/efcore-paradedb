@@ -1,11 +1,15 @@
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Storage;
 using ParadeDB.EntityFrameworkCore.Internal.Query.Translators;
 
 namespace ParadeDB.EntityFrameworkCore.Internal.Query;
 
 internal sealed class ParadeDbMethodCallTranslatorPlugin : IMethodCallTranslatorPlugin
 {
-    public ParadeDbMethodCallTranslatorPlugin(ISqlExpressionFactory sqlExpressionFactory)
+    public ParadeDbMethodCallTranslatorPlugin(
+        ISqlExpressionFactory sqlExpressionFactory,
+        IRelationalTypeMappingSource typeMappingSource
+    )
     {
         Translators =
         [
@@ -17,7 +21,7 @@ internal sealed class ParadeDbMethodCallTranslatorPlugin : IMethodCallTranslator
             new TokenizeTranslator(sqlExpressionFactory),
             new MoreLikeThisTranslator(sqlExpressionFactory),
             new AliasTranslator(sqlExpressionFactory),
-            new AggregateTranslator(sqlExpressionFactory),
+            new AggregateTranslator(sqlExpressionFactory, typeMappingSource),
         ];
     }
 
