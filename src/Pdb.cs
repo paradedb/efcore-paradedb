@@ -77,4 +77,7 @@ public static class Pdb
 
     public static PdbQuery Parse(string pattern) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Parse)));
+
+    public static PdbQuery PhrasePrefix(string[] tokens, int? maxExpansions = null) =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(PhrasePrefix)));
 }
