@@ -136,37 +136,52 @@ internal sealed class Translator : IMethodCallTranslator
 
     private SqlExpression? BuildSnippet(IReadOnlyList<SqlExpression> arguments)
     {
+        var options =
+            arguments.Count == 3
+                ? (SnippetOptions?)((SqlConstantExpression)arguments[2]).Value
+                : null;
         List<SqlExpression> args = [arguments[1]];
-        List<bool> argsNullability = [false];
+        List<string?> argNames = [null];
 
-        if (arguments.Count == 3)
+        if (options?.startTag is not null)
         {
-            args.AddRange([
-                _sqlExpressionFactory.Constant("<b>"),
-                _sqlExpressionFactory.Constant("</b>"),
-                arguments[2],
-            ]);
-
-            argsNullability.AddRange([false, false, false]);
-        }
-        else if (arguments.Count == 4)
-        {
-            args.AddRange([arguments[2], arguments[3]]);
-            argsNullability.AddRange([false, false]);
-        }
-        else if (arguments.Count == 5)
-        {
-            args.AddRange([arguments[2], arguments[3], arguments[4]]);
-            argsNullability.AddRange([false, false, false]);
+            args.Add(
+                _sqlExpressionFactory.ApplyDefaultTypeMapping(
+                    _sqlExpressionFactory.Constant(options.startTag)
+                )
+            );
+            argNames.Add("start_tag");
         }
 
-        return _sqlExpressionFactory.Function(
-            name: "snippet",
-            schema: "pdb",
-            nullable: true,
+        if (options?.endTag is not null)
+        {
+            args.Add(
+                _sqlExpressionFactory.ApplyDefaultTypeMapping(
+                    _sqlExpressionFactory.Constant(options.endTag)
+                )
+            );
+            argNames.Add("end_tag");
+        }
+
+        if (options?.maxNumChars is not null)
+        {
+            args.Add(
+                _sqlExpressionFactory.ApplyDefaultTypeMapping(
+                    _sqlExpressionFactory.Constant(options.maxNumChars)
+                )
+            );
+            argNames.Add("max_num_chars");
+        }
+
+        return PgFunctionExpression.CreateWithNamedArguments(
+            name: "pdb.snippet",
             arguments: args,
-            argumentsPropagateNullability: argsNullability,
-            returnType: typeof(string)
+            argumentNames: argNames,
+            nullable: true,
+            argumentsPropagateNullability: new bool[args.Count],
+            builtIn: false,
+            type: typeof(string),
+            typeMapping: null
         );
     }
 

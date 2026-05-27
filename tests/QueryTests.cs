@@ -859,16 +859,36 @@ public sealed class MatchAllTests : TestBase
     }
 
     [Test]
-    public async Task Snippet_WithInlineMaxNumChars()
+    public async Task Snippet_WithNullOptions()
     {
         await using var context = DbFixture.CreateContext();
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
-            .Select(p => EF.Functions.Snippet(p.Description, 50));
+            .Select(p => EF.Functions.Snippet(p.Description, null));
 
         var sql = """
-            SELECT pdb.snippet(m.description, '<b>', '</b>', 50)
+            SELECT pdb.snippet(m.description)
+            FROM mock_items AS m
+            WHERE m.description === 'rich'
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
+    public async Task Snippet_WithInlineMaxNumChars()
+    {
+        await using var context = DbFixture.CreateContext();
+        var options = new SnippetOptions(null, null, 50);
+
+        var query = context
+            .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
+            .Select(p => EF.Functions.Snippet(p.Description, options));
+
+        var sql = """
+            SELECT pdb.snippet(m.description, max_num_chars => 50)
             FROM mock_items AS m
             WHERE m.description === 'rich'
             """;
@@ -883,14 +903,14 @@ public sealed class MatchAllTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         int maxNumChars = 50;
+        var options = new SnippetOptions(null, null, maxNumChars);
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
-            .Select(p => EF.Functions.Snippet(p.Description, maxNumChars));
+            .Select(p => EF.Functions.Snippet(p.Description, options));
 
         var sql = """
-            -- @maxNumChars='50'
-            SELECT pdb.snippet(m.description, '<b>', '</b>', @maxNumChars)
+            SELECT pdb.snippet(m.description, max_num_chars => 50)
             FROM mock_items AS m
             WHERE m.description === 'rich'
             """;
@@ -903,13 +923,14 @@ public sealed class MatchAllTests : TestBase
     public async Task Snippet_WithInlineTags()
     {
         await using var context = DbFixture.CreateContext();
+        var options = new SnippetOptions("<a>", "</a>", null);
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
-            .Select(p => EF.Functions.Snippet(p.Description, "<a>", "</a>"));
+            .Select(p => EF.Functions.Snippet(p.Description, options));
 
         var sql = """
-            SELECT pdb.snippet(m.description, '<a>', '</a>')
+            SELECT pdb.snippet(m.description, start_tag => '<a>', end_tag => '</a>')
             FROM mock_items AS m
             WHERE m.description === 'rich'
             """;
@@ -925,15 +946,14 @@ public sealed class MatchAllTests : TestBase
 
         string startTag = "<a>";
         string endTag = "</a>";
+        var options = new SnippetOptions(startTag, endTag, null);
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
-            .Select(p => EF.Functions.Snippet(p.Description, startTag, endTag));
+            .Select(p => EF.Functions.Snippet(p.Description, options));
 
         var sql = """
-            -- @startTag='<a>'
-            -- @endTag='</a>'
-            SELECT pdb.snippet(m.description, @startTag, @endTag)
+            SELECT pdb.snippet(m.description, start_tag => '<a>', end_tag => '</a>')
             FROM mock_items AS m
             WHERE m.description === 'rich'
             """;
@@ -946,13 +966,14 @@ public sealed class MatchAllTests : TestBase
     public async Task Snippet_WithInlineTagsAndMaxNumChars()
     {
         await using var context = DbFixture.CreateContext();
+        var options = new SnippetOptions("<a>", "</a>", 50);
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
-            .Select(p => EF.Functions.Snippet(p.Description, "<a>", "</a>", 50));
+            .Select(p => EF.Functions.Snippet(p.Description, options));
 
         var sql = """
-            SELECT pdb.snippet(m.description, '<a>', '</a>', 50)
+            SELECT pdb.snippet(m.description, start_tag => '<a>', end_tag => '</a>', max_num_chars => 50)
             FROM mock_items AS m
             WHERE m.description === 'rich'
             """;
@@ -969,16 +990,14 @@ public sealed class MatchAllTests : TestBase
         string startTag = "<a>";
         string endTag = "</a>";
         int maxNumChars = 50;
+        var options = new SnippetOptions(startTag, endTag, maxNumChars);
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
-            .Select(p => EF.Functions.Snippet(p.Description, startTag, endTag, maxNumChars));
+            .Select(p => EF.Functions.Snippet(p.Description, options));
 
         var sql = """
-            -- @startTag='<a>'
-            -- @endTag='</a>'
-            -- @maxNumChars='50'
-            SELECT pdb.snippet(m.description, @startTag, @endTag, @maxNumChars)
+            SELECT pdb.snippet(m.description, start_tag => '<a>', end_tag => '</a>', max_num_chars => 50)
             FROM mock_items AS m
             WHERE m.description === 'rich'
             """;
