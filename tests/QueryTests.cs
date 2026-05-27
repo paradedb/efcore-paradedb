@@ -5,7 +5,7 @@ using Shouldly;
 
 namespace ParadeDB.EntityFrameworkCore.Tests;
 
-public sealed class MatchAllTests : TestBase
+public sealed class QueryTests : TestBase
 {
     private static void AssertSql(IQueryable query, string expected) =>
         NormalizeSql(query.ToQueryString()).ShouldBe(NormalizeSql(expected));
@@ -1566,6 +1566,30 @@ public sealed class MatchAllTests : TestBase
         var sql = """
             SELECT pdb.agg('{"range":{"field":"rating","ranges":[{"to":3},{"from":3,"to":6}]}}', TRUE)
             FROM mock_items AS m
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
+    public async Task Parse()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Where(p =>
+                EF.Functions.Query(
+                    p.Description,
+                    Pdb.Parse("description:(sleek shoes) AND rating:>3")
+                )
+            )
+            .Select(p => p.Description);
+
+        var sql = """
+            SELECT m.description
+            FROM mock_items AS m
+            WHERE m.description @@@ pdb.parse('description:(sleek shoes) AND rating:>3')
             """;
 
         AssertSql(query, sql);

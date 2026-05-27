@@ -74,4 +74,7 @@ public static class Pdb
 
     public static PdbQuery Exists() =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Exists)));
+
+    public static PdbQuery Parse(string pattern) =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Parse)));
 }
