@@ -72,6 +72,13 @@ internal sealed class Translator : IMethodCallTranslator
                 argumentsPropagateNullability: [],
                 returnType: typeof(bool)
             ),
+            nameof(Pdb.Exists) => _sqlExpressionFactory.Function(
+                name: "pdb.exists",
+                nullable: false,
+                arguments: [],
+                argumentsPropagateNullability: [],
+                returnType: typeof(bool)
+            ),
             nameof(ParadeDbFunctionsExtensions.Snippet) => BuildSnippet(arguments),
             nameof(ParadeDbFunctionsExtensions.Snippets) => BuildSnippets(arguments),
             nameof(ParadeDbFunctionsExtensions.SnippetPositions) => _sqlExpressionFactory.Function(
