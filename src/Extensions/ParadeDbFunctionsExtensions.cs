@@ -80,8 +80,11 @@ public static class ParadeDbFunctionsExtensions
     ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Snippet)));
 
     [DbFunction]
-    public static bool Match<TProperty>(this DbFunctions _, TProperty property, PdbQuery query) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Match)));
+    public static bool Proximity<TProperty>(
+        this DbFunctions _,
+        TProperty property,
+        PdbQuery query
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Proximity)));
 
     [DbFunction]
     public static string Tokenize<TProperty>(
