@@ -66,8 +66,7 @@ internal sealed class Translator : IMethodCallTranslator
                 returnType: typeof(float)
             ),
             nameof(Pdb.All) => _sqlExpressionFactory.Function(
-                name: "all",
-                schema: "pdb",
+                name: "pdb.all",
                 nullable: false,
                 arguments: [],
                 argumentsPropagateNullability: [],
