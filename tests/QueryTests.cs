@@ -1724,6 +1724,44 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
+    public async Task RegexQueryWithBoost()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Where(p => Pdb.Boost(EF.Functions.Regex(p.Description, "ru.*"), 5))
+            .Select(p => p.Description);
+
+        var sql = """
+            SELECT m.description
+            FROM mock_items AS m
+            WHERE m.description @@@ pdb.regex('ru.*')::pdb.boost(5)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
+    public async Task RegexQueryWithConst()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Where(p => Pdb.Const(EF.Functions.Regex(p.Description, "ru.*"), 5))
+            .Select(p => p.Description);
+
+        var sql = """
+            SELECT m.description
+            FROM mock_items AS m
+            WHERE m.description @@@ pdb.regex('ru.*')::pdb.const(5)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
     public async Task RegexPhrase()
     {
         await using var context = DbFixture.CreateContext();
