@@ -34,6 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
 
     env:
       PACKAGES_OUTPUT_DIR: ${{ github.workspace }}/packages
@@ -88,19 +89,17 @@ jobs:
             -p:PackageVersion="${VERSION}"
           ls -l "${PACKAGES_OUTPUT_DIR}"
 
+      - name: NuGet login
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: paradedb
+
       - name: Publish to NuGet
-        env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           set -euo pipefail
-
-          if [[ -z "${NUGET_API_KEY:-}" ]]; then
-            echo "Missing NuGet secret (NUGET_API_KEY)"
-            exit 1
-          fi
-
           dotnet nuget push "${PACKAGES_OUTPUT_DIR}"/*.nupkg \
-            --api-key "${NUGET_API_KEY}" \
+            --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" \
             --source https://api.nuget.org/v3/index.json
 
       - name: Create GitHub tag and release
