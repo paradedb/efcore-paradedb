@@ -279,12 +279,24 @@ internal sealed class Translator : IMethodCallTranslator
             _ => throw new InvalidOperationException("Unexpected modifier type"),
         };
 
-        return _sqlExpressionFactory.MakeUnary(
-            ExpressionType.Convert,
-            _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[0]),
-            typeMapping.ClrType,
-            typeMapping
-        );
+        if (arguments[0] is PdbBoolExpression boolExpression)
+        {
+            return new PdbBoolExpression(
+                boolExpression.Left,
+                ApplyModifier(boolExpression.Right),
+                boolExpression.OperatorType
+            );
+        }
+
+        return ApplyModifier(arguments[0]);
+
+        SqlExpression ApplyModifier(SqlExpression expression) =>
+            _sqlExpressionFactory.MakeUnary(
+                ExpressionType.Convert,
+                _sqlExpressionFactory.ApplyDefaultTypeMapping(expression),
+                typeMapping.ClrType,
+                typeMapping
+            )!;
     }
 
     private SqlExpression? BuildOperator(
