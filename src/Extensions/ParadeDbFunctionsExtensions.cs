@@ -156,6 +156,15 @@ public static class ParadeDbFunctionsExtensions
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Parse)));
 
     [DbFunction]
+    public static bool Parse<TProperty>(
+        this DbFunctions _,
+        TProperty property,
+        string pattern,
+        bool? lenient = null,
+        bool? conjunctionMode = null
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Parse)));
+
+    [DbFunction]
     public static bool Regex<TProperty>(
         this DbFunctions _,
         TProperty property,

@@ -87,13 +87,7 @@ internal sealed class Translator : IMethodCallTranslator
             ),
             nameof(ParadeDbFunctionsExtensions.Parse) => BuildQueryBuilderFunction(
                 arguments[1],
-                _sqlExpressionFactory.Function(
-                    name: "pdb.parse",
-                    nullable: false,
-                    arguments: [arguments[2]],
-                    argumentsPropagateNullability: [false],
-                    returnType: typeof(bool)
-                )
+                BuildParse(arguments)
             ),
             nameof(ParadeDbFunctionsExtensions.Regex) => BuildQueryBuilderFunction(
                 arguments[1],
@@ -157,6 +151,40 @@ internal sealed class Translator : IMethodCallTranslator
             ),
             _ => null,
         };
+    }
+
+    private SqlExpression BuildParse(IReadOnlyList<SqlExpression> arguments)
+    {
+        List<SqlExpression> args = [_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2])];
+        List<string?> argNames = [null];
+
+        Add(3, "lenient");
+        Add(4, "conjunction_mode");
+
+        void Add(int index, string name)
+        {
+            if (
+                arguments.Count <= index
+                || arguments[index] is SqlConstantExpression { Value: null }
+            )
+            {
+                return;
+            }
+
+            args.Add(_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[index]));
+            argNames.Add(name);
+        }
+
+        return PgFunctionExpression.CreateWithNamedArguments(
+            name: "pdb.parse",
+            arguments: args,
+            argumentNames: argNames,
+            nullable: false,
+            argumentsPropagateNullability: new bool[args.Count],
+            builtIn: false,
+            type: typeof(bool),
+            typeMapping: null
+        );
     }
 
     private SqlExpression BuildPhrasePrefix(IReadOnlyList<SqlExpression> arguments)
