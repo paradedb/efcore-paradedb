@@ -75,30 +75,48 @@ internal sealed class Translator : IMethodCallTranslator
                     returnType: typeof(bool)
                 )
             ),
-            nameof(Pdb.Exists) => _sqlExpressionFactory.Function(
-                name: "pdb.exists",
-                nullable: false,
-                arguments: [],
-                argumentsPropagateNullability: [],
-                returnType: typeof(bool)
+            nameof(ParadeDbFunctionsExtensions.Exists) => BuildQueryBuilderFunction(
+                arguments[1],
+                _sqlExpressionFactory.Function(
+                    name: "pdb.exists",
+                    nullable: false,
+                    arguments: [],
+                    argumentsPropagateNullability: [],
+                    returnType: typeof(bool)
+                )
             ),
-            nameof(Pdb.Parse) => _sqlExpressionFactory.Function(
-                name: "pdb.parse",
-                nullable: false,
-                arguments: [arguments[0]],
-                argumentsPropagateNullability: [false],
-                returnType: typeof(bool)
+            nameof(ParadeDbFunctionsExtensions.Parse) => BuildQueryBuilderFunction(
+                arguments[1],
+                _sqlExpressionFactory.Function(
+                    name: "pdb.parse",
+                    nullable: false,
+                    arguments: [arguments[2]],
+                    argumentsPropagateNullability: [false],
+                    returnType: typeof(bool)
+                )
             ),
-            nameof(Pdb.Regex) => _sqlExpressionFactory.Function(
-                name: "pdb.regex",
-                nullable: false,
-                arguments: [arguments[0]],
-                argumentsPropagateNullability: [false],
-                returnType: typeof(bool)
+            nameof(ParadeDbFunctionsExtensions.Regex) => BuildQueryBuilderFunction(
+                arguments[1],
+                _sqlExpressionFactory.Function(
+                    name: "pdb.regex",
+                    nullable: false,
+                    arguments: [arguments[2]],
+                    argumentsPropagateNullability: [false],
+                    returnType: typeof(bool)
+                )
             ),
-            nameof(Pdb.RegexPhrase) => BuildRegexPhrase(arguments),
-            nameof(Pdb.RangeTerm) => BuildRangeTerm(arguments),
-            nameof(Pdb.PhrasePrefix) => BuildPhrasePrefix(arguments),
+            nameof(ParadeDbFunctionsExtensions.RegexPhrase) => BuildQueryBuilderFunction(
+                arguments[1],
+                BuildRegexPhrase(arguments)
+            ),
+            nameof(ParadeDbFunctionsExtensions.RangeTerm) => BuildQueryBuilderFunction(
+                arguments[1],
+                BuildRangeTerm(arguments)
+            ),
+            nameof(ParadeDbFunctionsExtensions.PhrasePrefix) => BuildQueryBuilderFunction(
+                arguments[1],
+                BuildPhrasePrefix(arguments)
+            ),
             nameof(ParadeDbFunctionsExtensions.Snippet) => BuildSnippet(arguments),
             nameof(ParadeDbFunctionsExtensions.Snippets) => BuildSnippets(arguments),
             nameof(ParadeDbFunctionsExtensions.SnippetPositions) => _sqlExpressionFactory.Function(
@@ -141,14 +159,14 @@ internal sealed class Translator : IMethodCallTranslator
         };
     }
 
-    private SqlExpression? BuildPhrasePrefix(IReadOnlyList<SqlExpression> arguments)
+    private SqlExpression BuildPhrasePrefix(IReadOnlyList<SqlExpression> arguments)
     {
-        List<SqlExpression> args = [arguments[0]];
+        List<SqlExpression> args = [arguments[2]];
 
         // If the user didn't pass in max_expansions, let the DB do the defaulting
-        if (arguments[1] is not SqlConstantExpression { Value: null })
+        if (arguments[3] is not SqlConstantExpression { Value: null })
         {
-            args.Add(arguments[1]);
+            args.Add(arguments[3]);
         }
 
         return _sqlExpressionFactory.Function(
@@ -160,20 +178,20 @@ internal sealed class Translator : IMethodCallTranslator
         );
     }
 
-    private SqlExpression? BuildRegexPhrase(IReadOnlyList<SqlExpression> arguments)
+    private SqlExpression BuildRegexPhrase(IReadOnlyList<SqlExpression> arguments)
     {
-        List<SqlExpression> args = [_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[0])];
+        List<SqlExpression> args = [_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2])];
         List<string?> argNames = [null];
 
-        if (arguments[1] is not SqlConstantExpression { Value: null })
+        if (arguments[3] is not SqlConstantExpression { Value: null })
         {
-            args.Add(_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[1]));
+            args.Add(_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[3]));
             argNames.Add("slop");
         }
 
-        if (arguments[2] is not SqlConstantExpression { Value: null })
+        if (arguments[4] is not SqlConstantExpression { Value: null })
         {
-            args.Add(_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2]));
+            args.Add(_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[4]));
             argNames.Add("max_expansions");
         }
 
@@ -189,16 +207,16 @@ internal sealed class Translator : IMethodCallTranslator
         );
     }
 
-    private SqlExpression? BuildRangeTerm(IReadOnlyList<SqlExpression> arguments)
+    private SqlExpression BuildRangeTerm(IReadOnlyList<SqlExpression> arguments)
     {
-        List<SqlExpression> args = [_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[0])];
+        List<SqlExpression> args = [_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2])];
 
-        if (arguments.Count > 1)
+        if (arguments.Count > 3)
         {
             args.Add(
-                arguments[1] is SqlConstantExpression { Value: RangeTermRelation relation }
+                arguments[3] is SqlConstantExpression { Value: RangeTermRelation relation }
                     ? _sqlExpressionFactory.Constant(relation.ToString())
-                    : arguments[1]
+                    : arguments[3]
             );
         }
 

@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
-using NpgsqlTypes;
 using ParadeDB.EntityFrameworkCore.Modifiers;
 
 namespace ParadeDB.EntityFrameworkCore;
@@ -69,32 +68,4 @@ public static class Pdb
 
     public static PdbProximityQuery ProximityArray(params PdbProximityQuery[] operands) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(ProximityArray)));
-
-    public static PdbQuery Exists() =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Exists)));
-
-    public static PdbQuery Parse(string pattern) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Parse)));
-
-    public static PdbQuery Regex([StringSyntax(StringSyntaxAttribute.Regex)] string pattern) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Regex)));
-
-    public static PdbQuery RangeTerm<T>(T value) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(RangeTerm)));
-
-    public static PdbQuery RangeTerm<T>(
-        NpgsqlRange<T> range,
-        [NotParameterized] RangeTermRelation relation
-    )
-        where T : IComparable<T> =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(RangeTerm)));
-
-    public static PdbQuery PhrasePrefix(string[] tokens, int? maxExpansions = null) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(PhrasePrefix)));
-
-    public static PdbQuery RegexPhrase(
-        [StringSyntax(StringSyntaxAttribute.Regex)] string[] phrases,
-        int? slop = null,
-        int? maxExpansions = null
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(RegexPhrase)));
 }

@@ -845,7 +845,7 @@ public sealed class QueryTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.MockItems.Where(p => EF.Functions.Query(p.Id, Pdb.Exists()));
+        var query = context.MockItems.Where(p => EF.Functions.Exists(p.Id));
 
         var sql = """
             SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
@@ -862,9 +862,7 @@ public sealed class QueryTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.MockItems.Where(p =>
-            EF.Functions.Query(p.WeightRange, Pdb.RangeTerm(1))
-        );
+        var query = context.MockItems.Where(p => EF.Functions.RangeTerm(p.WeightRange, 1));
 
         var sql = """
             SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
@@ -884,7 +882,7 @@ public sealed class QueryTests : TestBase
         var range = new NpgsqlRange<int>(10, false, 12, true);
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.Query(p.WeightRange, Pdb.RangeTerm(range, RangeTermRelation.Intersects))
+            EF.Functions.RangeTerm(p.WeightRange, range, RangeTermRelation.Intersects)
         );
 
         var sql = """
@@ -1621,10 +1619,7 @@ public sealed class QueryTests : TestBase
 
         var query = context
             .MockItems.Where(p =>
-                EF.Functions.Query(
-                    p.Description,
-                    Pdb.Parse("description:(sleek shoes) AND rating:>3")
-                )
+                EF.Functions.Parse(p.Description, "description:(sleek shoes) AND rating:>3")
             )
             .Select(p => p.Description);
 
@@ -1644,7 +1639,7 @@ public sealed class QueryTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context
-            .MockItems.Where(p => EF.Functions.Query(p.Description, Pdb.Regex("ru.*")))
+            .MockItems.Where(p => EF.Functions.Regex(p.Description, "ru.*"))
             .Select(p => p.Description);
 
         var sql = """
@@ -1664,7 +1659,7 @@ public sealed class QueryTests : TestBase
 
         var query = context
             .MockItems.Where(p =>
-                EF.Functions.Query(p.Description, Pdb.RegexPhrase(new[] { "ru.*", "shoes" }))
+                EF.Functions.RegexPhrase(p.Description, new[] { "ru.*", "shoes" })
             )
             .Select(p => p.Description);
 
@@ -1685,10 +1680,7 @@ public sealed class QueryTests : TestBase
 
         var query = context
             .MockItems.Where(p =>
-                EF.Functions.Query(
-                    p.Description,
-                    Pdb.RegexPhrase(new[] { "ru.*", "shoes" }, 2, 100)
-                )
+                EF.Functions.RegexPhrase(p.Description, new[] { "ru.*", "shoes" }, 2, 100)
             )
             .Select(p => p.Description);
 
@@ -1709,10 +1701,7 @@ public sealed class QueryTests : TestBase
 
         var query = context
             .MockItems.Where(p =>
-                EF.Functions.Query(
-                    p.Description,
-                    Pdb.RegexPhrase(new[] { "ru.*", "shoes" }, null, 100)
-                )
+                EF.Functions.RegexPhrase(p.Description, new[] { "ru.*", "shoes" }, null, 100)
             )
             .Select(p => p.Description);
 
@@ -1733,7 +1722,7 @@ public sealed class QueryTests : TestBase
 
         var query = context
             .MockItems.Where(p =>
-                EF.Functions.Query(p.Description, Pdb.PhrasePrefix(new[] { "running", "shoes" }))
+                EF.Functions.PhrasePrefix(p.Description, new[] { "running", "shoes" })
             )
             .Select(p => p.Description);
 
@@ -1754,10 +1743,7 @@ public sealed class QueryTests : TestBase
 
         var query = context
             .MockItems.Where(p =>
-                EF.Functions.Query(
-                    p.Description,
-                    Pdb.PhrasePrefix(new[] { "running", "shoes" }, 100)
-                )
+                EF.Functions.PhrasePrefix(p.Description, new[] { "running", "shoes" }, 100)
             )
             .Select(p => p.Description);
 

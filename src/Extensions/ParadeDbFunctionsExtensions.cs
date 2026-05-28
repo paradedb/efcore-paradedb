@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
+using NpgsqlTypes;
 
 namespace ParadeDB.EntityFrameworkCore.Extensions;
 
@@ -142,4 +143,53 @@ public static class ParadeDbFunctionsExtensions
     [DbFunction]
     public static bool All<TProperty>(this DbFunctions _, TProperty property) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(All)));
+
+    [DbFunction]
+    public static bool Exists<TProperty>(this DbFunctions _, TProperty property) =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Exists)));
+
+    [DbFunction]
+    public static bool Parse<TProperty>(this DbFunctions _, TProperty property, string pattern) =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Parse)));
+
+    [DbFunction]
+    public static bool Regex<TProperty>(
+        this DbFunctions _,
+        TProperty property,
+        [StringSyntax(StringSyntaxAttribute.Regex)] string pattern
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Regex)));
+
+    [DbFunction]
+    public static bool RangeTerm<TProperty, TValue>(
+        this DbFunctions _,
+        TProperty property,
+        TValue value
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(RangeTerm)));
+
+    [DbFunction]
+    public static bool RangeTerm<TProperty, TValue>(
+        this DbFunctions _,
+        TProperty property,
+        NpgsqlRange<TValue> range,
+        [NotParameterized] RangeTermRelation relation
+    )
+        where TValue : IComparable<TValue> =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(RangeTerm)));
+
+    [DbFunction]
+    public static bool PhrasePrefix<TProperty>(
+        this DbFunctions _,
+        TProperty property,
+        string[] tokens,
+        int? maxExpansions = null
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(PhrasePrefix)));
+
+    [DbFunction]
+    public static bool RegexPhrase<TProperty>(
+        this DbFunctions _,
+        TProperty property,
+        [StringSyntax(StringSyntaxAttribute.Regex)] string[] phrases,
+        int? slop = null,
+        int? maxExpansions = null
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(RegexPhrase)));
 }
