@@ -126,9 +126,9 @@ internal sealed class Translator : IMethodCallTranslator
                 argumentsPropagateNullability: [false],
                 returnType: typeof(int[,])
             ),
-            nameof(ParadeDbFunctionsExtensions.Query)
+            nameof(ParadeDbFunctionsExtensions.Proximity)
                 when method.DeclaringType == typeof(ParadeDbFunctionsExtensions) =>
-                BuildQueryBuilder(arguments),
+                BuildQueryBuilderFunction(arguments[1], arguments[2]),
             nameof(Pdb.Proximity) => _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[0]),
             nameof(Pdb.ProximityRegex) => BuildProximityFunction("prox_regex", arguments),
             nameof(Pdb.ProximityArray) => BuildProximityFunction("prox_array", arguments),
@@ -347,13 +347,6 @@ internal sealed class Translator : IMethodCallTranslator
             type: typeof(string[]),
             typeMapping: _stringArrayTypeMapping
         );
-    }
-
-    private SqlExpression? BuildQueryBuilder(IReadOnlyList<SqlExpression> arguments)
-    {
-        var column = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[1]);
-        var query = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2]);
-        return new PdbBoolExpression(column, query, PdbOperatorType.Function);
     }
 
     private PdbProximityExpression BuildProximityExpression(IReadOnlyList<SqlExpression> arguments)
