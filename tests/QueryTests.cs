@@ -1637,6 +1637,74 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
+    public async Task Parse_Lenient()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Where(p => EF.Functions.Parse(p.Description, "sleek shoes", lenient: true))
+            .Select(p => p.Description);
+
+        var sql = """
+            SELECT m.description
+            FROM mock_items AS m
+            WHERE m.description @@@ pdb.parse('sleek shoes', lenient => TRUE)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
+    public async Task Parse_ConjunctionMode()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Where(p =>
+                EF.Functions.Parse(p.Description, "description:(sleek shoes)", null, true)
+            )
+            .Select(p => p.Description);
+
+        var sql = """
+            SELECT m.description
+            FROM mock_items AS m
+            WHERE m.description @@@ pdb.parse('description:(sleek shoes)', conjunction_mode => TRUE)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
+    public async Task Parse_WithVariableParameters()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        string pattern = "description:(sleek shoes)";
+        bool lenient = true;
+        bool conjunctionMode = true;
+
+        var query = context
+            .MockItems.Where(p =>
+                EF.Functions.Parse(p.Description, pattern, lenient, conjunctionMode)
+            )
+            .Select(p => p.Description);
+
+        var sql = """
+            -- @pattern='description:(sleek shoes)'
+            -- @lenient='True' (Nullable = true)
+            -- @conjunctionMode='True' (Nullable = true)
+            SELECT m.description
+            FROM mock_items AS m
+            WHERE m.description @@@ pdb.parse(@pattern, lenient => @lenient, conjunction_mode => @conjunctionMode)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
     public async Task RegexQuery()
     {
         await using var context = DbFixture.CreateContext();
