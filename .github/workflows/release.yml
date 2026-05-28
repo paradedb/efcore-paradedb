@@ -93,7 +93,7 @@ jobs:
         uses: NuGet/login@v1
         id: nuget-login
         with:
-        # The policy is owned by the paradedb org in NuGet but the isaacvando user created it, hence the name here
+          # The policy is owned by the paradedb org in NuGet but the isaacvando user created it, hence the name here
           user: isaacvando
 
       - name: Publish to NuGet

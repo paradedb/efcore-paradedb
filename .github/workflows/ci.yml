@@ -91,6 +91,24 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+  windows-smoke:
+    name: Windows Smoke
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore build.slnf -p:TargetFramework=net10.0
+
+      - name: Build
+        run: dotnet build build.slnf --configuration Release --framework net10.0 --no-restore
+
   check-api-coverage:
     name: Check API Coverage
     runs-on: ubuntu-latest
