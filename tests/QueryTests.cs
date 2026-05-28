@@ -828,7 +828,7 @@ public sealed class QueryTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.MockItems.Where(p => EF.Functions.Query(p.Id, Pdb.All()));
+        var query = context.MockItems.Where(p => EF.Functions.All(p.Id));
 
         var sql = """
             SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range

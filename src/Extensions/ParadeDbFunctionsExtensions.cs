@@ -138,4 +138,8 @@ public static class ParadeDbFunctionsExtensions
         bool filter,
         [NotParameterized] bool exact = true
     ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AggFilterOver)));
+
+    [DbFunction]
+    public static bool All<TProperty>(this DbFunctions _, TProperty property) =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(All)));
 }

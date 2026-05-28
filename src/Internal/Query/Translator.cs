@@ -65,12 +65,15 @@ internal sealed class Translator : IMethodCallTranslator
                 argumentsPropagateNullability: [false],
                 returnType: typeof(float)
             ),
-            nameof(Pdb.All) => _sqlExpressionFactory.Function(
-                name: "pdb.all",
-                nullable: false,
-                arguments: [],
-                argumentsPropagateNullability: [],
-                returnType: typeof(bool)
+            nameof(ParadeDbFunctionsExtensions.All) => BuildQueryBuilderFunction(
+                arguments[1],
+                _sqlExpressionFactory.Function(
+                    name: "pdb.all",
+                    nullable: false,
+                    arguments: [],
+                    argumentsPropagateNullability: [],
+                    returnType: typeof(bool)
+                )
             ),
             nameof(Pdb.Exists) => _sqlExpressionFactory.Function(
                 name: "pdb.exists",
@@ -543,5 +546,12 @@ internal sealed class Translator : IMethodCallTranslator
         }
 
         return over ? new PdbOverExpression((SqlFunctionExpression)function) : function;
+    }
+
+    private SqlExpression BuildQueryBuilderFunction(SqlExpression column, SqlExpression query)
+    {
+        column = _sqlExpressionFactory.ApplyDefaultTypeMapping(column);
+        query = _sqlExpressionFactory.ApplyDefaultTypeMapping(query);
+        return new PdbBoolExpression(column, query, PdbOperatorType.Function);
     }
 }
