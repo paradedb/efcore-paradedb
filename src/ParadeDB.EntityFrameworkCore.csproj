@@ -5,8 +5,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageTags>ParadeDB;entity-framework-core;efcore;orm;sql;</PackageTags>
-    <Description>ParadeDB search integration for Npgsql.EntityFrameworkCore.PostgreSQL.</Description>
+    <PackageId>ParadeDB.EntityFrameworkCore</PackageId>
+    <Title>ParadeDB Entity Framework Core Integration</Title>
+    <Description>Official Entity Framework Core integration for ParadeDB search on PostgreSQL via Npgsql.</Description>
+    <PackageTags>ParadeDB;PostgreSQL;Npgsql;EntityFrameworkCore;EFCore;full-text-search;BM25;hybrid-search</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
