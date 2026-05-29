@@ -82,7 +82,7 @@ public static class ParadeDbFunctionsExtensions
     public static bool Proximity<TProperty>(
         this DbFunctions _,
         TProperty property,
-        PdbQuery query
+        PdbProximityQuery query
     ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Proximity)));
 
     [DbFunction]
@@ -150,10 +150,6 @@ public static class ParadeDbFunctionsExtensions
     [DbFunction]
     public static bool Exists<TProperty>(this DbFunctions _, TProperty property) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Exists)));
-
-    [DbFunction]
-    public static bool Parse<TProperty>(this DbFunctions _, TProperty property, string pattern) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Parse)));
 
     [DbFunction]
     public static bool Parse<TProperty>(
