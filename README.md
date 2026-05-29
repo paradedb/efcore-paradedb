@@ -28,12 +28,9 @@
 
 ---
 
-> [!NOTE]
-> `efcore-paradedb` is a work in progress and is not yet recommended for production use. APIs may evolve as we stabilize the integration — pin to an exact version if you're trying it out.
-
 ## ParadeDB for Entity Framework Core
 
-The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/) integration for [ParadeDB](https://paradedb.com), including first-class support for managing BM25 indexes and running queries using the full ParadeDB API. Follow the [getting started guide](https://docs.paradedb.com/documentation/getting-started/environment#efcore) to begin.
+The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/) integration for [ParadeDB](https://paradedb.com), including first-class support for managing BM25 indexes and running queries using the full ParadeDB API. Follow the [getting started guide](https://docs.paradedb.com/documentation/getting-started/environment#entity-framework-core) to begin.
 
 ## Requirements & Compatibility
 
@@ -41,7 +38,7 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 | ---------- | ----------------------------- |
 | .NET       | 8+                            |
 | EF Core    | 8+                            |
-| ParadeDB   | 0.22.0+                       |
+| ParadeDB   | 0.23.0+                       |
 | PostgreSQL | 15+ (with ParadeDB extension) |
 
 ## Examples
