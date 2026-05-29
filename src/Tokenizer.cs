@@ -41,11 +41,37 @@ public sealed class Tokenizer
         return args.Count == 0 ? $"pdb.{_name}" : $"pdb.{_name}({string.Join(",", args)})";
     }
 
+    internal string ToSearchString()
+    {
+        var args = _args.Concat(
+            _options.Select(option =>
+                $"{option.Key}={FormatSearchOptionValue(option.Value, option.Key)}"
+            )
+        );
+
+        var argsArray = args as string[] ?? args.ToArray();
+
+        return argsArray.Length == 0 ? _name : $"{_name}({string.Join(",", argsArray)})";
+    }
+
     private static string FormatOptionValue(object value, string key) =>
         value switch
         {
             bool b => b.ToString().ToLowerInvariant(),
             string s => Quote(s),
+            int n => n.ToString(CultureInfo.InvariantCulture),
+            float n => n.ToString(CultureInfo.InvariantCulture),
+            _ => throw new ArgumentException(
+                $"Tokenizer option '{key}' has unsupported value type '{value?.GetType().Name}'. Each tokenizer option value must be a bool, string, int, or float.",
+                "options"
+            ),
+        };
+
+    private static string FormatSearchOptionValue(object value, string key) =>
+        value switch
+        {
+            bool b => b.ToString().ToLowerInvariant(),
+            string s => s,
             int n => n.ToString(CultureInfo.InvariantCulture),
             float n => n.ToString(CultureInfo.InvariantCulture),
             _ => throw new ArgumentException(

@@ -71,9 +71,10 @@ If you need commercial support, please [contact the ParadeDB team](mailto:sales@
 
 ## Acknowledgments
 
-We would like to thank the following members of the Entity Framework Core community for the initial implementation of this project:
+We would like to thank the following members of the Entity Framework Core community:
 
-- [Nandor Krizbai](https://github.com/nandor23) - .NET developer
+- [Nandor Krizbai](https://github.com/nandor23) - for the initial implementation of this project
+- [Daniel Oliveira](https://github.com/daniel3303) - for implementing [ParadeDbEntityFrameworkCore](https://github.com/daniel3303/ParadeDbEntityFrameworkCore) which inspired our indexing implementation
 
 ## License
 
