@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using MoreLikeThis.Data;
+using ParadeDB.EntityFrameworkCore;
 using ParadeDB.EntityFrameworkCore.Extensions;
 
 var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
@@ -60,15 +61,8 @@ static async Task DemoSimilarToSingleProduct(AppDbContext db)
     Console.WriteLine($"  '{source.Description}' [{source.Category}]");
 
     var similar = await db
-        .MockItems.FromSqlInterpolated(
-            $"""
-            SELECT *
-            FROM mock_items
-            WHERE id @@@ pdb.more_like_this(
-                {sourceId},
-                {fields}
-            )
-            """
+        .MockItems.Where(x =>
+            EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(sourceId).Fields(fields))
         )
         .OrderByDescending(x => EF.Functions.Score(x.Id))
         .Take(5)
@@ -107,22 +101,29 @@ static async Task DemoSimilarToMultipleProducts(AppDbContext db)
         Console.WriteLine($"  {item.Id}: {Truncate(item.Description)}... [{item.Category}]");
     }
 
-    var similar = await db
-        .MockItems.FromSqlInterpolated(
-            $"""
-            SELECT *
-            FROM mock_items
-            WHERE (
-                id @@@ pdb.more_like_this({browsedIds[0]}, {fields})
-                OR id @@@ pdb.more_like_this({browsedIds[1]}, {fields})
-                OR id @@@ pdb.more_like_this({browsedIds[2]}, {fields})
-            )
-            AND NOT (id = ANY({browsedIds}))
-            """
-        )
-        .OrderByDescending(x => EF.Functions.Score(x.Id))
+    var candidates = new List<(Shared.MockItem Item, float Score)>();
+
+    foreach (var browsedId in browsedIds)
+    {
+        candidates.AddRange(
+            await db
+                .MockItems.Where(x =>
+                    EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(browsedId).Fields(fields))
+                )
+                .Select(x => new { Item = x, Score = EF.Functions.Score(x.Id) })
+                .OrderByDescending(x => x.Score)
+                .Take(5)
+                .Select(x => ValueTuple.Create(x.Item, x.Score))
+                .ToListAsync()
+        );
+    }
+
+    var similar = candidates
+        .Where(x => !browsedIds.Contains(x.Item.Id))
+        .GroupBy(x => x.Item.Id)
+        .Select(x => x.OrderByDescending(y => y.Score).First().Item)
         .Take(5)
-        .ToListAsync();
+        .ToList();
 
     Console.WriteLine();
     Console.WriteLine("Recommended products (similar to any browsed item):");
@@ -144,13 +145,7 @@ static async Task DemoSimilarByDocument(AppDbContext db)
     Console.WriteLine($"User wants: '{userDescription}'");
 
     var similar = await db
-        .MockItems.FromSqlInterpolated(
-            $"""
-            SELECT *
-            FROM mock_items
-            WHERE id @@@ pdb.more_like_this({document})
-            """
-        )
+        .MockItems.Where(x => EF.Functions.MoreLikeThis(x.Id, Pdb.Document(document)))
         .OrderByDescending(x => EF.Functions.Score(x.Id))
         .Take(5)
         .ToListAsync();
@@ -178,12 +173,8 @@ static async Task DemoTuningParameters(AppDbContext db)
     var fields = new[] { "description" };
 
     var defaultResults = await db
-        .MockItems.FromSqlInterpolated(
-            $"""
-            SELECT *
-            FROM mock_items
-            WHERE id @@@ pdb.more_like_this({sourceId}, {fields})
-            """
+        .MockItems.Where(x =>
+            EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(sourceId).Fields(fields))
         )
         .OrderByDescending(x => EF.Functions.Score(x.Id))
         .Take(3)
@@ -198,17 +189,11 @@ static async Task DemoTuningParameters(AppDbContext db)
     }
 
     var tunedResults = await db
-        .MockItems.FromSqlInterpolated(
-            $"""
-            SELECT *
-            FROM mock_items
-            WHERE id @@@ pdb.more_like_this(
-                {sourceId},
-                {fields},
-                min_doc_frequency => 2,
-                max_query_terms => 5
+        .MockItems.Where(x =>
+            EF.Functions.MoreLikeThis(
+                x.Id,
+                Pdb.DocumentId(sourceId).Fields(fields).MinDocFrequency(2).MaxQueryTerms(5)
             )
-            """
         )
         .OrderByDescending(x => EF.Functions.Score(x.Id))
         .ThenBy(x => x.Id)
@@ -237,12 +222,8 @@ static async Task DemoCombinedWithFilters(AppDbContext db)
     Console.WriteLine($"Source: '{source.Description}' (rating: {source.Rating})");
 
     var results = await db
-        .MockItems.FromSqlInterpolated(
-            $"""
-            SELECT *
-            FROM mock_items
-            WHERE id @@@ pdb.more_like_this({sourceId}, {fields})
-            """
+        .MockItems.Where(x =>
+            EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(sourceId).Fields(fields))
         )
         .Where(x => x.InStock)
         .Where(x => x.Rating >= 4)
@@ -278,12 +259,8 @@ static async Task DemoMultifieldSimilarity(AppDbContext db)
     Console.WriteLine($"Source: '{source.Description}' [{source.Category}]");
 
     var byDescription = await db
-        .MockItems.FromSqlInterpolated(
-            $"""
-            SELECT *
-            FROM mock_items
-            WHERE id @@@ pdb.more_like_this({sourceId}, {descriptionFields})
-            """
+        .MockItems.Where(x =>
+            EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(sourceId).Fields(descriptionFields))
         )
         .Where(x => x.Id != sourceId)
         .OrderByDescending(x => EF.Functions.Score(x.Id))
@@ -299,15 +276,11 @@ static async Task DemoMultifieldSimilarity(AppDbContext db)
     }
 
     var byBoth = await db
-        .MockItems.FromSqlInterpolated(
-            $"""
-            SELECT *
-            FROM mock_items
-            WHERE id @@@ pdb.more_like_this(
-                {sourceId},
-                {descriptionAndCategoryFields}
+        .MockItems.Where(x =>
+            EF.Functions.MoreLikeThis(
+                x.Id,
+                Pdb.DocumentId(sourceId).Fields(descriptionAndCategoryFields)
             )
-            """
         )
         .Where(x => x.Id != sourceId)
         .OrderByDescending(x => EF.Functions.Score(x.Id))

@@ -51,16 +51,7 @@ return;
 static async Task<List<ProductResult>> Retrieve(AppDbContext db, string query, int topK = 5)
 {
     return await db
-        .MockItems.FromSqlInterpolated(
-            $"""
-            SELECT *
-            FROM mock_items
-            WHERE id @@@ pdb.parse(
-                {query},
-                lenient => true
-            )
-            """
-        )
+        .MockItems.Where(x => EF.Functions.Parse(x.Description, query, lenient: true))
         .Select(x => new ProductResult
         {
             Id = x.Id,

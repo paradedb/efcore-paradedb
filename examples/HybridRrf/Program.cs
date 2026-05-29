@@ -65,10 +65,10 @@ static async Task<List<(string Description, double RrfScore)>> HybridSearch(
 
     cmd.CommandText = """
         WITH fulltext AS (
-            SELECT id, ROW_NUMBER() OVER (ORDER BY paradedb.score(id) DESC) AS rank
+            SELECT id, ROW_NUMBER() OVER (ORDER BY pdb.score(id) DESC) AS rank
             FROM mock_items
-            WHERE id @@@ paradedb.match('description', @query)
-            ORDER BY paradedb.score(id) DESC
+            WHERE description &&& @query
+            ORDER BY pdb.score(id) DESC
             LIMIT @topK
         ),
         semantic AS (
