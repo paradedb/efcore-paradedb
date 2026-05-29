@@ -73,13 +73,6 @@ public sealed class Bm25IndexBuilder<TEntity>
         return this;
     }
 
-    public Bm25IndexBuilder<TEntity> HasField(string sql)
-    {
-        AddField(sql, "sql", null, null);
-
-        return this;
-    }
-
     public Bm25IndexBuilder<TEntity> HasField<TProperty>(
         Expression<Func<TEntity, TProperty>> propertyExpression,
         Tokenizer tokenizer
