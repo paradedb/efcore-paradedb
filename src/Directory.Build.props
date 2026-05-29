@@ -6,16 +6,22 @@
 
   <PropertyGroup>
     <Authors>ParadeDB</Authors>
+    <Company>ParadeDB, Inc.</Company>
+    <Product>ParadeDB.EntityFrameworkCore</Product>
     <Copyright>Copyright (c) ParadeDB, Inc.</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReadmeFile>NUGET-README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>paradedb-logo.png</PackageIcon>
-    <PackageProjectUrl>https://paradedb.com</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/paradedb/efcore-paradedb</PackageProjectUrl>
     <RepositoryUrl>https://github.com/paradedb/efcore-paradedb</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\NUGET-README.md" Pack="true" PackagePath="\" />
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
     <None Include="..\LICENSE" Pack="true" PackagePath="\" />
     <None Include="..\assets\paradedb-logo.png" Pack="true" PackagePath="\" />
   </ItemGroup>

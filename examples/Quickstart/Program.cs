@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using ParadeDB.EntityFrameworkCore;
 using ParadeDB.EntityFrameworkCore.Extensions;
 using Quickstart.Data;
 
@@ -91,7 +92,7 @@ static async Task DemoSnippetHighlighting(AppDbContext db)
         .Select(x => new
         {
             Score = EF.Functions.Score(x.Id),
-            Snippet = EF.Functions.Snippet(x.Description, "<b>", "</b>"),
+            Snippet = EF.Functions.Snippet(x.Description, new SnippetOptions("<b>", "</b>", null)),
         })
         .OrderByDescending(x => x.Score)
         .Take(3)

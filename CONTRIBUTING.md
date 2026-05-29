@@ -71,22 +71,11 @@ prek run --all-files
 1. Ensure your change has an issue.
 2. Branch from `main`.
 3. Add or update tests for behavior changes.
-4. Update docs/examples when public API changes.
-5. Open a PR to `main`.
-6. Ensure CI passes.
+4. Open a PR to `main`.
+5. Ensure CI passes.
 
 The repository enforces PR title linting and follows Conventional Commits.
 We will not merge a feature without appropriate tests.
-
-### Documentation
-
-If you add a user-facing feature, include docs updates in the same PR:
-
-- `README.md` for public API behavior
-- `examples/` for practical usage
-- inline comments/XML doc comments when needed for maintainability
-
-We will not merge a feature without appropriate documentation.
 
 ## Legal Info
 

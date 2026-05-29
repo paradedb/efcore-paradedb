@@ -2,7 +2,6 @@ using System.Text.Json;
 using FacetedSearch.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Npgsql;
 using ParadeDB.EntityFrameworkCore.Extensions;
 
 var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
@@ -30,12 +29,7 @@ Console.WriteLine($"\nQuery: '{searchQuery}'");
 Console.WriteLine("\n--- Facets + Rows (Top K) ---");
 
 var results = await dbContext
-    .MockItems.FromSqlInterpolated(
-        $"""
-        SELECT * FROM mock_items
-        WHERE id @@@ paradedb.match('description', {searchQuery})
-        """
-    )
+    .MockItems.Where(x => EF.Functions.MatchAll(x.Description, searchQuery))
     .Select(x => new
     {
         x.Id,
@@ -63,36 +57,27 @@ foreach (var item in results)
     );
 }
 
-await dbContext.Database.OpenConnectionAsync();
-await using var command = (NpgsqlCommand)dbContext.Database.GetDbConnection().CreateCommand();
-
-command.CommandText = """
-    SELECT
-        pdb.agg('{"terms":{"field":"category"}}') OVER () as category_terms,
-        pdb.agg('{"terms":{"field":"rating"}}') OVER () as rating_terms,
-        pdb.agg('{"terms":{"field":"metadata.color"}}') OVER () as color_terms
-    FROM mock_items
-    WHERE id @@@ paradedb.match('description', @searchQuery)
-    ORDER BY rating DESC
-    LIMIT 5
-    """;
-command.Parameters.AddWithValue("@searchQuery", searchQuery);
-
-await using var reader = await command.ExecuteReaderAsync();
+var facets = await dbContext
+    .MockItems.Where(x => EF.Functions.MatchAll(x.Description, searchQuery))
+    .Select(x => new
+    {
+        Category = EF.Functions.AggOver(new { terms = new { field = "category" } }),
+        Rating = EF.Functions.AggOver(new { terms = new { field = "rating" } }),
+        Color = EF.Functions.AggOver(new { terms = new { field = "metadata.color" } }),
+    })
+    .FirstOrDefaultAsync();
 
 Console.WriteLine("\nFacet buckets:");
-if (await reader.ReadAsync())
+if (facets is not null)
 {
-    void PrintFacets(string label, int col)
+    static void PrintFacets(string label, JsonElement? json)
     {
-        if (reader.IsDBNull(col))
+        if (json is null)
         {
             return;
         }
 
-        var json = JsonDocument.Parse(reader.GetString(col));
-
-        if (!json.RootElement.TryGetProperty("buckets", out var buckets))
+        if (!json.Value.TryGetProperty("buckets", out var buckets))
         {
             return;
         }
@@ -107,9 +92,9 @@ if (await reader.ReadAsync())
         }
     }
 
-    PrintFacets("category_terms", 0);
-    PrintFacets("rating_terms", 1);
-    PrintFacets("metadata.color_terms", 2);
+    PrintFacets("category_terms", facets.Category);
+    PrintFacets("rating_terms", facets.Rating);
+    PrintFacets("metadata.color_terms", facets.Color);
 }
 
 Console.WriteLine();
