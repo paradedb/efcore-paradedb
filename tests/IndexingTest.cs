@@ -49,8 +49,7 @@ public sealed class IndexingTest : TestBase
             """
             CREATE INDEX indexing_items_idx ON indexing_items (description);
 
-            """,
-            StringCompareShould.IgnoreLineEndings
+            """
         );
         await context.Database.ExecuteSqlRawAsync(sql);
     }
@@ -79,6 +78,8 @@ public sealed class IndexingTest : TestBase
                         "metadata ->> 'color'",
                         Tokenizer.Literal(new() { ["alias"] = "metadata_color" })
                     )
+                    .HasField(e => e.Rating, new FieldAlias("my_rating_alias"))
+                    .HasField("rating + 1", new FieldAlias("escape' me"))
                     .HasFilter("rating > 0");
             });
         }
@@ -104,10 +105,9 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON indexing_items USING bm25 (id, (description::pdb.ngram(3,3,'positions=true')), ((metadata ->> 'color')::pdb.literal('alias=metadata_color'))) WITH (key_field = 'id') WHERE rating > 0;
+            CREATE INDEX indexing_items_idx ON indexing_items USING bm25 (id, (description::pdb.ngram(3,3,'positions=true')), ((metadata ->> 'color')::pdb.literal('alias=metadata_color')), (rating::pdb.alias('my_rating_alias')), ((rating + 1)::pdb.alias('escape'' me'))) WITH (key_field = 'id') WHERE rating > 0;
 
-            """,
-            StringCompareShould.IgnoreLineEndings
+            """
         );
         await context.Database.ExecuteSqlRawAsync(sql);
     }
@@ -155,8 +155,7 @@ public sealed class IndexingTest : TestBase
             """
             CREATE INDEX indexing_items_idx ON indexing_items USING bm25 (id, description, metadata) WITH (key_field = 'id');
 
-            """,
-            StringCompareShould.IgnoreLineEndings
+            """
         );
         await context.Database.ExecuteSqlRawAsync(sql);
     }
@@ -216,8 +215,7 @@ public sealed class IndexingTest : TestBase
             """
             CREATE INDEX indexing_items_idx ON indexing_items USING bm25 (id, categories, (tags::pdb.literal), ((description || ' ' || category)::pdb.simple('alias=description_concat')), (description::pdb.literal), (description::pdb.simple('alias=description_simple'))) WITH (key_field = 'id');
 
-            """,
-            StringCompareShould.IgnoreLineEndings
+            """
         );
         await context.Database.ExecuteSqlRawAsync(sql);
     }

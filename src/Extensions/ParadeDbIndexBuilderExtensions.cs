@@ -26,6 +26,7 @@ public static class ParadeDbIndexBuilderExtensions
         // so that it can be rendered appropriately
         indexBuilder.HasAnnotation(ParadeDbAnnotationNames.Bm25FieldKinds, new[] { "property" });
         indexBuilder.HasAnnotation(ParadeDbAnnotationNames.Bm25FieldTokenizers, new[] { "" });
+        indexBuilder.HasAnnotation(ParadeDbAnnotationNames.Bm25FieldAliases, new[] { "" });
 
         return new Bm25IndexBuilder<TEntity>(indexBuilder);
     }
@@ -44,6 +45,8 @@ public static class ParadeDbIndexBuilderExtensions
     }
 }
 
+public record FieldAlias(string name) { }
+
 // We use a custom index builder class instead of IndexBuilder directly to make it clear that not all
 // normal index creation operations are supported here (e.g. `IsUnique`)
 public sealed class Bm25IndexBuilder<TEntity>
@@ -57,22 +60,66 @@ public sealed class Bm25IndexBuilder<TEntity>
     }
 
     public Bm25IndexBuilder<TEntity> HasField<TProperty>(
-        Expression<Func<TEntity, TProperty>> propertyExpression,
-        Tokenizer? tokenizer = null
+        Expression<Func<TEntity, TProperty>> propertyExpression
     )
     {
         AddField(
             ParadeDbIndexBuilderExtensions.GetPropertyName(propertyExpression),
             "property",
-            tokenizer
+            null,
+            null
         );
 
         return this;
     }
 
-    public Bm25IndexBuilder<TEntity> HasField(string sql, Tokenizer? tokenizer = null)
+    public Bm25IndexBuilder<TEntity> HasField(string sql)
     {
-        AddField(sql, "sql", tokenizer);
+        AddField(sql, "sql", null, null);
+
+        return this;
+    }
+
+    public Bm25IndexBuilder<TEntity> HasField<TProperty>(
+        Expression<Func<TEntity, TProperty>> propertyExpression,
+        Tokenizer tokenizer
+    )
+    {
+        AddField(
+            ParadeDbIndexBuilderExtensions.GetPropertyName(propertyExpression),
+            "property",
+            tokenizer,
+            null
+        );
+
+        return this;
+    }
+
+    public Bm25IndexBuilder<TEntity> HasField(string sql, Tokenizer tokenizer)
+    {
+        AddField(sql, "sql", tokenizer, null);
+
+        return this;
+    }
+
+    public Bm25IndexBuilder<TEntity> HasField<TProperty>(
+        Expression<Func<TEntity, TProperty>> propertyExpression,
+        FieldAlias @alias
+    )
+    {
+        AddField(
+            ParadeDbIndexBuilderExtensions.GetPropertyName(propertyExpression),
+            "property",
+            null,
+            @alias.name
+        );
+
+        return this;
+    }
+
+    public Bm25IndexBuilder<TEntity> HasField(string sql, FieldAlias @alias)
+    {
+        AddField(sql, "sql", null, @alias.name);
 
         return this;
     }
@@ -84,11 +131,12 @@ public sealed class Bm25IndexBuilder<TEntity>
         return this;
     }
 
-    private void AddField(string field, string kind, Tokenizer? tokenizer)
+    private void AddField(string field, string kind, Tokenizer? tokenizer, string? @alias)
     {
         var properties = GetAnnotation(ParadeDbAnnotationNames.Bm25FieldProperties);
         var kinds = GetAnnotation(ParadeDbAnnotationNames.Bm25FieldKinds);
         var tokenizers = GetAnnotation(ParadeDbAnnotationNames.Bm25FieldTokenizers);
+        var aliases = GetAnnotation(ParadeDbAnnotationNames.Bm25FieldAliases);
 
         _indexBuilder.HasAnnotation(
             ParadeDbAnnotationNames.Bm25FieldProperties,
@@ -101,6 +149,11 @@ public sealed class Bm25IndexBuilder<TEntity>
         _indexBuilder.HasAnnotation(
             ParadeDbAnnotationNames.Bm25FieldTokenizers,
             tokenizers.Append(tokenizer?.ToString() ?? "").ToArray()
+        );
+
+        _indexBuilder.HasAnnotation(
+            ParadeDbAnnotationNames.Bm25FieldAliases,
+            aliases.Append(@alias is null ? "" : @alias.Replace("'", "''")).ToArray()
         );
     }
 

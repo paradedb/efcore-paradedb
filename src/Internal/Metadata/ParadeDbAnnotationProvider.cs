@@ -43,14 +43,18 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
             (string[]?)
                 mappedIndex.FindAnnotation(ParadeDbAnnotationNames.Bm25FieldTokenizers)?.Value
             ?? [];
+        var fieldAliases =
+            (string[]?)mappedIndex.FindAnnotation(ParadeDbAnnotationNames.Bm25FieldAliases)?.Value
+            ?? [];
 
         if (
             fieldProperties.Length != fieldKinds.Length
             || fieldProperties.Length != fieldTokenizers.Length
+            || fieldProperties.Length != fieldAliases.Length
         )
         {
             throw new InvalidOperationException(
-                "A BM25 index must have one kind and tokenizer entry for each field."
+                "A BM25 index must have one kind, tokenizer, and alias entry for each field."
             );
         }
 
@@ -60,6 +64,7 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
             ParadeDbAnnotationNames.Bm25KeyField,
             GetColumnName(mappedIndex.DeclaringEntityType, keyPropertyName, storeObject)
         );
+
         yield return new Annotation(
             ParadeDbAnnotationNames.Bm25Fields,
             fieldProperties
@@ -70,7 +75,8 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
                             field,
                             fieldKinds[i],
                             storeObject,
-                            string.IsNullOrEmpty(fieldTokenizers[i]) ? null : fieldTokenizers[i]
+                            string.IsNullOrEmpty(fieldTokenizers[i]) ? null : fieldTokenizers[i],
+                            string.IsNullOrEmpty(fieldAliases[i]) ? null : fieldAliases[i]
                         )
                 )
                 .ToArray()
@@ -82,7 +88,8 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
         string field,
         string kind,
         StoreObjectIdentifier storeObject,
-        string? tokenizer
+        string? tokenizer,
+        string? @alias
     )
     {
         var sql =
@@ -92,12 +99,26 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
                 $"The BM25 field kind '{kind}' is not supported."
             );
 
-        if (tokenizer is null)
+        if (tokenizer is null && @alias is null)
         {
             return sql;
         }
 
-        return kind == "property" ? $"({sql}::{tokenizer})" : $"(({sql})::{tokenizer})";
+        if (tokenizer is not null && @alias is not null)
+        {
+            throw new InvalidOperationException(
+                $"A field may not have a tokenizer and alias at the same time {tokenizer}, {@alias}"
+            );
+        }
+
+        if (tokenizer is not null)
+        {
+            return kind == "property" ? $"({sql}::{tokenizer})" : $"(({sql})::{tokenizer})";
+        }
+
+        return kind == "property"
+            ? $"({sql}::pdb.alias('{@alias}'))"
+            : $"(({sql})::pdb.alias('{@alias}'))";
     }
 
     private static string GetColumnName(
