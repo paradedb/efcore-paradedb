@@ -222,6 +222,106 @@ public sealed class IndexingTest : TestBase
         await context.Database.ExecuteSqlRawAsync(sql);
     }
 
+    public static IEnumerable<(
+        Tokenizer Tokenizer,
+        string ExpectedSearchTokenizer
+    )> SearchTokenizerVariations()
+    {
+        yield return (
+            Tokenizer.Unicode(new() { ["remove_emojis"] = true }),
+            "unicode_words(remove_emojis=true)"
+        );
+        yield return (
+            Tokenizer.Simple(
+                new()
+                {
+                    ["stemmer"] = "english",
+                    ["max_token_length"] = 255,
+                    ["threshold"] = 2.3f,
+                }
+            ),
+            "simple(stemmer=english,max_token_length=255,threshold=2.3)"
+        );
+        yield return (Tokenizer.Icu(), "icu");
+        yield return (Tokenizer.ChineseCompatible([]), "chinese_compatible");
+        yield return (Tokenizer.Jieba(), "jieba");
+        yield return (Tokenizer.Literal(), "literal");
+        yield return (
+            Tokenizer.LiteralNormalized(new() { ["trim"] = true }),
+            "literal_normalized(trim=true)"
+        );
+        yield return (
+            Tokenizer.Ngram(3, 3, new() { ["positions"] = true, ["prefix_only"] = true }),
+            "ngram(3,3,positions=true,prefix_only=true)"
+        );
+        yield return (
+            Tokenizer.EdgeNgram(2, 5, new() { ["token_chars"] = "letter,digit,punctuation" }),
+            "edge_ngram(2,5,token_chars=letter,digit,punctuation)"
+        );
+        yield return (Tokenizer.RegexPattern("isn't", []), "regex_pattern(''isn''''t'')");
+        yield return (Tokenizer.SourceCode(), "source_code");
+        yield return (Tokenizer.Whitespace(), "whitespace");
+    }
+
+    private sealed class SearchTokenizerIndexContext(
+        DbContextOptions<SearchTokenizerIndexContext> options,
+        Tokenizer tokenizer
+    ) : DbContext(options)
+    {
+        public Tokenizer Tokenizer { get; } = tokenizer;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<IndexingItem>(entity =>
+            {
+                entity.ToTable("indexing_items");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Description).HasColumnName("description");
+
+                entity
+                    .HasBm25Index("indexing_items_idx", e => e.Id)
+                    .HasField(e => e.Description)
+                    .HasSearchTokenizer(Tokenizer);
+            });
+        }
+    }
+
+    private sealed class SearchTokenizerIndexModelCacheKeyFactory : IModelCacheKeyFactory
+    {
+        public object Create(DbContext context, bool designTime) =>
+            context is SearchTokenizerIndexContext searchTokenizerContext
+                ? (context.GetType(), searchTokenizerContext.Tokenizer.ToString(), designTime)
+                : (context.GetType(), designTime);
+
+        public object Create(DbContext context) => Create(context, false);
+    }
+
+    [Test]
+    [MethodDataSource(nameof(SearchTokenizerVariations))]
+    public async Task Bm25Index_SearchTokenizerRendersTokenizer(
+        Tokenizer tokenizer,
+        string expectedSearchTokenizer
+    )
+    {
+        await using var context = DbFixture.CreateContext();
+        await context.Database.OpenConnectionAsync();
+        await context.Database.ExecuteSqlRawAsync(
+            """
+            CREATE TEMP TABLE indexing_items (
+                id int PRIMARY KEY,
+                description text
+            );
+            """
+        );
+
+        var sql = GenerateSearchTokenizerCreateIndexSql(tokenizer);
+
+        sql.ShouldBe(
+            $"CREATE INDEX indexing_items_idx ON indexing_items USING bm25 (id, description) WITH (key_field = 'id', search_tokenizer = '{expectedSearchTokenizer}');\n"
+        );
+        await context.Database.ExecuteSqlRawAsync(sql);
+    }
+
     private static string GenerateCreateIndexSql<TContext, TEntity>()
         where TContext : DbContext
     {
@@ -235,6 +335,30 @@ public sealed class IndexingTest : TestBase
         var model = context.GetService<IDesignTimeModel>().Model;
         var index = model
             .FindEntityType(typeof(TEntity))!
+            .GetIndexes()
+            .Single(i => i.GetDatabaseName() == "indexing_items_idx")
+            .GetMappedTableIndexes()
+            .Single();
+
+        return context
+            .GetService<IMigrationsSqlGenerator>()
+            .Generate([CreateIndexOperation.CreateFrom(index)], model)
+            .Single()
+            .CommandText;
+    }
+
+    private static string GenerateSearchTokenizerCreateIndexSql(Tokenizer tokenizer)
+    {
+        using var context = new SearchTokenizerIndexContext(
+            new DbContextOptionsBuilder<SearchTokenizerIndexContext>()
+                .UseNpgsql("Host=localhost;Database=test", o => o.UseParadeDb())
+                .ReplaceService<IModelCacheKeyFactory, SearchTokenizerIndexModelCacheKeyFactory>()
+                .Options,
+            tokenizer
+        );
+        var model = context.GetService<IDesignTimeModel>().Model;
+        var index = model
+            .FindEntityType(typeof(IndexingItem))!
             .GetIndexes()
             .Single(i => i.GetDatabaseName() == "indexing_items_idx")
             .GetMappedTableIndexes()
