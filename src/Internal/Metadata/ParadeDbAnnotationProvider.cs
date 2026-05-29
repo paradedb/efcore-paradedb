@@ -81,6 +81,17 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
                 )
                 .ToArray()
         );
+
+        if (
+            mappedIndex.FindAnnotation(ParadeDbAnnotationNames.Bm25SearchTokenizer)?.Value
+            is string searchTokenizer
+        )
+        {
+            yield return new Annotation(
+                ParadeDbAnnotationNames.Bm25SearchTokenizer,
+                searchTokenizer
+            );
+        }
     }
 
     private static string RenderField(

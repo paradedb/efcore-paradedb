@@ -35,8 +35,11 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
         }
 
         var helper = Dependencies.SqlGenerationHelper;
+        var stringMapping = Dependencies.TypeMappingSource.FindMapping(typeof(string))!;
         var createdConcurrently =
             operation.FindAnnotation(NpgsqlAnnotationNames.CreatedConcurrently)?.Value is true;
+        var searchTokenizer =
+            operation.FindAnnotation(ParadeDbAnnotationNames.Bm25SearchTokenizer)?.Value as string;
 
         builder
             .Append("CREATE INDEX ")
@@ -47,12 +50,16 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
             .Append(" USING bm25 (")
             .Append(string.Join(", ", fields))
             .Append(") WITH (key_field = ")
-            .Append(
-                Dependencies
-                    .TypeMappingSource.FindMapping(typeof(string))!
-                    .GenerateSqlLiteral(keyField)
-            )
-            .Append(")");
+            .Append(stringMapping.GenerateSqlLiteral(keyField));
+
+        if (searchTokenizer is not null)
+        {
+            builder
+                .Append(", search_tokenizer = ")
+                .Append(stringMapping.GenerateSqlLiteral(searchTokenizer));
+        }
+
+        builder.Append(")");
 
         if (operation.Filter is not null)
         {

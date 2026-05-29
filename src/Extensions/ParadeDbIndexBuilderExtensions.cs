@@ -138,6 +138,16 @@ public sealed class Bm25IndexBuilder<TEntity>
         return this;
     }
 
+    public Bm25IndexBuilder<TEntity> HasSearchTokenizer(Tokenizer tokenizer)
+    {
+        _indexBuilder.HasAnnotation(
+            ParadeDbAnnotationNames.Bm25SearchTokenizer,
+            tokenizer.ToSearchString()
+        );
+
+        return this;
+    }
+
     private void AddField(string field, string kind, Tokenizer? tokenizer, string? @alias)
     {
         var properties = GetAnnotation(ParadeDbAnnotationNames.Bm25FieldProperties);

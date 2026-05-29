@@ -80,7 +80,8 @@ public sealed class IndexingTest : TestBase
                     )
                     .HasField(e => e.Rating, new FieldAlias("my_rating_alias"))
                     .HasField("rating + 1", new FieldAlias("escape' me"))
-                    .HasFilter("rating > 0");
+                    .HasFilter("rating > 0")
+                    .HasSearchTokenizer(Tokenizer.Simple(new() { ["lowercase"] = false }));
             });
         }
     }
@@ -105,7 +106,7 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON indexing_items USING bm25 (id, (description::pdb.ngram(3,3,'positions=true')), ((metadata ->> 'color')::pdb.literal('alias=metadata_color')), (rating::pdb.alias('my_rating_alias')), ((rating + 1)::pdb.alias('escape'' me'))) WITH (key_field = 'id') WHERE rating > 0;
+            CREATE INDEX indexing_items_idx ON indexing_items USING bm25 (id, (description::pdb.ngram(3,3,'positions=true')), ((metadata ->> 'color')::pdb.literal('alias=metadata_color')), (rating::pdb.alias('my_rating_alias')), ((rating + 1)::pdb.alias('escape'' me'))) WITH (key_field = 'id', search_tokenizer = 'simple(lowercase=false)') WHERE rating > 0;
 
             """
         );
