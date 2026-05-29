@@ -127,6 +127,7 @@ public sealed class IndexingTest : TestBase
 
                 entity
                     .HasBm25Index("indexing_items_idx", e => e.Id)
+                    .IsCreatedConcurrently()
                     .HasField(e => e.Description)
                     .HasField(e => e.Metadata);
             });
@@ -153,7 +154,7 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON indexing_items USING bm25 (id, description, metadata) WITH (key_field = 'id');
+            CREATE INDEX CONCURRENTLY indexing_items_idx ON indexing_items USING bm25 (id, description, metadata) WITH (key_field = 'id');
 
             """
         );

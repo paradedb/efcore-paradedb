@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.Internal;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Migrations;
 using ParadeDB.EntityFrameworkCore.Internal.Metadata;
 
@@ -34,9 +35,12 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
         }
 
         var helper = Dependencies.SqlGenerationHelper;
+        var createdConcurrently =
+            operation.FindAnnotation(NpgsqlAnnotationNames.CreatedConcurrently)?.Value is true;
 
         builder
             .Append("CREATE INDEX ")
+            .Append(createdConcurrently ? "CONCURRENTLY " : "")
             .Append(helper.DelimitIdentifier(operation.Name))
             .Append(" ON ")
             .Append(helper.DelimitIdentifier(operation.Table, operation.Schema))
@@ -57,7 +61,9 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
 
         if (terminate)
         {
-            builder.AppendLine(helper.StatementTerminator).EndCommand();
+            builder
+                .AppendLine(helper.StatementTerminator)
+                .EndCommand(suppressTransaction: createdConcurrently);
         }
     }
 }

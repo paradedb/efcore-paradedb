@@ -131,6 +131,13 @@ public sealed class Bm25IndexBuilder<TEntity>
         return this;
     }
 
+    public Bm25IndexBuilder<TEntity> IsCreatedConcurrently(bool createdConcurrently = true)
+    {
+        _indexBuilder.IsCreatedConcurrently(createdConcurrently);
+
+        return this;
+    }
+
     private void AddField(string field, string kind, Tokenizer? tokenizer, string? @alias)
     {
         var properties = GetAnnotation(ParadeDbAnnotationNames.Bm25FieldProperties);
