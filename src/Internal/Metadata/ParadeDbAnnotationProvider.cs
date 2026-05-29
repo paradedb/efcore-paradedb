@@ -32,20 +32,14 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
             yield break;
         }
 
-        var fieldProperties =
-            (string[]?)
-                mappedIndex.FindAnnotation(ParadeDbAnnotationNames.Bm25FieldProperties)?.Value
-            ?? [];
-        var fieldKinds =
-            (string[]?)mappedIndex.FindAnnotation(ParadeDbAnnotationNames.Bm25FieldKinds)?.Value
-            ?? [];
-        var fieldTokenizers =
-            (string[]?)
-                mappedIndex.FindAnnotation(ParadeDbAnnotationNames.Bm25FieldTokenizers)?.Value
-            ?? [];
-        var fieldAliases =
-            (string[]?)mappedIndex.FindAnnotation(ParadeDbAnnotationNames.Bm25FieldAliases)?.Value
-            ?? [];
+        var fieldProperties = (string[])
+            mappedIndex.FindAnnotation(ParadeDbAnnotationNames.Bm25FieldProperties)!.Value!;
+        var fieldKinds = (string[])
+            mappedIndex.FindAnnotation(ParadeDbAnnotationNames.Bm25FieldKinds)!.Value!;
+        var fieldTokenizers = (string[])
+            mappedIndex.FindAnnotation(ParadeDbAnnotationNames.Bm25FieldTokenizers)!.Value!;
+        var fieldAliases = (string[])
+            mappedIndex.FindAnnotation(ParadeDbAnnotationNames.Bm25FieldAliases)!.Value!;
 
         if (
             fieldProperties.Length != fieldKinds.Length
@@ -62,7 +56,9 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
 
         yield return new Annotation(
             ParadeDbAnnotationNames.Bm25KeyField,
-            GetColumnName(mappedIndex.DeclaringEntityType, keyPropertyName, storeObject)
+            mappedIndex
+                .DeclaringEntityType.FindProperty(keyPropertyName)!
+                .GetColumnName(storeObject)!
         );
 
         yield return new Annotation(
@@ -103,12 +99,12 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
         string? @alias
     )
     {
-        var sql =
-            kind == "property" ? GetColumnName(entityType, field, storeObject)
-            : kind == "sql" ? field
-            : throw new InvalidOperationException(
-                $"The BM25 field kind '{kind}' is not supported."
-            );
+        var sql = kind switch
+        {
+            "property" => entityType.FindProperty(field)!.GetColumnName(storeObject)!,
+            "sql" => field,
+            _ => throw new InvalidOperationException($"Unknown field kind '{kind}'"),
+        };
 
         if (tokenizer is null && @alias is null)
         {
@@ -138,15 +134,6 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
         StoreObjectIdentifier storeObject
     )
     {
-        var property =
-            entityType.FindProperty(propertyName)
-            ?? throw new InvalidOperationException(
-                $"The BM25 field '{propertyName}' was not found."
-            );
-
-        return property.GetColumnName(storeObject)
-            ?? throw new InvalidOperationException(
-                $"The BM25 field '{propertyName}' is not mapped to a column."
-            );
+        return entityType.FindProperty(propertyName)!.GetColumnName(storeObject)!;
     }
 }
