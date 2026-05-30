@@ -18,17 +18,12 @@ namespace ParadeDB.EntityFrameworkCore.Internal.Query;
 internal sealed class Translator : IMethodCallTranslator
 {
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
-    private readonly RelationalTypeMapping _jsonbTypeMapping;
-    private readonly RelationalTypeMapping _stringArrayTypeMapping;
 
     public Translator(
-        ISqlExpressionFactory sqlExpressionFactory,
-        IRelationalTypeMappingSource typeMappingSource
+        ISqlExpressionFactory sqlExpressionFactory
     )
     {
         _sqlExpressionFactory = sqlExpressionFactory;
-        _jsonbTypeMapping = typeMappingSource.FindMapping(typeof(JsonElement), "jsonb")!;
-        _stringArrayTypeMapping = typeMappingSource.FindMapping(typeof(string[]))!;
     }
 
     public SqlExpression? Translate(
@@ -374,7 +369,7 @@ internal sealed class Translator : IMethodCallTranslator
             argumentsPropagateNullability: new bool[args.Count],
             builtIn: false,
             type: typeof(string[]),
-            typeMapping: _stringArrayTypeMapping
+            typeMapping: PdbTypeMappings.TextArray
         );
 
         void Add(object? value, string name)
@@ -590,7 +585,7 @@ internal sealed class Translator : IMethodCallTranslator
             arguments: args,
             argumentsPropagateNullability: [false, false],
             returnType: typeof(JsonElement),
-            typeMapping: _jsonbTypeMapping
+            typeMapping: PdbTypeMappings.JsonbElement
         );
 
         if (filter is not null)
