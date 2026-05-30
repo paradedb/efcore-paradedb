@@ -19,9 +19,7 @@ internal sealed class Translator : IMethodCallTranslator
 {
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-    public Translator(
-        ISqlExpressionFactory sqlExpressionFactory
-    )
+    public Translator(ISqlExpressionFactory sqlExpressionFactory)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
     }

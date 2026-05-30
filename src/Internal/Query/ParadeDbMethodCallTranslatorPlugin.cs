@@ -4,9 +4,7 @@ namespace ParadeDB.EntityFrameworkCore.Internal.Query;
 
 internal sealed class ParadeDbMethodCallTranslatorPlugin : IMethodCallTranslatorPlugin
 {
-    public ParadeDbMethodCallTranslatorPlugin(
-        ISqlExpressionFactory sqlExpressionFactory
-    )
+    public ParadeDbMethodCallTranslatorPlugin(ISqlExpressionFactory sqlExpressionFactory)
     {
         Translators = [new Translator(sqlExpressionFactory)];
     }

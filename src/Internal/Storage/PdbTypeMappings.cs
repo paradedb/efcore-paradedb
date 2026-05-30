@@ -1,5 +1,4 @@
 using System.Text.Json;
-
 using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
 using NpgsqlTypes;
@@ -20,6 +19,9 @@ internal static class PdbTypeMappings
         typeof(JsonElement)
     );
 
-    public static readonly RelationalTypeMapping TextArray =
-        new NpgsqlArrayTypeMapping<string[], string[], string>("text[]", Text);
+    public static readonly RelationalTypeMapping TextArray = new NpgsqlArrayTypeMapping<
+        string[],
+        string[],
+        string
+    >("text[]", Text);
 }
