@@ -208,7 +208,7 @@ internal sealed class Translator : IMethodCallTranslator
         );
     }
 
-    private SqlExpression BuildRegexPhrase(IReadOnlyList<SqlExpression> arguments)
+    private PgFunctionExpression BuildRegexPhrase(IReadOnlyList<SqlExpression> arguments)
     {
         List<SqlExpression> args = [_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2])];
         List<string?> argNames = [null];
@@ -601,7 +601,7 @@ internal sealed class Translator : IMethodCallTranslator
         return over ? new PdbOverExpression((SqlFunctionExpression)function) : function;
     }
 
-    private SqlExpression BuildQueryBuilderFunction(SqlExpression column, SqlExpression query)
+    private PdbBoolExpression BuildQueryBuilderFunction(SqlExpression column, SqlExpression query)
     {
         column = _sqlExpressionFactory.ApplyDefaultTypeMapping(column);
         query = _sqlExpressionFactory.ApplyDefaultTypeMapping(query);
