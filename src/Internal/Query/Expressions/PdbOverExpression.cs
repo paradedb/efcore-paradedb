@@ -7,9 +7,9 @@ internal sealed class PdbOverExpression(SqlFunctionExpression function)
     : SqlFunctionExpression(
         function.Schema,
         function.Name,
-        function.Arguments!,
+        function.Arguments ?? [],
         function.IsNullable,
-        function.ArgumentsPropagateNullability!,
+        function.ArgumentsPropagateNullability ?? [],
         function.Type,
         function.TypeMapping
     )
@@ -20,8 +20,8 @@ internal sealed class PdbOverExpression(SqlFunctionExpression function)
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
         var function = (SqlFunctionExpression)base.VisitChildren(visitor);
-        var filter = Filter is null ? null : (SqlExpression)visitor.Visit(Filter)!;
-        return function == this && filter == Filter
+        var filter = Filter is null ? null : (SqlExpression)visitor.Visit(Filter);
+        return ReferenceEquals(function, this) && ReferenceEquals(filter, Filter)
             ? this
             : new PdbOverExpression(
                 filter is null ? function : new PdbFilteredAggregateExpression(function, filter)

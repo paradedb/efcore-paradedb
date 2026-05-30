@@ -45,7 +45,7 @@ public static class ParadeDbIndexBuilderExtensions
     }
 }
 
-public record FieldAlias(string name) { }
+public record FieldAlias(string Name);
 
 // We use a custom index builder class instead of IndexBuilder directly to make it clear that not all
 // normal index creation operations are supported here (e.g. `IsUnique`)
@@ -97,22 +97,22 @@ public sealed class Bm25IndexBuilder<TEntity>
 
     public Bm25IndexBuilder<TEntity> HasField<TProperty>(
         Expression<Func<TEntity, TProperty>> propertyExpression,
-        FieldAlias @alias
+        FieldAlias alias
     )
     {
         AddField(
             ParadeDbIndexBuilderExtensions.GetPropertyName(propertyExpression),
             "property",
             null,
-            @alias.name
+            alias.Name
         );
 
         return this;
     }
 
-    public Bm25IndexBuilder<TEntity> HasField(string sql, FieldAlias @alias)
+    public Bm25IndexBuilder<TEntity> HasField(string sql, FieldAlias alias)
     {
-        AddField(sql, "sql", null, @alias.name);
+        AddField(sql, "sql", null, alias.Name);
 
         return this;
     }
@@ -141,7 +141,7 @@ public sealed class Bm25IndexBuilder<TEntity>
         return this;
     }
 
-    private void AddField(string field, string kind, Tokenizer? tokenizer, string? @alias)
+    private void AddField(string field, string kind, Tokenizer? tokenizer, string? alias)
     {
         var properties = GetAnnotation(ParadeDbAnnotationNames.Bm25FieldProperties);
         var kinds = GetAnnotation(ParadeDbAnnotationNames.Bm25FieldKinds);
@@ -163,7 +163,7 @@ public sealed class Bm25IndexBuilder<TEntity>
 
         _indexBuilder.HasAnnotation(
             ParadeDbAnnotationNames.Bm25FieldAliases,
-            aliases.Append(@alias is null ? "" : @alias.Replace("'", "''")).ToArray()
+            aliases.Append(alias is null ? "" : alias.Replace("'", "''")).ToArray()
         );
     }
 

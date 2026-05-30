@@ -96,7 +96,7 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
         string kind,
         StoreObjectIdentifier storeObject,
         string? tokenizer,
-        string? @alias
+        string? alias
     )
     {
         var sql = kind switch
@@ -106,15 +106,15 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
             _ => throw new InvalidOperationException($"Unknown field kind '{kind}'"),
         };
 
-        if (tokenizer is null && @alias is null)
+        if (tokenizer is null && alias is null)
         {
             return sql;
         }
 
-        if (tokenizer is not null && @alias is not null)
+        if (tokenizer is not null && alias is not null)
         {
             throw new InvalidOperationException(
-                $"A field may not have a tokenizer and alias at the same time {tokenizer}, {@alias}"
+                $"A field may not have a tokenizer and alias at the same time {tokenizer}, {alias}"
             );
         }
 
@@ -124,16 +124,7 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
         }
 
         return kind == "property"
-            ? $"({sql}::pdb.alias('{@alias}'))"
-            : $"(({sql})::pdb.alias('{@alias}'))";
-    }
-
-    private static string GetColumnName(
-        IReadOnlyEntityType entityType,
-        string propertyName,
-        StoreObjectIdentifier storeObject
-    )
-    {
-        return entityType.FindProperty(propertyName)!.GetColumnName(storeObject)!;
+            ? $"({sql}::pdb.alias('{alias}'))"
+            : $"(({sql})::pdb.alias('{alias}'))";
     }
 }
