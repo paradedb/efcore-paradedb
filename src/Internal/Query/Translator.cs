@@ -8,11 +8,12 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Expressions.Internal;
-using ParadeDB.EntityFrameworkCore;
 using ParadeDB.EntityFrameworkCore.Extensions;
 using ParadeDB.EntityFrameworkCore.Internal.Query.Expressions;
 using ParadeDB.EntityFrameworkCore.Internal.Storage;
 using ParadeDB.EntityFrameworkCore.Modifiers;
+
+namespace ParadeDB.EntityFrameworkCore.Internal.Query;
 
 internal sealed class Translator : IMethodCallTranslator
 {
@@ -130,9 +131,10 @@ internal sealed class Translator : IMethodCallTranslator
             nameof(ParadeDbFunctionsExtensions.TokenizeAsArray) => BuildTokenizer(arguments, true),
             nameof(PdbProximityQueryExtensions.Within) => BuildProximityExpression(arguments),
             _ when method.DeclaringType == typeof(PdbMoreLikeThisQueryExtensions) =>
-                BuildtMoreLikeThisOption(method, arguments),
-            nameof(Pdb.Document) => BuildMoreLikeThisOptionBuilder(arguments),
-            nameof(Pdb.DocumentId) => BuildMoreLikeThisOptionBuilder(arguments),
+                BuildMoreLikeThisOption(method, arguments),
+            nameof(Pdb.Document) or nameof(Pdb.DocumentId) => BuildMoreLikeThisOptionBuilder(
+                arguments
+            ),
             nameof(ParadeDbFunctionsExtensions.MoreLikeThis) => BuildMoreLikeThis(arguments),
             nameof(ParadeDbFunctionsExtensions.Alias) => BuildAlias(arguments),
             nameof(ParadeDbFunctionsExtensions.Agg) => BuildAggregate(arguments, false),
@@ -153,13 +155,24 @@ internal sealed class Translator : IMethodCallTranslator
         };
     }
 
-    private SqlExpression BuildParse(IReadOnlyList<SqlExpression> arguments)
+    private PgFunctionExpression BuildParse(IReadOnlyList<SqlExpression> arguments)
     {
         List<SqlExpression> args = [_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2])];
         List<string?> argNames = [null];
 
         Add(3, "lenient");
         Add(4, "conjunction_mode");
+
+        return PgFunctionExpression.CreateWithNamedArguments(
+            name: "pdb.parse",
+            arguments: args,
+            argumentNames: argNames,
+            nullable: false,
+            argumentsPropagateNullability: new bool[args.Count],
+            builtIn: false,
+            type: typeof(bool),
+            typeMapping: null
+        );
 
         void Add(int index, string name)
         {
@@ -174,17 +187,6 @@ internal sealed class Translator : IMethodCallTranslator
             args.Add(_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[index]));
             argNames.Add(name);
         }
-
-        return PgFunctionExpression.CreateWithNamedArguments(
-            name: "pdb.parse",
-            arguments: args,
-            argumentNames: argNames,
-            nullable: false,
-            argumentsPropagateNullability: new bool[args.Count],
-            builtIn: false,
-            type: typeof(bool),
-            typeMapping: null
-        );
     }
 
     private SqlExpression BuildPhrasePrefix(IReadOnlyList<SqlExpression> arguments)
@@ -257,7 +259,7 @@ internal sealed class Translator : IMethodCallTranslator
         );
     }
 
-    private SqlExpression? BuildModifier(IReadOnlyList<SqlExpression> arguments, string methodName)
+    private SqlExpression BuildModifier(IReadOnlyList<SqlExpression> arguments, string methodName)
     {
         RelationalTypeMapping typeMapping = methodName switch
         {
@@ -299,7 +301,7 @@ internal sealed class Translator : IMethodCallTranslator
             )!;
     }
 
-    private SqlExpression? BuildOperator(
+    private PdbBoolExpression BuildOperator(
         IReadOnlyList<SqlExpression> arguments,
         PdbOperatorType operatorType
     )
@@ -310,7 +312,7 @@ internal sealed class Translator : IMethodCallTranslator
         return new PdbBoolExpression(left, right, operatorType);
     }
 
-    private SqlExpression? BuildSnippet(IReadOnlyList<SqlExpression> arguments)
+    private PgFunctionExpression BuildSnippet(IReadOnlyList<SqlExpression> arguments)
     {
         var options =
             arguments.Count == 3
@@ -322,6 +324,17 @@ internal sealed class Translator : IMethodCallTranslator
         Add(options?.startTag, "start_tag");
         Add(options?.endTag, "end_tag");
         Add(options?.maxNumChars, "max_num_chars");
+
+        return PgFunctionExpression.CreateWithNamedArguments(
+            name: "pdb.snippet",
+            arguments: args,
+            argumentNames: argNames,
+            nullable: true,
+            argumentsPropagateNullability: new bool[args.Count],
+            builtIn: false,
+            type: typeof(string),
+            typeMapping: null
+        );
 
         void Add(object? value, string name)
         {
@@ -335,20 +348,9 @@ internal sealed class Translator : IMethodCallTranslator
             );
             argNames.Add(name);
         }
-
-        return PgFunctionExpression.CreateWithNamedArguments(
-            name: "pdb.snippet",
-            arguments: args,
-            argumentNames: argNames,
-            nullable: true,
-            argumentsPropagateNullability: new bool[args.Count],
-            builtIn: false,
-            type: typeof(string),
-            typeMapping: null
-        );
     }
 
-    private SqlExpression? BuildSnippets(IReadOnlyList<SqlExpression> arguments)
+    private PgFunctionExpression BuildSnippets(IReadOnlyList<SqlExpression> arguments)
     {
         var options =
             arguments.Count == 3
@@ -364,6 +366,17 @@ internal sealed class Translator : IMethodCallTranslator
         Add(options?.offset, "\"offset\"");
         Add(options?.sortBy, "sort_by");
 
+        return PgFunctionExpression.CreateWithNamedArguments(
+            name: "pdb.snippets",
+            arguments: args,
+            argumentNames: argNames,
+            nullable: true,
+            argumentsPropagateNullability: new bool[args.Count],
+            builtIn: false,
+            type: typeof(string[]),
+            typeMapping: _stringArrayTypeMapping
+        );
+
         void Add(object? value, string name)
         {
             if (value is null)
@@ -376,17 +389,6 @@ internal sealed class Translator : IMethodCallTranslator
             );
             argNames.Add(name);
         }
-
-        return PgFunctionExpression.CreateWithNamedArguments(
-            name: "pdb.snippets",
-            arguments: args,
-            argumentNames: argNames,
-            nullable: true,
-            argumentsPropagateNullability: new bool[args.Count],
-            builtIn: false,
-            type: typeof(string[]),
-            typeMapping: _stringArrayTypeMapping
-        );
     }
 
     private PdbProximityExpression BuildProximityExpression(IReadOnlyList<SqlExpression> arguments)
@@ -476,7 +478,7 @@ internal sealed class Translator : IMethodCallTranslator
         return new PdbAccumulatorExpression([seed], [null]);
     }
 
-    private PdbAccumulatorExpression? BuildtMoreLikeThisOption(
+    private PdbAccumulatorExpression? BuildMoreLikeThisOption(
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments
     )
