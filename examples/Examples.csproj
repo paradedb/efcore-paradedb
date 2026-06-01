@@ -22,13 +22,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="*\Program.cs" />
-    <Compile Include="$(Example)\Program.cs" Condition="'$(Example)' != ''" />
+    <Compile Remove="Quickstart.cs;FacetedSearch.cs;Autocomplete.cs;MoreLikeThis.cs;HybridRrf.cs;Rag.cs" />
+    <Compile Include="$(Example).cs" Condition="'$(Example)' != ''" />
 
     <ProjectReference Include="..\src\ParadeDB.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="HybridRrf\mock_items_embeddings.csv" CopyToOutputDirectory="Always" />
+    <Content Include="mock_items_embeddings.csv" CopyToOutputDirectory="Always" />
   </ItemGroup>
 </Project>

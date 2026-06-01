@@ -1,7 +1,7 @@
 # ParadeDB for .NET: Examples & Cookbook
 
 This directory contains .NET console examples that demonstrate how to use ParadeDB with EF Core.
-The examples share one .NET project, with each example keeping its own read-only `Program.cs` entry point.
+The examples share one .NET project, with each example keeping its own read-only entry point named after the example.
 
 ## 🚀 Getting Started
 
@@ -18,7 +18,7 @@ From the repo root you can start a local ParadeDB container with the included he
 ./scripts/run_paradedb.sh
 ```
 
-If you already run PostgreSQL with ParadeDB installed, update the connection string in the example's `Program.cs`.
+If you already run PostgreSQL with ParadeDB installed, update the connection string in the example's `.cs` file.
 The examples are read-only and assume the referenced database already contains the sample tables, data, and indexes.
 
 ## 📚 The Examples
@@ -31,7 +31,7 @@ We've organized the examples into three categories:
 
 ### 🔹 Essentials
 
-#### 1. Quickstart (`examples/Quickstart`)
+#### 1. Quickstart (`examples/Quickstart.cs`)
 
 _The "Hello World" of ParadeDB._
 
@@ -48,7 +48,7 @@ This script demonstrates the fundamental building blocks of search. You will lea
 dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=Quickstart
 ```
 
-#### 2. Faceted Search (`examples/FacetedSearch`)
+#### 2. Faceted Search (`examples/FacetedSearch.cs`)
 
 _Building an E-commerce Sidebar._
 
@@ -69,7 +69,7 @@ dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=Fac
 
 ### 🔹 Smart Features
 
-#### 3. Autocomplete (`examples/Autocomplete`)
+#### 3. Autocomplete (`examples/Autocomplete.cs`)
 
 _Instant "As-You-Type" Suggestions._
 
@@ -86,7 +86,7 @@ Standard search requires hitting "Enter". Autocomplete gives immediate feedback.
 dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=Autocomplete
 ```
 
-#### 4. More Like This (`examples/MoreLikeThis`)
+#### 4. More Like This (`examples/MoreLikeThis.cs`)
 
 _Recommendations & "Related Content"._
 
@@ -102,7 +102,7 @@ dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=Mor
 
 ### 🔹 AI & Vectors
 
-#### 5. Hybrid Search with RRF (`examples/HybridRrf`)
+#### 5. Hybrid Search with RRF (`examples/HybridRrf.cs`)
 
 _The Best of Both Worlds: Keywords + Semantics._
 
@@ -114,7 +114,7 @@ Keyword search (BM25) is great for exact matches ("Part #123"). Vector search is
 dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=HybridRrf
 ```
 
-#### 6. RAG: Retrieval-Augmented Generation (`examples/Rag`)
+#### 6. RAG: Retrieval-Augmented Generation (`examples/Rag.cs`)
 
 _Chat with your Data._
 
