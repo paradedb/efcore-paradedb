@@ -1,15 +1,22 @@
-using System.Data;
 using HybridRrf;
 using HybridRrf.Data;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using ParadeDB.EntityFrameworkCore.Extensions;
+using Pgvector;
+using Pgvector.EntityFrameworkCore;
 
 const string connectionString =
     "Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=paradedb_hybrid_rrf";
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
-    .UseNpgsql(connectionString, o => o.UseParadeDb())
+    .UseNpgsql(
+        connectionString,
+        o =>
+        {
+            o.UseParadeDb();
+            o.UseVector();
+        }
+    )
     .UseSnakeCaseNamingConvention()
     .Options;
 
@@ -18,7 +25,7 @@ await using var dbContext = new AppDbContext(options);
 Console.WriteLine(new string('=', 70));
 Console.WriteLine("Hybrid Search with Reciprocal Rank Fusion (RRF)");
 Console.WriteLine(new string('=', 70));
-Console.WriteLine("\nSingle-query CTE: BM25 (keyword) + Vector (semantic)");
+Console.WriteLine("\nBM25 (keyword) + Vector (semantic)");
 Console.WriteLine("RRF formula: score = sum(1 / (k + rank)) across all rankings");
 
 await LoadEmbeddingsAsync(dbContext);
@@ -28,84 +35,59 @@ await Demo(dbContext, "footwear for exercise", QueryEmbeddings.Values);
 await Demo(dbContext, "wireless earbuds", QueryEmbeddings.Values);
 
 Console.WriteLine("\n" + new string('=', 70));
-Console.WriteLine("All results produced by a single SQL query per search.");
+Console.WriteLine("BM25 results use the ParadeDB EF query builder.");
 Console.WriteLine(new string('=', 70));
 return;
 
-static async Task Demo(AppDbContext db, string query, Dictionary<string, float[]> embeddings)
+static async Task Demo(AppDbContext db, string query, Dictionary<string, float[]> queryEmbeddings)
 {
-    var embedding = embeddings[query];
-    var results = await HybridSearch(db, query, embedding);
+    var results = await HybridSearch(db, query, new Vector(queryEmbeddings[query]));
     DisplayResults(query, results);
 }
 
 static async Task<List<(string Description, double RrfScore)>> HybridSearch(
     AppDbContext db,
     string query,
-    float[] queryEmbedding,
+    Vector queryEmbedding,
     int topK = 20,
     int rrfK = 60,
     int limit = 5
 )
 {
-    var embeddingStr = $"[{string.Join(",", queryEmbedding)}]";
+    var fulltext = await db
+        .MockItems.Where(x => EF.Functions.MatchAll(x.Description, query))
+        .Select(x => new
+        {
+            x.Id,
+            x.Description,
+            Score = EF.Functions.Score(x.Id),
+        })
+        .OrderByDescending(x => x.Score)
+        .Take(topK)
+        .ToListAsync();
 
-    var conn = (NpgsqlConnection)db.Database.GetDbConnection();
+    var semantic = await db
+        .MockItems.Where(x => x.Embedding != null)
+        .Select(x => new
+        {
+            x.Id,
+            x.Description,
+            Distance = x.Embedding!.CosineDistance(queryEmbedding),
+        })
+        .OrderBy(x => x.Distance)
+        .Take(topK)
+        .ToListAsync();
 
-    if (conn.State != ConnectionState.Open)
-    {
-        await conn.OpenAsync();
-    }
-
-    await using var cmd = conn.CreateCommand();
-
-    cmd.CommandText = """
-        WITH fulltext AS (
-            SELECT id, ROW_NUMBER() OVER (ORDER BY pdb.score(id) DESC) AS rank
-            FROM mock_items
-            WHERE description &&& @query
-            ORDER BY pdb.score(id) DESC
-            LIMIT @topK
-        ),
-        semantic AS (
-            SELECT id, ROW_NUMBER() OVER (ORDER BY embedding <=> @embedding::vector ASC) AS rank
-            FROM mock_items
-            WHERE embedding IS NOT NULL
-            ORDER BY embedding <=> @embedding::vector ASC
-            LIMIT @topK
-        ),
-        rrf AS (
-            SELECT id, 1.0 / (@rrfK + rank) AS score FROM fulltext
-            UNION ALL
-            SELECT id, 1.0 / (@rrfK + rank) AS score FROM semantic
-        ),
-        rrf_scores AS (
-            SELECT id, SUM(score) AS rrf_score
-            FROM rrf
-            GROUP BY id
-            ORDER BY rrf_score DESC
-            LIMIT @limit
+    return fulltext
+        .Select((x, index) => (x.Id, x.Description, Score: 1.0 / (rrfK + index + 1)))
+        .Concat(
+            semantic.Select((x, index) => (x.Id, x.Description, Score: 1.0 / (rrfK + index + 1)))
         )
-        SELECT m.description, r.rrf_score
-        FROM rrf_scores r
-        JOIN mock_items m ON m.id = r.id
-        ORDER BY r.rrf_score DESC
-        """;
-
-    cmd.Parameters.AddWithValue("@query", query);
-    cmd.Parameters.AddWithValue("@embedding", embeddingStr);
-    cmd.Parameters.AddWithValue("@topK", topK);
-    cmd.Parameters.AddWithValue("@rrfK", rrfK);
-    cmd.Parameters.AddWithValue("@limit", limit);
-
-    await using var reader = await cmd.ExecuteReaderAsync();
-    var results = new List<(string Description, double RrfScore)>();
-    while (await reader.ReadAsync())
-    {
-        results.Add((reader.GetString(0), reader.GetDouble(1)));
-    }
-
-    return results;
+        .GroupBy(x => x.Id)
+        .Select(x => (x.First().Description, RrfScore: x.Sum(y => y.Score)))
+        .OrderByDescending(x => x.RrfScore)
+        .Take(limit)
+        .ToList();
 }
 
 static void DisplayResults(string query, List<(string Description, double RrfScore)> results)
@@ -126,25 +108,25 @@ static async Task LoadEmbeddingsAsync(AppDbContext db)
     var csvPath = Path.Combine(AppContext.BaseDirectory, "HybridRrf", "mock_items_embeddings.csv");
     var lines = await File.ReadAllLinesAsync(csvPath);
 
-    var conn = (NpgsqlConnection)db.Database.GetDbConnection();
-
-    if (conn.State != ConnectionState.Open)
-    {
-        await conn.OpenAsync();
-    }
+    var embeddings = new Dictionary<int, float[]>();
 
     for (var i = 1; i < lines.Length; i++)
     {
         var parts = lines[i].Split(',', 3);
-        var id = int.Parse(parts[0]);
-        var embedding = parts[2].Trim('"');
-
-        await using var cmd = conn.CreateCommand();
-        cmd.CommandText = "UPDATE mock_items SET embedding = @embedding::vector WHERE id = @id";
-        cmd.Parameters.AddWithValue("@id", id);
-        cmd.Parameters.AddWithValue("@embedding", embedding);
-        await cmd.ExecuteNonQueryAsync();
+        embeddings[int.Parse(parts[0])] = parts[2]
+            .Trim('"', '[', ']')
+            .Split(',', StringSplitOptions.TrimEntries)
+            .Select(float.Parse)
+            .ToArray();
     }
 
-    Console.WriteLine($"Loaded {lines.Length - 1} embeddings");
+    var ids = embeddings.Keys.ToArray();
+    var items = await db.MockItems.Where(x => ids.Contains(x.Id)).ToListAsync();
+    foreach (var item in items)
+    {
+        item.Embedding = new Vector(embeddings[item.Id]);
+    }
+
+    await db.SaveChangesAsync();
+    Console.WriteLine($"Loaded {items.Count} embeddings");
 }

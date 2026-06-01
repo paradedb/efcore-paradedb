@@ -39,13 +39,8 @@ foreach (var query in queries)
 
     var parseQuery = $"description_ngram:{query}";
 
-    var results = dbContext
-        .AutocompleteItems.FromSqlInterpolated(
-            $"""
-            SELECT * FROM autocomplete_items
-            WHERE id @@@ pdb.parse({parseQuery})
-            """
-        )
+    var results = await dbContext
+        .AutocompleteItems.Where(x => EF.Functions.Parse(x.Id, parseQuery))
         .Select(x => new
         {
             x.Id,
@@ -57,7 +52,7 @@ foreach (var query in queries)
         })
         .OrderByDescending(x => x.SearchScore)
         .Take(5)
-        .ToList();
+        .ToListAsync();
 
     if (results.Count == 0)
     {

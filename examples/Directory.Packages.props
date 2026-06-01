@@ -1,0 +1,7 @@
+<Project>
+  <Import Project="..\Directory.Packages.props" />
+
+  <ItemGroup>
+    <PackageVersion Include="Pgvector.EntityFrameworkCore" Version="0.3.0" />
+  </ItemGroup>
+</Project>
