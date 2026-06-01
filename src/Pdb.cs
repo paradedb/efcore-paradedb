@@ -45,12 +45,6 @@ public static class Pdb
     public static T Slop<T>(T value, [NotParameterized] int slop) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Slop)));
 
-    public static PdbMoreLikeThisQuery DocumentId(long documentId) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DocumentId)));
-
-    public static PdbMoreLikeThisQuery Document(string documentJson) =>
-        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DocumentId)));
-
     public static PdbProximityQuery Proximity(string token) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Proximity)));
 

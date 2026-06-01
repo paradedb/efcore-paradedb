@@ -123,12 +123,10 @@ internal sealed class Translator : IMethodCallTranslator
             nameof(ParadeDbFunctionsExtensions.Tokenize) => BuildTokenizer(arguments, false),
             nameof(ParadeDbFunctionsExtensions.TokenizeAsArray) => BuildTokenizer(arguments, true),
             nameof(PdbProximityQueryExtensions.Within) => BuildProximityExpression(arguments),
-            _ when method.DeclaringType == typeof(PdbMoreLikeThisQueryExtensions) =>
-                BuildMoreLikeThisOption(method, arguments),
-            nameof(Pdb.Document) or nameof(Pdb.DocumentId) => BuildMoreLikeThisOptionBuilder(
+            nameof(ParadeDbFunctionsExtensions.MoreLikeThisId)
+            or nameof(ParadeDbFunctionsExtensions.MoreLikeThisDocument) => BuildMoreLikeThis(
                 arguments
             ),
-            nameof(ParadeDbFunctionsExtensions.MoreLikeThis) => BuildMoreLikeThis(arguments),
             nameof(ParadeDbFunctionsExtensions.Alias) => BuildAlias(arguments),
             nameof(ParadeDbFunctionsExtensions.Agg) => BuildAggregate(arguments, false),
             nameof(ParadeDbFunctionsExtensions.AggFilter) => BuildAggregate(
@@ -463,82 +461,50 @@ internal sealed class Translator : IMethodCallTranslator
         );
     }
 
-    private PdbAccumulatorExpression BuildMoreLikeThisOptionBuilder(
-        IReadOnlyList<SqlExpression> arguments
-    )
-    {
-        var seed = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[0]);
-        return new PdbAccumulatorExpression([seed], [null]);
-    }
-
-    private PdbAccumulatorExpression? BuildMoreLikeThisOption(
-        MethodInfo method,
-        IReadOnlyList<SqlExpression> arguments
-    )
-    {
-        if (arguments[0] is not PdbAccumulatorExpression carrier)
-        {
-            return null;
-        }
-
-        var value = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[1]);
-
-        return method.Name switch
-        {
-            nameof(PdbMoreLikeThisQueryExtensions.Fields) => carrier.AppendPositional(value),
-            nameof(PdbMoreLikeThisQueryExtensions.MinTermFrequency) => carrier.AppendNamed(
-                "min_term_frequency",
-                value
-            ),
-            nameof(PdbMoreLikeThisQueryExtensions.MinDocFrequency) => carrier.AppendNamed(
-                "min_doc_frequency",
-                value
-            ),
-            nameof(PdbMoreLikeThisQueryExtensions.MaxDocFrequency) => carrier.AppendNamed(
-                "max_doc_frequency",
-                value
-            ),
-            nameof(PdbMoreLikeThisQueryExtensions.MaxQueryTerms) => carrier.AppendNamed(
-                "max_query_terms",
-                value
-            ),
-            nameof(PdbMoreLikeThisQueryExtensions.MinWordLength) => carrier.AppendNamed(
-                "min_word_length",
-                value
-            ),
-            nameof(PdbMoreLikeThisQueryExtensions.MaxWordLength) => carrier.AppendNamed(
-                "max_word_length",
-                value
-            ),
-            nameof(PdbMoreLikeThisQueryExtensions.Stopwords) => carrier.AppendNamed(
-                "stopwords",
-                value
-            ),
-            _ => null,
-        };
-    }
-
     private PdbBoolExpression? BuildMoreLikeThis(IReadOnlyList<SqlExpression> arguments)
     {
-        if (arguments[2] is not PdbAccumulatorExpression carrier)
-        {
-            return null;
-        }
-
         var column = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[1]);
+        List<SqlExpression> args = [_sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2])];
+        List<string?> argNames = [null];
+        var options =
+            arguments.Count == 4
+                ? (MoreLikeThisOptions?)((SqlConstantExpression)arguments[3]).Value
+                : null;
+
+        Add(options?.Fields, null);
+        Add(options?.MinTermFrequency, "min_term_frequency");
+        Add(options?.MinDocFrequency, "min_doc_frequency");
+        Add(options?.MaxDocFrequency, "max_doc_frequency");
+        Add(options?.MaxQueryTerms, "max_query_terms");
+        Add(options?.MinWordLength, "min_word_length");
+        Add(options?.MaxWordLength, "max_word_length");
+        Add(options?.Stopwords, "stopwords");
 
         var function = PgFunctionExpression.CreateWithNamedArguments(
             name: "pdb.more_like_this",
-            arguments: carrier.Arguments,
-            argumentNames: carrier.ArgumentNames,
+            arguments: args,
+            argumentNames: argNames,
             nullable: false,
-            argumentsPropagateNullability: new bool[carrier.Arguments.Count],
+            argumentsPropagateNullability: new bool[args.Count],
             builtIn: false,
-            type: typeof(PdbMoreLikeThisQuery),
+            type: typeof(string),
             typeMapping: PdbTypeMappings.Text
         );
 
         return new PdbBoolExpression(column, function, PdbOperatorType.Function);
+
+        void Add(object? value, string? name)
+        {
+            if (value is null)
+            {
+                return;
+            }
+
+            args.Add(
+                _sqlExpressionFactory.ApplyDefaultTypeMapping(_sqlExpressionFactory.Constant(value))
+            );
+            argNames.Add(name);
+        }
     }
 
     private SqlExpression? BuildAlias(IReadOnlyList<SqlExpression> arguments)

@@ -48,6 +48,7 @@ static async Task DemoSimilarToSingleProduct(AppDbContext db)
     var sourceId = 3;
 
     var fields = new[] { "description" };
+    var moreLikeThisOptions = new MoreLikeThisOptions { Fields = fields };
 
     var source = await db.MockItems.SingleAsync(x => x.Id == sourceId);
 
@@ -56,9 +57,7 @@ static async Task DemoSimilarToSingleProduct(AppDbContext db)
     Console.WriteLine($"  '{source.Description}' [{source.Category}]");
 
     var similar = await db
-        .MockItems.Where(x =>
-            EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(sourceId).Fields(fields))
-        )
+        .MockItems.Where(x => EF.Functions.MoreLikeThisId(x.Id, sourceId, moreLikeThisOptions))
         .OrderByDescending(x => EF.Functions.Score(x.Id))
         .Take(5)
         .ToListAsync();
@@ -82,6 +81,7 @@ static async Task DemoSimilarToMultipleProducts(AppDbContext db)
 
     int[] browsedIds = [3, 12, 29];
     var fields = new[] { "description" };
+    var moreLikeThisOptions = new MoreLikeThisOptions { Fields = fields };
 
     var browsed = await db
         .MockItems.Where(x => browsedIds.AsEnumerable().Contains(x.Id))
@@ -98,9 +98,9 @@ static async Task DemoSimilarToMultipleProducts(AppDbContext db)
 
     var similar = await db
         .MockItems.Where(x =>
-            EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(3).Fields(fields))
-            || EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(12).Fields(fields))
-            || EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(29).Fields(fields))
+            EF.Functions.MoreLikeThisId(x.Id, 3, moreLikeThisOptions)
+            || EF.Functions.MoreLikeThisId(x.Id, 12, moreLikeThisOptions)
+            || EF.Functions.MoreLikeThisId(x.Id, 29, moreLikeThisOptions)
         )
         .Where(x => x.Id != 3 && x.Id != 12 && x.Id != 29)
         .Select(x => new { Item = x, Score = EF.Functions.Score(x.Id) })
@@ -129,7 +129,7 @@ static async Task DemoSimilarByDocument(AppDbContext db)
     Console.WriteLine($"User wants: '{userDescription}'");
 
     var similar = await db
-        .MockItems.Where(x => EF.Functions.MoreLikeThis(x.Id, Pdb.Document(document)))
+        .MockItems.Where(x => EF.Functions.MoreLikeThisDocument(x.Id, document))
         .OrderByDescending(x => EF.Functions.Score(x.Id))
         .Take(5)
         .ToListAsync();
@@ -155,11 +155,16 @@ static async Task DemoTuningParameters(AppDbContext db)
     Console.WriteLine($"Source: '{source.Description}'");
 
     var fields = new[] { "description" };
+    var moreLikeThisOptions = new MoreLikeThisOptions { Fields = fields };
+    var tunedOptions = new MoreLikeThisOptions
+    {
+        Fields = fields,
+        MinDocFrequency = 2,
+        MaxQueryTerms = 5,
+    };
 
     var defaultResults = await db
-        .MockItems.Where(x =>
-            EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(sourceId).Fields(fields))
-        )
+        .MockItems.Where(x => EF.Functions.MoreLikeThisId(x.Id, sourceId, moreLikeThisOptions))
         .OrderByDescending(x => EF.Functions.Score(x.Id))
         .Take(3)
         .ToListAsync();
@@ -173,12 +178,7 @@ static async Task DemoTuningParameters(AppDbContext db)
     }
 
     var tunedResults = await db
-        .MockItems.Where(x =>
-            EF.Functions.MoreLikeThis(
-                x.Id,
-                Pdb.DocumentId(sourceId).Fields(fields).MinDocFrequency(2).MaxQueryTerms(5)
-            )
-        )
+        .MockItems.Where(x => EF.Functions.MoreLikeThisId(x.Id, sourceId, tunedOptions))
         .OrderByDescending(x => EF.Functions.Score(x.Id))
         .Take(3)
         .ToListAsync();
@@ -198,6 +198,7 @@ static async Task DemoCombinedWithFilters(AppDbContext db)
 
     var sourceId = 15;
     var fields = new[] { "description" };
+    var moreLikeThisOptions = new MoreLikeThisOptions { Fields = fields };
 
     var source = await db.MockItems.SingleAsync(x => x.Id == sourceId);
 
@@ -205,9 +206,7 @@ static async Task DemoCombinedWithFilters(AppDbContext db)
     Console.WriteLine($"Source: '{source.Description}' (rating: {source.Rating})");
 
     var results = await db
-        .MockItems.Where(x =>
-            EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(sourceId).Fields(fields))
-        )
+        .MockItems.Where(x => EF.Functions.MoreLikeThisId(x.Id, sourceId, moreLikeThisOptions))
         .Where(x => x.InStock)
         .Where(x => x.Rating >= 4)
         .OrderByDescending(x => EF.Functions.Score(x.Id))
@@ -235,6 +234,11 @@ static async Task DemoMultifieldSimilarity(AppDbContext db)
 
     var descriptionFields = new[] { "description" };
     var descriptionAndCategoryFields = new[] { "description", "category" };
+    var descriptionOptions = new MoreLikeThisOptions { Fields = descriptionFields };
+    var descriptionAndCategoryOptions = new MoreLikeThisOptions
+    {
+        Fields = descriptionAndCategoryFields,
+    };
 
     var source = await db.MockItems.SingleAsync(x => x.Id == sourceId);
 
@@ -242,9 +246,7 @@ static async Task DemoMultifieldSimilarity(AppDbContext db)
     Console.WriteLine($"Source: '{source.Description}' [{source.Category}]");
 
     var byDescription = await db
-        .MockItems.Where(x =>
-            EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(sourceId).Fields(descriptionFields))
-        )
+        .MockItems.Where(x => EF.Functions.MoreLikeThisId(x.Id, sourceId, descriptionOptions))
         .Where(x => x.Id != sourceId)
         .Take(3)
         .ToListAsync();
@@ -259,10 +261,7 @@ static async Task DemoMultifieldSimilarity(AppDbContext db)
 
     var byBoth = await db
         .MockItems.Where(x =>
-            EF.Functions.MoreLikeThis(
-                x.Id,
-                Pdb.DocumentId(sourceId).Fields(descriptionAndCategoryFields)
-            )
+            EF.Functions.MoreLikeThisId(x.Id, sourceId, descriptionAndCategoryOptions)
         )
         .Where(x => x.Id != sourceId)
         .Take(3)
