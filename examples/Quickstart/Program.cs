@@ -1,26 +1,21 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using ParadeDB.EntityFrameworkCore;
 using ParadeDB.EntityFrameworkCore.Extensions;
 using Quickstart.Data;
-
-var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-
-var connectionString = config.GetConnectionString("Default");
+using Shared;
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
-    .UseNpgsql(connectionString, o => o.UseParadeDb())
+    .UseNpgsql(ExampleSetup.ConnectionString, o => o.UseParadeDb())
     .UseSnakeCaseNamingConvention()
     .Options;
 
 await using var dbContext = new AppDbContext(options);
 
-await dbContext.Database.EnsureDeletedAsync();
-await dbContext.Database.MigrateAsync();
-
 Console.WriteLine(new string('=', 60));
 Console.WriteLine("Quickstart Example");
 Console.WriteLine(new string('=', 60));
+
+await ExampleSetup.SetupMockItemsAsync(dbContext);
 
 var count = await dbContext.MockItems.CountAsync();
 Console.WriteLine($"Loaded {count} mock items");

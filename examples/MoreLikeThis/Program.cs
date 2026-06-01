@@ -1,27 +1,22 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using MoreLikeThis.Data;
 using ParadeDB.EntityFrameworkCore;
 using ParadeDB.EntityFrameworkCore.Extensions;
-
-var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-
-var connectionString = config.GetConnectionString("Default");
+using Shared;
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
-    .UseNpgsql(connectionString, o => o.UseParadeDb())
+    .UseNpgsql(ExampleSetup.ConnectionString, o => o.UseParadeDb())
     .UseSnakeCaseNamingConvention()
     .Options;
 
 await using var dbContext = new AppDbContext(options);
 
-await dbContext.Database.EnsureDeletedAsync();
-await dbContext.Database.MigrateAsync();
-
 Console.WriteLine(new string('=', 60));
 Console.WriteLine("MoreLikeThis Example");
 Console.WriteLine("Find similar documents without vector embeddings");
 Console.WriteLine(new string('=', 60));
+
+await ExampleSetup.SetupMockItemsAsync(dbContext);
 
 var count = await dbContext.MockItems.CountAsync();
 Console.WriteLine($"\nLoaded {count} items");
@@ -101,35 +96,24 @@ static async Task DemoSimilarToMultipleProducts(AppDbContext db)
         Console.WriteLine($"  {item.Id}: {Truncate(item.Description)}... [{item.Category}]");
     }
 
-    var candidates = new List<(Shared.MockItem Item, float Score)>();
-
-    foreach (var browsedId in browsedIds)
-    {
-        candidates.AddRange(
-            await db
-                .MockItems.Where(x =>
-                    EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(browsedId).Fields(fields))
-                )
-                .Select(x => new { Item = x, Score = EF.Functions.Score(x.Id) })
-                .OrderByDescending(x => x.Score)
-                .Take(5)
-                .Select(x => ValueTuple.Create(x.Item, x.Score))
-                .ToListAsync()
-        );
-    }
-
-    var similar = candidates
-        .Where(x => !browsedIds.Contains(x.Item.Id))
-        .GroupBy(x => x.Item.Id)
-        .Select(x => x.OrderByDescending(y => y.Score).First().Item)
+    var similar = await db
+        .MockItems.Where(x =>
+            EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(3).Fields(fields))
+            || EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(12).Fields(fields))
+            || EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(29).Fields(fields))
+        )
+        .Where(x => x.Id != 3 && x.Id != 12 && x.Id != 29)
+        .Select(x => new { Item = x, Score = EF.Functions.Score(x.Id) })
+        .OrderByDescending(x => x.Score)
         .Take(5)
-        .ToList();
+        .ToListAsync();
 
     Console.WriteLine();
     Console.WriteLine("Recommended products (similar to any browsed item):");
 
-    foreach (var item in similar)
+    foreach (var result in similar)
     {
+        var item = result.Item;
         Console.WriteLine($"  {item.Id}: {Truncate(item.Description)}... [{item.Category}]");
     }
 }
@@ -196,7 +180,6 @@ static async Task DemoTuningParameters(AppDbContext db)
             )
         )
         .OrderByDescending(x => EF.Functions.Score(x.Id))
-        .ThenBy(x => x.Id)
         .Take(3)
         .ToListAsync();
 
@@ -263,7 +246,6 @@ static async Task DemoMultifieldSimilarity(AppDbContext db)
             EF.Functions.MoreLikeThis(x.Id, Pdb.DocumentId(sourceId).Fields(descriptionFields))
         )
         .Where(x => x.Id != sourceId)
-        .OrderByDescending(x => EF.Functions.Score(x.Id))
         .Take(3)
         .ToListAsync();
 
@@ -283,7 +265,6 @@ static async Task DemoMultifieldSimilarity(AppDbContext db)
             )
         )
         .Where(x => x.Id != sourceId)
-        .OrderByDescending(x => EF.Functions.Score(x.Id))
         .Take(3)
         .ToListAsync();
 

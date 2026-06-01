@@ -27,14 +27,8 @@
   </Folder>
   <Folder Name="/examples/">
     <File Path="examples\Directory.Build.props" />
+    <File Path="examples\Examples.csproj" />
     <File Path="examples\README.md" />
-    <Project Path="examples\Autocomplete\Autocomplete.csproj" />
-    <Project Path="examples\FacetedSearch\FacetedSearch.csproj" />
-    <Project Path="examples\HybridRrf\HybridRrf.csproj" />
-    <Project Path="examples\MoreLikeThis\MoreLikeThis.csproj" />
-    <Project Path="examples\Quickstart\Quickstart.csproj" />
-    <Project Path="examples\Rag\Rag.csproj" />
-    <Project Path="examples\Shared\Shared.csproj" />
   </Folder>
   <Folder Name="/scripts/">
     <File Path="scripts\run_paradedb.sh" />

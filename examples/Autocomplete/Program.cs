@@ -1,25 +1,20 @@
 using Autocomplete.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using ParadeDB.EntityFrameworkCore.Extensions;
-
-var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-
-var connectionString = config.GetConnectionString("Default");
+using Shared;
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
-    .UseNpgsql(connectionString, o => o.UseParadeDb())
+    .UseNpgsql(ExampleSetup.ConnectionString, o => o.UseParadeDb())
     .UseSnakeCaseNamingConvention()
     .Options;
 
 await using var dbContext = new AppDbContext(options);
 
-await dbContext.Database.EnsureDeletedAsync();
-await dbContext.Database.MigrateAsync();
-
 Console.WriteLine(new string('=', 60));
 Console.WriteLine("Autocomplete Example");
 Console.WriteLine(new string('=', 60));
+
+await ExampleSetup.SetupAutocompleteAsync(dbContext);
 
 var count = await dbContext.AutocompleteItems.CountAsync();
 Console.WriteLine($"\nLoaded {count} items");
@@ -44,13 +39,8 @@ foreach (var query in queries)
 
     var parseQuery = $"description_ngram:{query}";
 
-    var results = dbContext
-        .AutocompleteItems.FromSqlInterpolated(
-            $"""
-            SELECT * FROM autocomplete_items
-            WHERE id @@@ pdb.parse({parseQuery})
-            """
-        )
+    var results = await dbContext
+        .AutocompleteItems.Where(x => EF.Functions.Parse(x.Description, parseQuery))
         .Select(x => new
         {
             x.Id,
@@ -62,7 +52,7 @@ foreach (var query in queries)
         })
         .OrderByDescending(x => x.SearchScore)
         .Take(5)
-        .ToList();
+        .ToListAsync();
 
     if (results.Count == 0)
     {

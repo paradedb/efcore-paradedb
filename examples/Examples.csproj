@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <UserSecretsId>efcore-paradedb-examples</UserSecretsId>
+    <DefaultItemExcludes>$(DefaultItemExcludes);**\bin\**;**\obj\**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Example)' != ''">
+    <AssemblyName>Examples.$(Example)</AssemblyName>
+    <IntermediateOutputPath>obj\$(Configuration)\$(TargetFramework)\$(Example)\</IntermediateOutputPath>
+    <OutputPath>bin\$(Configuration)\$(TargetFramework)\$(Example)\</OutputPath>
+  </PropertyGroup>
+
+  <Target Name="RequireExample" BeforeTargets="CoreCompile" Condition="'$(Example)' == ''">
+    <Error Text="Set the Example property to one of: Quickstart, FacetedSearch, Autocomplete, MoreLikeThis, HybridRrf, Rag." />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="EFCore.NamingConventions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Pgvector.EntityFrameworkCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="*\Program.cs" />
+    <Compile Include="$(Example)\Program.cs" Condition="'$(Example)' != ''" />
+
+    <ProjectReference Include="..\src\ParadeDB.EntityFrameworkCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="HybridRrf\mock_items_embeddings.csv" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+</Project>

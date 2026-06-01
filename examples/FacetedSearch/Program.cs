@@ -1,25 +1,21 @@
 using System.Text.Json;
 using FacetedSearch.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using ParadeDB.EntityFrameworkCore.Extensions;
-
-var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-var connectionString = config.GetConnectionString("Default");
+using Shared;
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
-    .UseNpgsql(connectionString, o => o.UseParadeDb())
+    .UseNpgsql(ExampleSetup.ConnectionString, o => o.UseParadeDb())
     .UseSnakeCaseNamingConvention()
     .Options;
 
 await using var dbContext = new AppDbContext(options);
 
-await dbContext.Database.EnsureDeletedAsync();
-await dbContext.Database.MigrateAsync();
-
 Console.WriteLine(new string('=', 60));
 Console.WriteLine("Faceted Search Example");
 Console.WriteLine(new string('=', 60));
+
+await ExampleSetup.SetupMockItemsAsync(dbContext);
 
 var count = await dbContext.MockItems.CountAsync();
 Console.WriteLine($"\nLoaded {count} items");
@@ -38,6 +34,39 @@ var results = await dbContext
         x.Rating,
         x.InStock,
         x.Metadata,
+        CategoryTerms = EF.Functions.AggOver(
+            new
+            {
+                terms = new
+                {
+                    field = "category",
+                    size = 10,
+                    order = new { _count = "desc" },
+                },
+            }
+        ),
+        RatingTerms = EF.Functions.AggOver(
+            new
+            {
+                terms = new
+                {
+                    field = "rating",
+                    size = 10,
+                    order = new { _count = "desc" },
+                },
+            }
+        ),
+        ColorTerms = EF.Functions.AggOver(
+            new
+            {
+                terms = new
+                {
+                    field = "metadata.color",
+                    size = 10,
+                    order = new { _count = "desc" },
+                },
+            }
+        ),
     })
     .OrderByDescending(x => x.Rating)
     .Take(5)
@@ -51,24 +80,14 @@ foreach (var item in results)
             ? c.GetString()
             : "N/A";
     var stock = item.InStock ? "In Stock" : "Out of Stock";
-    var desc = item.Description.Length > 50 ? item.Description[..50] : item.Description;
+    var desc = item.Description[..Math.Min(50, item.Description.Length)];
     Console.WriteLine(
         $"  - {desc}... [{item.Category}] (rating: {item.Rating}, {stock}, color: {color})"
     );
 }
 
-var facets = await dbContext
-    .MockItems.Where(x => EF.Functions.MatchAll(x.Description, searchQuery))
-    .Select(x => new
-    {
-        Category = EF.Functions.AggOver(new { terms = new { field = "category" } }),
-        Rating = EF.Functions.AggOver(new { terms = new { field = "rating" } }),
-        Color = EF.Functions.AggOver(new { terms = new { field = "metadata.color" } }),
-    })
-    .FirstOrDefaultAsync();
-
 Console.WriteLine("\nFacet buckets:");
-if (facets is not null)
+if (results.Count > 0)
 {
     static void PrintFacets(string label, JsonElement? json)
     {
@@ -92,9 +111,9 @@ if (facets is not null)
         }
     }
 
-    PrintFacets("category_terms", facets.Category);
-    PrintFacets("rating_terms", facets.Rating);
-    PrintFacets("metadata.color_terms", facets.Color);
+    PrintFacets("category_terms", results[0].CategoryTerms);
+    PrintFacets("rating_terms", results[0].RatingTerms);
+    PrintFacets("metadata.color_terms", results[0].ColorTerms);
 }
 
 Console.WriteLine();

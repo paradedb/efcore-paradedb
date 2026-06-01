@@ -827,6 +827,32 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
+    public async Task ScoreOrderBy()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
+            .Select(p => new
+            {
+                p.Id,
+                p.Category,
+                Score = EF.Functions.Score(p.Id),
+            })
+            .OrderByDescending(x => x.Score);
+
+        var sql = """
+            SELECT m.id AS "Id", m.category AS "Category", pdb.score(m.id) AS "Score"
+            FROM mock_items AS m
+            WHERE m.description === 'rich'
+            ORDER BY pdb.score(m.id) DESC
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
     public async Task All()
     {
         await using var context = DbFixture.CreateContext();
