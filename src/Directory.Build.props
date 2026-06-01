@@ -11,7 +11,7 @@
     <Copyright>Copyright (c) ParadeDB, Inc.</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile>NUGET-README.md</PackageReadmeFile>
     <PackageIcon>paradedb-logo.png</PackageIcon>
     <PackageProjectUrl>https://github.com/paradedb/efcore-paradedb</PackageProjectUrl>
     <RepositoryUrl>https://github.com/paradedb/efcore-paradedb</RepositoryUrl>
@@ -21,7 +21,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\NUGET-README.md" Pack="true" PackagePath="\" />
     <None Include="..\LICENSE" Pack="true" PackagePath="\" />
     <None Include="..\assets\paradedb-logo.png" Pack="true" PackagePath="\" />
   </ItemGroup>
