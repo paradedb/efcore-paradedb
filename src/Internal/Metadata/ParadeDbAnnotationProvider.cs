@@ -5,10 +5,6 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.Internal;
 
 namespace ParadeDB.EntityFrameworkCore.Internal.Metadata;
 
-// NpgsqlAnnotationProvider is not part of the public API they explicitly note that it
-// is not subject to the same compatibility standards as the public API. So we may have to
-// rework things here to support new releases. I don't know that there is a way for us to
-// implement the indexing functionality in a way that only relies on the public API.
 internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
 {
     public ParadeDbAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
