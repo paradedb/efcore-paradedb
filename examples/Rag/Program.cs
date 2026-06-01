@@ -21,9 +21,6 @@ var options = new DbContextOptionsBuilder<AppDbContext>()
 
 await using var dbContext = new AppDbContext(options);
 
-await dbContext.Database.EnsureDeletedAsync();
-await dbContext.Database.MigrateAsync();
-
 Console.WriteLine(new string('=', 60));
 Console.WriteLine("RAG with ParadeDB + OpenRouter");
 Console.WriteLine(new string('=', 60));
