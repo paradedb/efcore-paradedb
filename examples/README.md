@@ -1,131 +1,59 @@
-# ParadeDB for .NET: Examples & Cookbook
+# Examples
 
-This directory contains .NET console examples that demonstrate how to use ParadeDB with EF Core.
-The examples share one .NET project, with each example keeping its own read-only `Program.cs` entry point.
+This directory contains EF Core examples for ParadeDB. Run all of them with `scripts/run_examples.sh`, or choose one below.
 
-## 🚀 Getting Started
+## Quickstart (`examples/Quickstart`)
 
-Prerequisites
-
-- .NET 10 SDK
-- Docker (to run the ParadeDB Docker image)
-
-Start ParadeDB
-
-From the repo root you can start a local ParadeDB container with the included helper script:
+The "Hello World" of ParadeDB. Demonstrates basic keyword search, relevance
+scoring, and highlighting.
 
 ```bash
-./scripts/run_paradedb.sh
+dotnet run --project examples/Examples.csproj -p:Example=Quickstart
 ```
 
-If you already run PostgreSQL with ParadeDB installed, set `DATABASE_URL` or the standard `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, and `PGDATABASE` environment variables. The examples bootstrap the sample tables, data, and indexes before running.
+## Faceted Search (`examples/FacetedSearch`)
 
-## 📚 The Examples
-
-We've organized the examples into three categories:
-
-1. **Essentials**: Core search features used in almost every app.
-2. **Smart Features**: UX enhancements like autocomplete and recommendations.
-3. **AI & Vectors**: Advanced semantic search and generative AI flows.
-
-### 🔹 Essentials
-
-#### 1. Quickstart (`examples/Quickstart`)
-
-_The "Hello World" of ParadeDB._
-
-This script demonstrates the fundamental building blocks of search. You will learn how to:
-
-- **Index data**: Define a `BM25Index` on your model.
-- **Search**: Perform basic keyword queries.
-- **Score**: Sort results by relevance (BM25 score).
-- **Highlight**: Generate snippets (e.g., `<b>run</b>ning`) to show users why a result matched.
-
-**Run it:**
+Builds an e-commerce-style filtering sidebar with facet counts alongside
+search results.
 
 ```bash
-dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=Quickstart
+dotnet run --project examples/Examples.csproj -p:Example=FacetedSearch
 ```
 
-#### 2. Faceted Search (`examples/FacetedSearch`)
+## Autocomplete (`examples/Autocomplete`)
 
-_Building an E-commerce Sidebar._
-
-Facets are the "filters" you see on shopping sites (e.g., "Brand (5)", "Color (3)"). This example shows how to compute these counts efficiently in a single query.
-
-**Key Concepts:**
-
-- **Aggregations**: Counting documents by category, rating, etc.
-- **Hybrid Results**: Getting search results _and_ facet counts together.
-
-**Run it:**
+Uses n-gram tokenization to provide as-you-type suggestions and partial word
+matches.
 
 ```bash
-dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=FacetedSearch
+dotnet run --project examples/Examples.csproj -p:Example=Autocomplete
 ```
 
----
+## More Like This (`examples/MoreLikeThis`)
 
-### 🔹 Smart Features
-
-#### 3. Autocomplete (`examples/Autocomplete`)
-
-_Instant "As-You-Type" Suggestions._
-
-Standard search requires hitting "Enter". Autocomplete gives immediate feedback. This example uses **N-gram tokenization** to match substrings (e.g., "wir" matches "wireless").
-
-**How it works:**
-
-1. We create a specialized index that breaks text into small chunks (n-grams).
-2. Queries match these chunks, allowing for partial matches even in the middle of words.
-
-**Run it:**
+Finds related content by analyzing document text for similar keywords, without
+requiring vector embeddings.
 
 ```bash
-dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=Autocomplete
+dotnet run --project examples/Examples.csproj -p:Example=MoreLikeThis
 ```
 
-#### 4. More Like This (`examples/MoreLikeThis`)
+## Hybrid Search with RRF (`examples/HybridRrf`)
 
-_Recommendations & "Related Content"._
-
-Want to show "Related Articles" or "Customers also bought"? This feature analyzes the text of a document to find others with similar keywords, using TF-IDF logic-no complex vector embeddings required.
-
-**Run it:**
+Combines keyword and vector search with reciprocal rank fusion for stronger
+ranking.
 
 ```bash
-dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=MoreLikeThis
+dotnet run --project examples/Examples.csproj -p:Example=HybridRrf
 ```
 
----
+## RAG: Retrieval-Augmented Generation (`examples/Rag`)
 
-### 🔹 AI & Vectors
+Builds a small QA flow that retrieves relevant context and sends it to an LLM
+through OpenRouter.
 
-#### 5. Hybrid Search with RRF (`examples/HybridRrf`)
-
-_The Best of Both Worlds: Keywords + Semantics._
-
-Keyword search (BM25) is great for exact matches ("Part #123"). Vector search is great for meaning ("warm clothing" matches "coat"). **Hybrid Search** combines them using **Reciprocal Rank Fusion (RRF)** for superior results.
-
-**Run it:**
+Requires `OPENROUTER_API_KEY`.
 
 ```bash
-dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=HybridRrf
-```
-
-#### 6. RAG: Retrieval-Augmented Generation (`examples/Rag`)
-
-_Chat with your Data._
-
-This example builds a mini QA system. It searches your data for relevant context and feeds it to an LLM (Large Language Model) to answer questions based _only_ on your data.
-
-**Prerequisites:**
-
-- An API Key from [OpenRouter](https://openrouter.ai/) (provides access to GPT-4, Claude, etc.).
-- Set `export OPENROUTER_API_KEY=sk-...` in your terminal.
-
-**Run it:**
-
-```bash
-dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=Rag
+dotnet run --project examples/Examples.csproj -p:Example=Rag
 ```
