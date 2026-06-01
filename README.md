@@ -36,8 +36,8 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 
 | Component  | Supported                     |
 | ---------- | ----------------------------- |
-| .NET       | 8+                            |
-| EF Core    | 8+                            |
+| .NET       | 8.0+                          |
+| EF Core    | 8.0+                          |
 | ParadeDB   | 0.23.0+                       |
 | PostgreSQL | 15+ (with ParadeDB extension) |
 
