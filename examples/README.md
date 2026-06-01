@@ -1,7 +1,7 @@
 # ParadeDB for .NET: Examples & Cookbook
 
-This directory contains self-contained .NET console example projects that demonstrate how to use ParadeDB with EF Core.
-Each example is a minimal, runnable .NET app with its own `appsettings.json`, migrations, and a `Program.cs` entry point.
+This directory contains .NET console examples that demonstrate how to use ParadeDB with EF Core.
+The examples share one .NET project, with each example keeping its own migrations and `Program.cs` entry point.
 
 ## 🚀 Getting Started
 
@@ -18,7 +18,7 @@ From the repo root you can start a local ParadeDB container with the included he
 ./scripts/run_paradedb.sh
 ```
 
-If you already run PostgreSQL with ParadeDB installed, update the `Default` connection string in the example's `appsettings.json`.
+If you already run PostgreSQL with ParadeDB installed, update the connection string in the example's `Program.cs`.
 
 ## 📚 The Examples
 
@@ -44,7 +44,7 @@ This script demonstrates the fundamental building blocks of search. You will lea
 **Run it:**
 
 ```bash
-dotnet run --project examples/Quickstart
+dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=Quickstart
 ```
 
 #### 2. Faceted Search (`examples/FacetedSearch`)
@@ -61,7 +61,7 @@ Facets are the "filters" you see on shopping sites (e.g., "Brand (5)", "Color (3
 **Run it:**
 
 ```bash
-dotnet run --project examples/FacetedSearch
+dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=FacetedSearch
 ```
 
 ---
@@ -82,7 +82,7 @@ Standard search requires hitting "Enter". Autocomplete gives immediate feedback.
 **Run it:**
 
 ```bash
-dotnet run --project examples/Autocomplete
+dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=Autocomplete
 ```
 
 #### 4. More Like This (`examples/MoreLikeThis`)
@@ -94,7 +94,7 @@ Want to show "Related Articles" or "Customers also bought"? This feature analyze
 **Run it:**
 
 ```bash
-dotnet run --project examples/MoreLikeThis
+dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=MoreLikeThis
 ```
 
 ---
@@ -110,7 +110,7 @@ Keyword search (BM25) is great for exact matches ("Part #123"). Vector search is
 **Run it:**
 
 ```bash
-dotnet run --project examples/HybridRrf
+dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=HybridRrf
 ```
 
 #### 6. RAG: Retrieval-Augmented Generation (`examples/Rag`)
@@ -127,6 +127,6 @@ This example builds a mini QA system. It searches your data for relevant context
 **Run it:**
 
 ```bash
-dotnet user-secrets set "OpenRouter:ApiKey" "sk-..." --project examples/Rag
-dotnet run --project examples/Rag
+dotnet user-secrets set "OpenRouter:ApiKey" "sk-..." --project examples/Examples.csproj
+dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=Rag
 ```

@@ -19,5 +19,5 @@ examples=(
 for example in "${examples[@]}"; do
   echo
   echo "==> Running ${example}"
-  dotnet run --project "examples/${example}/${example}.csproj" --framework net10.0
+  dotnet run --project "examples/Examples.csproj" --framework net10.0 -p:Example="${example}"
 done

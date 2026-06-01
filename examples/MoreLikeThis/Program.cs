@@ -1,12 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using MoreLikeThis.Data;
 using ParadeDB.EntityFrameworkCore;
 using ParadeDB.EntityFrameworkCore.Extensions;
 
-var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-
-var connectionString = config.GetConnectionString("Default");
+const string connectionString =
+    "Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=paradedb_more_like_this";
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
     .UseNpgsql(connectionString, o => o.UseParadeDb())

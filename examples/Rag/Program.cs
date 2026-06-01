@@ -7,14 +7,12 @@ using ParadeDB.EntityFrameworkCore.Extensions;
 using Rag;
 using Rag.Data;
 
-var config = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json")
-    .AddUserSecrets<Program>()
-    .Build();
+var config = new ConfigurationBuilder().AddUserSecrets<ProductResult>().Build();
 
-var connectionString = config.GetConnectionString("Default");
+const string connectionString =
+    "Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=paradedb_rag";
 var openRouterApiKey = config["OpenRouter:ApiKey"];
-var model = config["OpenRouter:Model"] ?? "anthropic/claude-3-haiku";
+const string model = "anthropic/claude-3-haiku";
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
     .UseNpgsql(connectionString, o => o.UseParadeDb())

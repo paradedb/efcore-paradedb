@@ -1,11 +1,10 @@
 using System.Text.Json;
 using FacetedSearch.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using ParadeDB.EntityFrameworkCore.Extensions;
 
-var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-var connectionString = config.GetConnectionString("Default");
+const string connectionString =
+    "Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=paradedb_faceted_search";
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
     .UseNpgsql(connectionString, o => o.UseParadeDb())

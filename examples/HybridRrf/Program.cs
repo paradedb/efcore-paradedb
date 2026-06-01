@@ -2,12 +2,11 @@ using System.Data;
 using HybridRrf;
 using HybridRrf.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Npgsql;
 using ParadeDB.EntityFrameworkCore.Extensions;
 
-var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-var connectionString = config.GetConnectionString("Default");
+const string connectionString =
+    "Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=paradedb_hybrid_rrf";
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
     .UseNpgsql(connectionString, o => o.UseParadeDb())
@@ -127,7 +126,7 @@ static void DisplayResults(string query, List<(string Description, double RrfSco
 
 static async Task LoadEmbeddingsAsync(AppDbContext db)
 {
-    var csvPath = Path.Combine(AppContext.BaseDirectory, "mock_items_embeddings.csv");
+    var csvPath = Path.Combine(AppContext.BaseDirectory, "HybridRrf", "mock_items_embeddings.csv");
     var lines = await File.ReadAllLinesAsync(csvPath);
 
     var conn = (NpgsqlConnection)db.Database.GetDbConnection();
