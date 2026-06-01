@@ -4,10 +4,17 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [0.1.1] - 2025-06-01
+
+## Added
+
+- Added a dedicated README that can be properly rendered on NuGet.
+
 ## [0.1.0] - 2025-06-01
 
 ### Added
 
 - Support for the ParadeDB query language, index management, and diagnostics.
 
+[0.1.1]: https://github.com/paradedb/efcore-paradedb/releases/tag/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/paradedb/efcore-paradedb/releases/tag/v0.1.0
