@@ -314,9 +314,9 @@ internal sealed class Translator : IMethodCallTranslator
         List<SqlExpression> args = [arguments[1]];
         List<string?> argNames = [null];
 
-        Add(options?.startTag, "start_tag");
-        Add(options?.endTag, "end_tag");
-        Add(options?.maxNumChars, "max_num_chars");
+        Add(options?.StartTag, "start_tag");
+        Add(options?.EndTag, "end_tag");
+        Add(options?.MaxNumChars, "max_num_chars");
 
         return PgFunctionExpression.CreateWithNamedArguments(
             name: "pdb.snippet",
@@ -352,12 +352,12 @@ internal sealed class Translator : IMethodCallTranslator
         List<SqlExpression> args = [arguments[1]];
         List<string?> argNames = [null];
 
-        Add(options?.startTag, "start_tag");
-        Add(options?.endTag, "end_tag");
-        Add(options?.maxNumChars, "max_num_chars");
-        Add(options?.limit, "\"limit\"");
-        Add(options?.offset, "\"offset\"");
-        Add(options?.sortBy, "sort_by");
+        Add(options?.StartTag, "start_tag");
+        Add(options?.EndTag, "end_tag");
+        Add(options?.MaxNumChars, "max_num_chars");
+        Add(options?.Limit, "\"limit\"");
+        Add(options?.Offset, "\"offset\"");
+        Add(options?.SortBy, "sort_by");
 
         return PgFunctionExpression.CreateWithNamedArguments(
             name: "pdb.snippets",

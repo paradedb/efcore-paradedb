@@ -87,7 +87,10 @@ static async Task DemoSnippetHighlighting(AppDbContext db)
         .Select(x => new
         {
             Score = EF.Functions.Score(x.Id),
-            Snippet = EF.Functions.Snippet(x.Description, new SnippetOptions("<b>", "</b>", null)),
+            Snippet = EF.Functions.Snippet(
+                x.Description,
+                new SnippetOptions { StartTag = "<b>", EndTag = "</b>" }
+            ),
         })
         .OrderByDescending(x => x.Score)
         .Take(3)

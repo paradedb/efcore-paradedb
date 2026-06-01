@@ -967,7 +967,7 @@ public sealed class QueryTests : TestBase
     public async Task Snippet_WithInlineMaxNumChars()
     {
         await using var context = DbFixture.CreateContext();
-        var options = new SnippetOptions(null, null, 50);
+        var options = new SnippetOptions { MaxNumChars = 50 };
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
@@ -989,7 +989,7 @@ public sealed class QueryTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         int maxNumChars = 50;
-        var options = new SnippetOptions(null, null, maxNumChars);
+        var options = new SnippetOptions { MaxNumChars = maxNumChars };
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
@@ -1009,7 +1009,7 @@ public sealed class QueryTests : TestBase
     public async Task Snippet_WithInlineTags()
     {
         await using var context = DbFixture.CreateContext();
-        var options = new SnippetOptions("<a>", "</a>", null);
+        var options = new SnippetOptions { StartTag = "<a>", EndTag = "</a>" };
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
@@ -1032,7 +1032,7 @@ public sealed class QueryTests : TestBase
 
         string startTag = "<a>";
         string endTag = "</a>";
-        var options = new SnippetOptions(startTag, endTag, null);
+        var options = new SnippetOptions { StartTag = startTag, EndTag = endTag };
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
@@ -1052,7 +1052,12 @@ public sealed class QueryTests : TestBase
     public async Task Snippet_WithInlineTagsAndMaxNumChars()
     {
         await using var context = DbFixture.CreateContext();
-        var options = new SnippetOptions("<a>", "</a>", 50);
+        var options = new SnippetOptions
+        {
+            StartTag = "<a>",
+            EndTag = "</a>",
+            MaxNumChars = 50,
+        };
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
@@ -1076,7 +1081,12 @@ public sealed class QueryTests : TestBase
         string startTag = "<a>";
         string endTag = "</a>";
         int maxNumChars = 50;
-        var options = new SnippetOptions(startTag, endTag, maxNumChars);
+        var options = new SnippetOptions
+        {
+            StartTag = startTag,
+            EndTag = endTag,
+            MaxNumChars = maxNumChars,
+        };
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
@@ -1136,7 +1146,15 @@ public sealed class QueryTests : TestBase
     public async Task Snippets_WithOptions()
     {
         await using var context = DbFixture.CreateContext();
-        var options = new SnippetsOptions("<a>", "</a>", 15, 1, 1, "position");
+        var options = new SnippetsOptions
+        {
+            StartTag = "<a>",
+            EndTag = "</a>",
+            MaxNumChars = 15,
+            Limit = 1,
+            Offset = 1,
+            SortBy = "position",
+        };
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
