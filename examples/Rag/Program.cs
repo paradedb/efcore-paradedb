@@ -6,16 +6,16 @@ using Microsoft.Extensions.Configuration;
 using ParadeDB.EntityFrameworkCore.Extensions;
 using Rag;
 using Rag.Data;
+using Shared;
 
 var config = new ConfigurationBuilder().AddUserSecrets<ProductResult>().Build();
 
-const string connectionString =
-    "Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=paradedb_rag";
-var openRouterApiKey = config["OpenRouter:ApiKey"];
-const string model = "anthropic/claude-3-haiku";
+var openRouterApiKey =
+    Environment.GetEnvironmentVariable("OPENROUTER_API_KEY") ?? config["OpenRouter:ApiKey"];
+var model = Environment.GetEnvironmentVariable("RAG_MODEL") ?? "anthropic/claude-3-haiku";
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
-    .UseNpgsql(connectionString, o => o.UseParadeDb())
+    .UseNpgsql(ExampleSetup.ConnectionString, o => o.UseParadeDb())
     .UseSnakeCaseNamingConvention()
     .Options;
 
@@ -28,8 +28,10 @@ Console.WriteLine($"Using model: {model}");
 
 if (string.IsNullOrWhiteSpace(openRouterApiKey))
 {
-    Console.WriteLine("OpenRouter:ApiKey is not set; generation responses will be skipped.");
+    Console.WriteLine("OPENROUTER_API_KEY is not set; generation responses will be skipped.");
 }
+
+await ExampleSetup.SetupMockItemsAsync(dbContext);
 
 var count = await dbContext.MockItems.CountAsync();
 Console.WriteLine($"Loaded {count} products");
@@ -58,7 +60,6 @@ static async Task<List<ProductResult>> Retrieve(AppDbContext db, string query, i
             Score = EF.Functions.Score(x.Id),
         })
         .OrderByDescending(x => x.Score)
-        .ThenBy(x => x.Id)
         .Take(topK)
         .ToListAsync();
 }

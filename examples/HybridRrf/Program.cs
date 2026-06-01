@@ -4,13 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using ParadeDB.EntityFrameworkCore.Extensions;
 using Pgvector;
 using Pgvector.EntityFrameworkCore;
-
-const string connectionString =
-    "Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=paradedb_hybrid_rrf";
+using Shared;
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
     .UseNpgsql(
-        connectionString,
+        ExampleSetup.ConnectionString,
         o =>
         {
             o.UseParadeDb();
@@ -28,6 +26,7 @@ Console.WriteLine(new string('=', 70));
 Console.WriteLine("\nBM25 (keyword) + Vector (semantic)");
 Console.WriteLine("RRF formula: score = sum(1 / (k + rank)) across all rankings");
 
+await ExampleSetup.SetupHybridAsync(dbContext);
 await LoadEmbeddingsAsync(dbContext);
 
 await Demo(dbContext, "running shoes", QueryEmbeddings.Values);

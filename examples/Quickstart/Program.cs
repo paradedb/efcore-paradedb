@@ -2,12 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using ParadeDB.EntityFrameworkCore;
 using ParadeDB.EntityFrameworkCore.Extensions;
 using Quickstart.Data;
-
-const string connectionString =
-    "Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=paradedb_quickstart";
+using Shared;
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
-    .UseNpgsql(connectionString, o => o.UseParadeDb())
+    .UseNpgsql(ExampleSetup.ConnectionString, o => o.UseParadeDb())
     .UseSnakeCaseNamingConvention()
     .Options;
 
@@ -16,6 +14,8 @@ await using var dbContext = new AppDbContext(options);
 Console.WriteLine(new string('=', 60));
 Console.WriteLine("Quickstart Example");
 Console.WriteLine(new string('=', 60));
+
+await ExampleSetup.SetupMockItemsAsync(dbContext);
 
 var count = await dbContext.MockItems.CountAsync();
 Console.WriteLine($"Loaded {count} mock items");

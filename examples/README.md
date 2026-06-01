@@ -18,8 +18,7 @@ From the repo root you can start a local ParadeDB container with the included he
 ./scripts/run_paradedb.sh
 ```
 
-If you already run PostgreSQL with ParadeDB installed, update the connection string in the example's `Program.cs`.
-The examples are read-only and assume the referenced database already contains the sample tables, data, and indexes.
+If you already run PostgreSQL with ParadeDB installed, set `DATABASE_URL` or the standard `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, and `PGDATABASE` environment variables. The examples bootstrap the sample tables, data, and indexes before running.
 
 ## 📚 The Examples
 
@@ -123,11 +122,10 @@ This example builds a mini QA system. It searches your data for relevant context
 **Prerequisites:**
 
 - An API Key from [OpenRouter](https://openrouter.ai/) (provides access to GPT-4, Claude, etc.).
-- Set the key with .NET user secrets for this project.
+- Set `export OPENROUTER_API_KEY=sk-...` in your terminal.
 
 **Run it:**
 
 ```bash
-dotnet user-secrets set "OpenRouter:ApiKey" "sk-..." --project examples/Examples.csproj
 dotnet run --project examples/Examples.csproj --framework net10.0 -p:Example=Rag
 ```

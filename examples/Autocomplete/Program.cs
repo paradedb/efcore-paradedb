@@ -1,12 +1,10 @@
 using Autocomplete.Data;
 using Microsoft.EntityFrameworkCore;
 using ParadeDB.EntityFrameworkCore.Extensions;
-
-const string connectionString =
-    "Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=paradedb_autocomplete";
+using Shared;
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
-    .UseNpgsql(connectionString, o => o.UseParadeDb())
+    .UseNpgsql(ExampleSetup.ConnectionString, o => o.UseParadeDb())
     .UseSnakeCaseNamingConvention()
     .Options;
 
@@ -15,6 +13,8 @@ await using var dbContext = new AppDbContext(options);
 Console.WriteLine(new string('=', 60));
 Console.WriteLine("Autocomplete Example");
 Console.WriteLine(new string('=', 60));
+
+await ExampleSetup.SetupAutocompleteAsync(dbContext);
 
 var count = await dbContext.AutocompleteItems.CountAsync();
 Console.WriteLine($"\nLoaded {count} items");
@@ -40,7 +40,7 @@ foreach (var query in queries)
     var parseQuery = $"description_ngram:{query}";
 
     var results = await dbContext
-        .AutocompleteItems.Where(x => EF.Functions.Parse(x.Id, parseQuery))
+        .AutocompleteItems.Where(x => EF.Functions.Parse(x.Description, parseQuery))
         .Select(x => new
         {
             x.Id,
