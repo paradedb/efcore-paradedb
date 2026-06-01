@@ -1,3 +1,8 @@
 namespace ParadeDB.EntityFrameworkCore;
 
-public record SnippetOptions(string? startTag, string? endTag, int? maxNumChars);
+public sealed record SnippetOptions
+{
+    public string? StartTag { get; init; }
+    public string? EndTag { get; init; }
+    public int? MaxNumChars { get; init; }
+}

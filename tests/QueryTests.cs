@@ -967,7 +967,7 @@ public sealed class QueryTests : TestBase
     public async Task Snippet_WithInlineMaxNumChars()
     {
         await using var context = DbFixture.CreateContext();
-        var options = new SnippetOptions(null, null, 50);
+        var options = new SnippetOptions { MaxNumChars = 50 };
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
@@ -989,7 +989,7 @@ public sealed class QueryTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         int maxNumChars = 50;
-        var options = new SnippetOptions(null, null, maxNumChars);
+        var options = new SnippetOptions { MaxNumChars = maxNumChars };
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
@@ -1009,7 +1009,7 @@ public sealed class QueryTests : TestBase
     public async Task Snippet_WithInlineTags()
     {
         await using var context = DbFixture.CreateContext();
-        var options = new SnippetOptions("<a>", "</a>", null);
+        var options = new SnippetOptions { StartTag = "<a>", EndTag = "</a>" };
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
@@ -1032,7 +1032,7 @@ public sealed class QueryTests : TestBase
 
         string startTag = "<a>";
         string endTag = "</a>";
-        var options = new SnippetOptions(startTag, endTag, null);
+        var options = new SnippetOptions { StartTag = startTag, EndTag = endTag };
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
@@ -1052,7 +1052,12 @@ public sealed class QueryTests : TestBase
     public async Task Snippet_WithInlineTagsAndMaxNumChars()
     {
         await using var context = DbFixture.CreateContext();
-        var options = new SnippetOptions("<a>", "</a>", 50);
+        var options = new SnippetOptions
+        {
+            StartTag = "<a>",
+            EndTag = "</a>",
+            MaxNumChars = 50,
+        };
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
@@ -1076,7 +1081,12 @@ public sealed class QueryTests : TestBase
         string startTag = "<a>";
         string endTag = "</a>";
         int maxNumChars = 50;
-        var options = new SnippetOptions(startTag, endTag, maxNumChars);
+        var options = new SnippetOptions
+        {
+            StartTag = startTag,
+            EndTag = endTag,
+            MaxNumChars = maxNumChars,
+        };
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
@@ -1136,7 +1146,15 @@ public sealed class QueryTests : TestBase
     public async Task Snippets_WithOptions()
     {
         await using var context = DbFixture.CreateContext();
-        var options = new SnippetsOptions("<a>", "</a>", 15, 1, 1, "position");
+        var options = new SnippetsOptions
+        {
+            StartTag = "<a>",
+            EndTag = "</a>",
+            MaxNumChars = 15,
+            Limit = 1,
+            Offset = 1,
+            SortBy = "position",
+        };
 
         var query = context
             .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
@@ -1352,13 +1370,11 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
-    public async Task MoreLikeThis_WithInlineId()
+    public async Task MoreLikeThisId_WithInlineId()
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.MockItems.Where(p =>
-            EF.Functions.MoreLikeThis(p.Id, Pdb.DocumentId(5))
-        );
+        var query = context.MockItems.Where(p => EF.Functions.MoreLikeThisId(p.Id, 5));
 
         var sql = """
             SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
@@ -1371,21 +1387,19 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
-    public async Task MoreLikeThis_WithVariableId()
+    public async Task MoreLikeThisId_WithVariableId()
     {
         await using var context = DbFixture.CreateContext();
 
         int id = 5;
 
-        var query = context.MockItems.Where(p =>
-            EF.Functions.MoreLikeThis(p.Id, Pdb.DocumentId(id))
-        );
+        var query = context.MockItems.Where(p => EF.Functions.MoreLikeThisId(p.Id, id));
 
         var sql = """
-            -- @p='5'
+            -- @id='5'
             SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
             FROM mock_items AS m
-            WHERE m.id @@@ pdb.more_like_this(@p)
+            WHERE m.id @@@ pdb.more_like_this(@id)
             """;
 
         AssertSql(query, sql);
@@ -1393,12 +1407,12 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
-    public async Task MoreLikeThis_WithInlineDocument()
+    public async Task MoreLikeThisDocument_WithInlineDocument()
     {
         await using var context = DbFixture.CreateContext();
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.MoreLikeThis(p.Id, Pdb.Document("""{"description":"running shoes"}"""))
+            EF.Functions.MoreLikeThisDocument(p.Id, """{"description":"running shoes"}""")
         );
 
         var sql = """
@@ -1412,15 +1426,13 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
-    public async Task MoreLikeThis_WithVariableDocument()
+    public async Task MoreLikeThisDocument_WithVariableDocument()
     {
         await using var context = DbFixture.CreateContext();
 
         string document = """{"description":"running shoes"}""";
 
-        var query = context.MockItems.Where(p =>
-            EF.Functions.MoreLikeThis(p.Id, Pdb.Document(document))
-        );
+        var query = context.MockItems.Where(p => EF.Functions.MoreLikeThisDocument(p.Id, document));
 
         var sql = """
             -- @document='{"description":"running shoes"}'
@@ -1434,24 +1446,23 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
-    public async Task MoreLikeThis_WithInlineParameters()
+    public async Task MoreLikeThisId_WithInlineParameters()
     {
         await using var context = DbFixture.CreateContext();
 
-        var query = context.MockItems.Where(p =>
-            EF.Functions.MoreLikeThis(
-                p.Id,
-                Pdb.DocumentId(5)
-                    .Fields("description", "category")
-                    .MinTermFrequency(2)
-                    .MinDocFrequency(3)
-                    .MaxDocFrequency(100)
-                    .MaxQueryTerms(12)
-                    .MinWordLength(3)
-                    .MaxWordLength(20)
-                    .Stopwords("the", "and")
-            )
-        );
+        var options = new MoreLikeThisOptions
+        {
+            Fields = new[] { "description", "category" },
+            MinTermFrequency = 2,
+            MinDocFrequency = 3,
+            MaxDocFrequency = 100,
+            MaxQueryTerms = 12,
+            MinWordLength = 3,
+            MaxWordLength = 20,
+            Stopwords = new[] { "the", "and" },
+        };
+
+        var query = context.MockItems.Where(p => EF.Functions.MoreLikeThisId(p.Id, 5, options));
 
         var sql = """
             SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
@@ -1464,7 +1475,7 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
-    public async Task MoreLikeThis_WithVariableParameters()
+    public async Task MoreLikeThisId_WithVariableParameters()
     {
         await using var context = DbFixture.CreateContext();
 
@@ -1477,35 +1488,25 @@ public sealed class QueryTests : TestBase
         int maxQueryTerms = 12;
         int minWordLength = 3;
         int maxWordLength = 20;
+        var options = new MoreLikeThisOptions
+        {
+            Fields = fields,
+            MinTermFrequency = minTermFrequency,
+            MinDocFrequency = minDocFrequency,
+            MaxDocFrequency = maxDocFrequency,
+            MaxQueryTerms = maxQueryTerms,
+            MinWordLength = minWordLength,
+            MaxWordLength = maxWordLength,
+            Stopwords = stopwords,
+        };
 
-        var query = context.MockItems.Where(p =>
-            EF.Functions.MoreLikeThis(
-                p.Id,
-                Pdb.DocumentId(id)
-                    .Fields(fields)
-                    .MinTermFrequency(minTermFrequency)
-                    .MinDocFrequency(minDocFrequency)
-                    .MaxDocFrequency(maxDocFrequency)
-                    .MaxQueryTerms(maxQueryTerms)
-                    .MinWordLength(minWordLength)
-                    .MaxWordLength(maxWordLength)
-                    .Stopwords(stopwords)
-            )
-        );
+        var query = context.MockItems.Where(p => EF.Functions.MoreLikeThisId(p.Id, id, options));
 
         var sql = """
-            -- @p='5'
-            -- @fields={ 'description', 'category' } (DbType = Object)
-            -- @minTermFrequency='2'
-            -- @minDocFrequency='3'
-            -- @maxDocFrequency='100'
-            -- @maxQueryTerms='12'
-            -- @minWordLength='3'
-            -- @maxWordLength='20'
-            -- @stopwords={ 'the', 'and' } (DbType = Object)
+            -- @id='5'
             SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
             FROM mock_items AS m
-            WHERE m.id @@@ pdb.more_like_this(@p, @fields, min_term_frequency => @minTermFrequency, min_doc_frequency => @minDocFrequency, max_doc_frequency => @maxDocFrequency, max_query_terms => @maxQueryTerms, min_word_length => @minWordLength, max_word_length => @maxWordLength, stopwords => @stopwords)
+            WHERE m.id @@@ pdb.more_like_this(@id, ARRAY['description','category']::text[], min_term_frequency => 2, min_doc_frequency => 3, max_doc_frequency => 100, max_query_terms => 12, min_word_length => 3, max_word_length => 20, stopwords => ARRAY['the','and']::text[])
             """;
 
         AssertSql(query, sql);

@@ -100,11 +100,23 @@ public static class ParadeDbFunctionsExtensions
     ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(TokenizeAsArray)));
 
     [DbFunction]
-    public static bool MoreLikeThis<TProperty>(
+    public static bool MoreLikeThisId<TProperty, TDocumentId>(
         this DbFunctions _,
         TProperty property,
-        PdbMoreLikeThisQuery query
-    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MoreLikeThis)));
+        TDocumentId documentId,
+        [NotParameterized] MoreLikeThisOptions? options = null
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MoreLikeThisId)));
+
+    [DbFunction]
+    public static bool MoreLikeThisDocument<TProperty>(
+        this DbFunctions _,
+        TProperty property,
+        string documentJson,
+        [NotParameterized] MoreLikeThisOptions? options = null
+    ) =>
+        throw new InvalidOperationException(
+            CoreStrings.FunctionOnClient(nameof(MoreLikeThisDocument))
+        );
 
     [DbFunction]
     public static string Alias<TProperty>(
