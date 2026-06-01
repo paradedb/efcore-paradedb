@@ -123,7 +123,7 @@ static void DisplayResults(string query, List<(string Description, double RrfSco
 
 static async Task LoadEmbeddingsAsync(AppDbContext db)
 {
-    var csvPath = Path.Combine(AppContext.BaseDirectory, "mock_items_embeddings.csv");
+    var csvPath = Path.Combine(AppContext.BaseDirectory, "HybridRrf", "mock_items_embeddings.csv");
     var lines = await File.ReadAllLinesAsync(csvPath);
 
     var conn = (NpgsqlConnection)db.Database.GetDbConnection();

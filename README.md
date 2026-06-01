@@ -43,12 +43,12 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 
 ## Examples
 
-- [Quickstart](examples/Quickstart.cs)
-- [Faceted Search](examples/FacetedSearch.cs)
-- [Autocomplete](examples/Autocomplete.cs)
-- [More Like This](examples/MoreLikeThis.cs)
-- [Hybrid Search (RRF)](examples/HybridRrf.cs)
-- [RAG](examples/Rag.cs)
+- [Quickstart](examples/Quickstart/Program.cs)
+- [Faceted Search](examples/FacetedSearch/Program.cs)
+- [Autocomplete](examples/Autocomplete/Program.cs)
+- [More Like This](examples/MoreLikeThis/Program.cs)
+- [Hybrid Search (RRF)](examples/HybridRrf/Program.cs)
+- [RAG](examples/Rag/Program.cs)
 
 ## Contributing
 
