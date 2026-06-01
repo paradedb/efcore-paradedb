@@ -34,7 +34,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      id-token: write
 
     env:
       PACKAGES_OUTPUT_DIR: ${{ github.workspace }}/packages
@@ -89,18 +88,11 @@ jobs:
             -p:PackageVersion="${VERSION}"
           ls -l "${PACKAGES_OUTPUT_DIR}"
 
-      - name: NuGet login
-        uses: NuGet/login@v1
-        id: nuget-login
-        with:
-          # The policy is owned by the paradedb org in NuGet but the isaacvando user created it, hence the name here
-          user: isaacvando
-
       - name: Publish to NuGet
         run: |
           set -euo pipefail
           dotnet nuget push "${PACKAGES_OUTPUT_DIR}"/*.nupkg \
-            --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" \
+            --api-key "${{ secrets.NUGET_API_KEY }}" \
             --source https://api.nuget.org/v3/index.json
 
       - name: Create GitHub tag and release
