@@ -66,12 +66,16 @@ jobs:
         run: dotnet build build.slnf --configuration Release --framework net10.0 --no-restore
 
       - name: Test
+        # coverlet.MTP is a Microsoft.Testing.Platform extension, so its
+        # arguments must be forwarded to the test application after `--`.
+        # Coverage reports are written into --results-directory.
         run: |
           dotnet test \
             --no-build \
             --configuration Release \
             --framework net10.0 \
             --results-directory TestResults/net10.0 \
+            -- \
             --coverlet \
             --coverlet-output-format cobertura
 
