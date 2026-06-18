@@ -36,6 +36,25 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
+    public async Task MatchAll_WithDbFunction()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context.MockItems.Where(p =>
+            EF.Functions.MatchAll(p.Description, p.Category.ToLower())
+        );
+
+        var sql = """
+            SELECT m.id, m.category, m.created_at, m.description, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.description &&& lower(m.category)
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
     public async Task MatchAll_WithInlineArray()
     {
         await using var context = DbFixture.CreateContext();
