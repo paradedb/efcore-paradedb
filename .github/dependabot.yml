@@ -14,7 +14,10 @@ updates:
           - "*"
 
   - package-ecosystem: "nuget"
-    directory: "/"
+    directories:
+      - "/src"
+      - "/tests"
+      - "/examples"
     schedule:
       interval: "monthly"
     ignore:
