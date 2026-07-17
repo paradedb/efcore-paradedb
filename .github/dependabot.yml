@@ -13,8 +13,14 @@ updates:
         patterns:
           - "*"
 
+  # The project files, not "/": the root has no .csproj and Dependabot does not read the .slnx
+  # solution format, so nothing was discovered there. Central Package Management means the versions
+  # these resolve to live in Directory.Packages.props, which is what actually gets updated.
   - package-ecosystem: "nuget"
-    directory: "/"
+    directories:
+      - "/src"
+      - "/tests"
+      - "/examples"
     schedule:
       interval: "monthly"
     ignore:
