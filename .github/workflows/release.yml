@@ -28,12 +28,13 @@ concurrency:
 env:
   DOTNET_VERSION: 10.0.x
 
+permissions:
+  contents: write
+
 jobs:
   release:
     name: Build and Publish to NuGet
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     env:
       PACKAGES_OUTPUT_DIR: ${{ github.workspace }}/packages
