@@ -13,6 +13,10 @@ public sealed class TestDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<MockItem>().HasKey(p => p.Id);
+        modelBuilder.Entity<MockItem>(entity =>
+        {
+            entity.HasKey(p => p.Id);
+            entity.Property(p => p.Embedding).HasColumnType("vector(8)");
+        });
     }
 }

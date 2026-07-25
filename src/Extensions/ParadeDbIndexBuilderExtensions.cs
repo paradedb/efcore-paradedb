@@ -27,6 +27,7 @@ public static class ParadeDbIndexBuilderExtensions
         indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexFieldKinds, new[] { "property" });
         indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexFieldTokenizers, new[] { "" });
         indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexFieldAliases, new[] { "" });
+        indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexFieldOpclasses, new[] { "" });
 
         return new ParadeDbIndexBuilder<TEntity>(indexBuilder);
     }
@@ -119,6 +120,29 @@ public sealed class ParadeDbIndexBuilder<TEntity>
         return this;
     }
 
+    public ParadeDbIndexBuilder<TEntity> HasField<TProperty>(
+        Expression<Func<TEntity, TProperty>> propertyExpression,
+        VectorMetric metric
+    )
+    {
+        AddField(
+            ParadeDbIndexBuilderExtensions.GetPropertyName(propertyExpression),
+            "property",
+            null,
+            null,
+            metric.ToOpclass()
+        );
+
+        return this;
+    }
+
+    public ParadeDbIndexBuilder<TEntity> HasField(string sql, VectorMetric metric)
+    {
+        AddField(sql, "sql", null, null, metric.ToOpclass());
+
+        return this;
+    }
+
     public ParadeDbIndexBuilder<TEntity> HasFilter(string? sql)
     {
         _indexBuilder.HasFilter(sql);
@@ -143,12 +167,19 @@ public sealed class ParadeDbIndexBuilder<TEntity>
         return this;
     }
 
-    private void AddField(string field, string kind, Tokenizer? tokenizer, string? alias)
+    private void AddField(
+        string field,
+        string kind,
+        Tokenizer? tokenizer,
+        string? alias,
+        string? opclass = null
+    )
     {
         var properties = GetAnnotation(ParadeDbAnnotationNames.IndexFieldProperties);
         var kinds = GetAnnotation(ParadeDbAnnotationNames.IndexFieldKinds);
         var tokenizers = GetAnnotation(ParadeDbAnnotationNames.IndexFieldTokenizers);
         var aliases = GetAnnotation(ParadeDbAnnotationNames.IndexFieldAliases);
+        var opclasses = GetAnnotation(ParadeDbAnnotationNames.IndexFieldOpclasses);
 
         _indexBuilder.HasAnnotation(
             ParadeDbAnnotationNames.IndexFieldProperties,
@@ -166,6 +197,11 @@ public sealed class ParadeDbIndexBuilder<TEntity>
         _indexBuilder.HasAnnotation(
             ParadeDbAnnotationNames.IndexFieldAliases,
             aliases.Append(alias is null ? "" : alias.Replace("'", "''")).ToArray()
+        );
+
+        _indexBuilder.HasAnnotation(
+            ParadeDbAnnotationNames.IndexFieldOpclasses,
+            opclasses.Append(opclass ?? "").ToArray()
         );
     }
 

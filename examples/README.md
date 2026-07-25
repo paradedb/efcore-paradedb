@@ -47,6 +47,15 @@ ranking.
 dotnet run --project examples/Examples.csproj -p:Example=HybridRrf
 ```
 
+## Vector Search (`examples/VectorSearch`)
+
+Runs Top-K nearest-neighbor queries over a pgvector column with the native
+vector support, backed by a bm25 index when the server supports it.
+
+```bash
+dotnet run --project examples/Examples.csproj -p:Example=VectorSearch
+```
+
 ## RAG: Retrieval-Augmented Generation (`examples/Rag`)
 
 Builds a small QA flow that retrieves relevant context and sends it to an LLM

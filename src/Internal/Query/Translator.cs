@@ -105,6 +105,15 @@ internal sealed class Translator : IMethodCallTranslator
                 arguments[1],
                 BuildPhrasePrefix(arguments)
             ),
+            nameof(ParadeDbFunctionsExtensions.L2Distance) => BuildVectorDistance(arguments, "<->"),
+            nameof(ParadeDbFunctionsExtensions.CosineDistance) => BuildVectorDistance(
+                arguments,
+                "<=>"
+            ),
+            nameof(ParadeDbFunctionsExtensions.InnerProduct) => BuildVectorDistance(
+                arguments,
+                "<#>"
+            ),
             nameof(ParadeDbFunctionsExtensions.Snippet) => BuildSnippet(arguments),
             nameof(ParadeDbFunctionsExtensions.Snippets) => BuildSnippets(arguments),
             nameof(ParadeDbFunctionsExtensions.SnippetPositions) => _sqlExpressionFactory.Function(
@@ -247,6 +256,22 @@ internal sealed class Translator : IMethodCallTranslator
             arguments: args,
             argumentsPropagateNullability: new bool[args.Count],
             returnType: typeof(bool)
+        );
+    }
+
+    private PgUnknownBinaryExpression BuildVectorDistance(
+        IReadOnlyList<SqlExpression> arguments,
+        string binaryOperator
+    )
+    {
+        var vectorMapping = arguments[1].TypeMapping ?? PdbVectorTypeMapping.Default;
+
+        return new PgUnknownBinaryExpression(
+            _sqlExpressionFactory.ApplyTypeMapping(arguments[1], vectorMapping),
+            _sqlExpressionFactory.ApplyTypeMapping(arguments[2], vectorMapping),
+            binaryOperator,
+            typeof(double),
+            PdbTypeMappings.Double
         );
     }
 

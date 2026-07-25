@@ -36,15 +36,18 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
             mappedIndex.FindAnnotation(ParadeDbAnnotationNames.IndexFieldTokenizers)!.Value!;
         var fieldAliases = (string[])
             mappedIndex.FindAnnotation(ParadeDbAnnotationNames.IndexFieldAliases)!.Value!;
+        var fieldOpclasses = (string[])
+            mappedIndex.FindAnnotation(ParadeDbAnnotationNames.IndexFieldOpclasses)!.Value!;
 
         if (
             fieldProperties.Length != fieldKinds.Length
             || fieldProperties.Length != fieldTokenizers.Length
             || fieldProperties.Length != fieldAliases.Length
+            || fieldProperties.Length != fieldOpclasses.Length
         )
         {
             throw new InvalidOperationException(
-                "A ParadeDB index must have one kind, tokenizer, and alias entry for each field."
+                "A ParadeDB index must have one kind, tokenizer, alias, and opclass entry for each field."
             );
         }
 
@@ -68,7 +71,8 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
                             fieldKinds[i],
                             storeObject,
                             string.IsNullOrEmpty(fieldTokenizers[i]) ? null : fieldTokenizers[i],
-                            string.IsNullOrEmpty(fieldAliases[i]) ? null : fieldAliases[i]
+                            string.IsNullOrEmpty(fieldAliases[i]) ? null : fieldAliases[i],
+                            string.IsNullOrEmpty(fieldOpclasses[i]) ? null : fieldOpclasses[i]
                         )
                 )
                 .ToArray()
@@ -92,7 +96,8 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
         string kind,
         StoreObjectIdentifier storeObject,
         string? tokenizer,
-        string? alias
+        string? alias,
+        string? opclass
     )
     {
         var sql = kind switch
@@ -101,6 +106,11 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
             "sql" => field,
             _ => throw new InvalidOperationException($"Unknown field kind '{kind}'"),
         };
+
+        if (opclass is not null)
+        {
+            return kind == "property" ? $"{sql} {opclass}" : $"({sql}) {opclass}";
+        }
 
         if (tokenizer is null && alias is null)
         {

@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using ParadeDB.EntityFrameworkCore.Extensions;
 using ParadeDB.EntityFrameworkCore.Tests.Persistence;
 using Shouldly;
 
@@ -9,7 +10,7 @@ public sealed class DiagnosticsTests
 {
     private static readonly DbContextOptions<TestDbContext> Options =
         new DbContextOptionsBuilder<TestDbContext>()
-            .UseNpgsql("Host=localhost;Database=paradedb_tests")
+            .UseNpgsql("Host=localhost;Database=paradedb_tests", o => o.UseParadeDb())
             .Options;
 
     private static void AssertSql(IQueryable query, string expected) =>

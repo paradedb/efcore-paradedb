@@ -18,6 +18,7 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 - [Autocomplete](examples/Autocomplete/Program.cs)
 - [More Like This](examples/MoreLikeThis/Program.cs)
 - [Hybrid Search (RRF)](examples/HybridRrf/Program.cs)
+- [Vector Search](examples/VectorSearch/Program.cs)
 - [RAG](examples/Rag/Program.cs)
 
 ## Contributing

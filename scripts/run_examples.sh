@@ -13,6 +13,7 @@ examples=(
   Autocomplete
   MoreLikeThis
   HybridRrf
+  VectorSearch
   Rag
 )
 

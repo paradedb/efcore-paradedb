@@ -9,6 +9,8 @@ internal static class PdbTypeMappings
 {
     public static readonly RelationalTypeMapping Boolean = new NpgsqlBoolTypeMapping();
 
+    public static readonly RelationalTypeMapping Double = new NpgsqlDoubleTypeMapping();
+
     public static readonly RelationalTypeMapping Text = new NpgsqlStringTypeMapping(
         "text",
         NpgsqlDbType.Text

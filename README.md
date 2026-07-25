@@ -47,6 +47,49 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 | ParadeDB   | 0.25.0+                       |
 | PostgreSQL | 15+ (with ParadeDB extension) |
 
+## Vector Search
+
+ParadeDB indexes pgvector `vector` columns directly inside its BM25 index — no
+pgvector ORM plugin is required. Map a `float[]` property to a `vector(n)`
+column, pick a distance metric for the index, and order by the matching
+distance function:
+
+```csharp
+public class Item
+{
+    public int Id { get; set; }
+    public float[]? Embedding { get; set; }
+}
+
+// Model configuration
+modelBuilder.Entity<Item>(entity =>
+{
+    entity.Property(x => x.Embedding).HasVectorType(384);
+
+    entity
+        .HasParadeDbIndex("items_idx", x => x.Id)
+        .HasField(x => x.Embedding, VectorMetric.Cosine);
+});
+
+// Top-K query: a `@@@` predicate (`EF.Functions.All` for match-all here) and
+// a LIMIT (`Take`) are required for the index to serve the query
+float[] queryEmbedding = GetQueryEmbedding();
+
+var results = await db
+    .Items.Where(x => EF.Functions.All(x.Id))
+    .OrderBy(x => EF.Functions.CosineDistance(x.Embedding, queryEmbedding))
+    .Take(10)
+    .ToListAsync();
+```
+
+`VectorMetric.L2` (`<->`, the default), `VectorMetric.Cosine` (`<=>`), and
+`VectorMetric.InnerProduct` (`<#>`) map to the `vector_l2_ops`,
+`vector_cosine_ops`, and `vector_ip_ops` operator classes. The distance
+function used in `OrderBy` must match the metric of the index opclass —
+`L2Distance` with `L2`, `CosineDistance` with `Cosine`, and `InnerProduct`
+with `InnerProduct` — otherwise the query still returns correct results but
+falls back to a sequential scan instead of Top-K index pushdown.
+
 ## Examples
 
 - [Quickstart](examples/Quickstart/Program.cs)
@@ -54,6 +97,7 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 - [Autocomplete](examples/Autocomplete/Program.cs)
 - [More Like This](examples/MoreLikeThis/Program.cs)
 - [Hybrid Search (RRF)](examples/HybridRrf/Program.cs)
+- [Vector Search](examples/VectorSearch/Program.cs)
 - [RAG](examples/Rag/Program.cs)
 
 ## Contributing

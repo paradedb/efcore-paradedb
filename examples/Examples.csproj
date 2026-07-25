@@ -12,14 +12,13 @@
   </PropertyGroup>
 
   <Target Name="RequireExample" BeforeTargets="CoreCompile" Condition="'$(Example)' == ''">
-    <Error Text="Set the Example property to one of: Quickstart, FacetedSearch, Autocomplete, MoreLikeThis, HybridRrf, Rag." />
+    <Error Text="Set the Example property to one of: Quickstart, FacetedSearch, Autocomplete, MoreLikeThis, HybridRrf, VectorSearch, Rag." />
   </Target>
 
   <ItemGroup>
     <PackageReference Include="EFCore.NamingConventions" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
-    <PackageReference Include="Pgvector.EntityFrameworkCore" />
   </ItemGroup>
 
   <ItemGroup>
