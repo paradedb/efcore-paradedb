@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <Target Name="RequireExample" BeforeTargets="CoreCompile" Condition="'$(Example)' == ''">
-    <Error Text="Set the Example property to one of: Quickstart, FacetedSearch, Autocomplete, MoreLikeThis, HybridRrf, VectorSearch, Rag." />
+    <Error Text="Set the Example property to one of: Quickstart, VectorSearch, FacetedSearch, Autocomplete, MoreLikeThis, HybridRrf, Rag." />
   </Target>
 
   <ItemGroup>
