@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking**: `HasBm25Index` and `Bm25IndexBuilder<TEntity>` are renamed to
+  `HasParadeDbIndex` and `ParadeDbIndexBuilder<TEntity>`, the `ParadeDB:Bm25*`
+  model annotations are renamed to `ParadeDB:Index*`, and index DDL now always
+  emits `USING paradedb`. This release requires pg_search 0.25.0+.
+
 ## [0.1.2] - 2026-07-14
 
 ## Changed

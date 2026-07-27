@@ -28,8 +28,4 @@
 
     <ProjectReference Include="..\src\ParadeDB.EntityFrameworkCore.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="HybridRrf\mock_items_embeddings.csv" CopyToOutputDirectory="Always" />
-  </ItemGroup>
 </Project>

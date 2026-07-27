@@ -1,4 +1,3 @@
-using HybridRrf;
 using HybridRrf.Data;
 using Microsoft.EntityFrameworkCore;
 using ParadeDB.EntityFrameworkCore.Extensions;
@@ -26,21 +25,27 @@ Console.WriteLine(new string('=', 70));
 Console.WriteLine("\nBM25 (keyword) + Vector (semantic)");
 Console.WriteLine("RRF formula: score = sum(1 / (k + rank)) across all rankings");
 
-await ExampleSetup.SetupHybridAsync(dbContext);
-await LoadEmbeddingsAsync(dbContext);
+await ExampleSetup.SetupMockItemsAsync(dbContext);
 
-await Demo(dbContext, "running shoes", QueryEmbeddings.Values);
-await Demo(dbContext, "footwear for exercise", QueryEmbeddings.Values);
-await Demo(dbContext, "wireless earbuds", QueryEmbeddings.Values);
+await Demo(dbContext, "running shoes", "Sleek running shoes");
+await Demo(dbContext, "wireless earbuds", "Innovative wireless earbuds");
+await Demo(dbContext, "bluetooth speaker", "Bluetooth-enabled speaker");
 
 Console.WriteLine("\n" + new string('=', 70));
 Console.WriteLine("BM25 results use the ParadeDB EF query builder.");
 Console.WriteLine(new string('=', 70));
 return;
 
-static async Task Demo(AppDbContext db, string query, Dictionary<string, float[]> queryEmbeddings)
+static async Task Demo(AppDbContext db, string query, string seedDescription)
 {
-    var results = await HybridSearch(db, query, new Vector(queryEmbeddings[query]));
+    // The mock_items table ships with a pre-populated embedding column; use the
+    // embedding of a known item as the semantic query vector
+    var queryEmbedding = await db
+        .MockItems.Where(x => x.Description == seedDescription)
+        .Select(x => x.Embedding!)
+        .FirstAsync();
+
+    var results = await HybridSearch(db, query, queryEmbedding);
     DisplayResults(query, results);
 }
 
@@ -100,32 +105,4 @@ static void DisplayResults(string query, List<(string Description, double RrfSco
         var desc = results[i].Description[..Math.Min(60, results[i].Description.Length)];
         Console.WriteLine($"  {i + 1}. {desc, -60} (RRF: {results[i].RrfScore:F4})");
     }
-}
-
-static async Task LoadEmbeddingsAsync(AppDbContext db)
-{
-    var csvPath = Path.Combine(AppContext.BaseDirectory, "HybridRrf", "mock_items_embeddings.csv");
-    var lines = await File.ReadAllLinesAsync(csvPath);
-
-    var embeddings = new Dictionary<int, float[]>();
-
-    for (var i = 1; i < lines.Length; i++)
-    {
-        var parts = lines[i].Split(',', 3);
-        embeddings[int.Parse(parts[0])] = parts[2]
-            .Trim('"', '[', ']')
-            .Split(',', StringSplitOptions.TrimEntries)
-            .Select(float.Parse)
-            .ToArray();
-    }
-
-    var ids = embeddings.Keys.ToArray();
-    var items = await db.MockItems.Where(x => ids.Contains(x.Id)).ToListAsync();
-    foreach (var item in items)
-    {
-        item.Embedding = new Vector(embeddings[item.Id]);
-    }
-
-    await db.SaveChangesAsync();
-    Console.WriteLine($"Loaded {items.Count} embeddings");
 }

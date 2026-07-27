@@ -18,10 +18,10 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
         }
 
         var mappedIndex = index.MappedIndexes.FirstOrDefault(i =>
-            i.FindAnnotation(ParadeDbAnnotationNames.Bm25KeyProperty)?.Value is string
+            i.FindAnnotation(ParadeDbAnnotationNames.IndexKeyProperty)?.Value is string
         );
         if (
-            mappedIndex?.FindAnnotation(ParadeDbAnnotationNames.Bm25KeyProperty)?.Value
+            mappedIndex?.FindAnnotation(ParadeDbAnnotationNames.IndexKeyProperty)?.Value
             is not string keyPropertyName
         )
         {
@@ -29,13 +29,13 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
         }
 
         var fieldProperties = (string[])
-            mappedIndex.FindAnnotation(ParadeDbAnnotationNames.Bm25FieldProperties)!.Value!;
+            mappedIndex.FindAnnotation(ParadeDbAnnotationNames.IndexFieldProperties)!.Value!;
         var fieldKinds = (string[])
-            mappedIndex.FindAnnotation(ParadeDbAnnotationNames.Bm25FieldKinds)!.Value!;
+            mappedIndex.FindAnnotation(ParadeDbAnnotationNames.IndexFieldKinds)!.Value!;
         var fieldTokenizers = (string[])
-            mappedIndex.FindAnnotation(ParadeDbAnnotationNames.Bm25FieldTokenizers)!.Value!;
+            mappedIndex.FindAnnotation(ParadeDbAnnotationNames.IndexFieldTokenizers)!.Value!;
         var fieldAliases = (string[])
-            mappedIndex.FindAnnotation(ParadeDbAnnotationNames.Bm25FieldAliases)!.Value!;
+            mappedIndex.FindAnnotation(ParadeDbAnnotationNames.IndexFieldAliases)!.Value!;
 
         if (
             fieldProperties.Length != fieldKinds.Length
@@ -44,21 +44,21 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
         )
         {
             throw new InvalidOperationException(
-                "A BM25 index must have one kind, tokenizer, and alias entry for each field."
+                "A ParadeDB index must have one kind, tokenizer, and alias entry for each field."
             );
         }
 
         var storeObject = StoreObjectIdentifier.Table(index.Table.Name, index.Table.Schema);
 
         yield return new Annotation(
-            ParadeDbAnnotationNames.Bm25KeyField,
+            ParadeDbAnnotationNames.IndexKeyField,
             mappedIndex
                 .DeclaringEntityType.FindProperty(keyPropertyName)!
                 .GetColumnName(storeObject)!
         );
 
         yield return new Annotation(
-            ParadeDbAnnotationNames.Bm25Fields,
+            ParadeDbAnnotationNames.IndexFields,
             fieldProperties
                 .Select(
                     (field, i) =>
@@ -75,12 +75,12 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
         );
 
         if (
-            mappedIndex.FindAnnotation(ParadeDbAnnotationNames.Bm25SearchTokenizer)?.Value
+            mappedIndex.FindAnnotation(ParadeDbAnnotationNames.IndexSearchTokenizer)?.Value
             is string searchTokenizer
         )
         {
             yield return new Annotation(
-                ParadeDbAnnotationNames.Bm25SearchTokenizer,
+                ParadeDbAnnotationNames.IndexSearchTokenizer,
                 searchTokenizer
             );
         }

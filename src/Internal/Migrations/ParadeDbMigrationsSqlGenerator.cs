@@ -24,9 +24,9 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
     )
     {
         if (
-            operation.FindAnnotation(ParadeDbAnnotationNames.Bm25Fields)?.Value
+            operation.FindAnnotation(ParadeDbAnnotationNames.IndexFields)?.Value
                 is not string[] fields
-            || operation.FindAnnotation(ParadeDbAnnotationNames.Bm25KeyField)?.Value
+            || operation.FindAnnotation(ParadeDbAnnotationNames.IndexKeyField)?.Value
                 is not string keyField
         )
         {
@@ -39,7 +39,7 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
         var createdConcurrently =
             operation.FindAnnotation(NpgsqlAnnotationNames.CreatedConcurrently)?.Value is true;
         var searchTokenizer =
-            operation.FindAnnotation(ParadeDbAnnotationNames.Bm25SearchTokenizer)?.Value as string;
+            operation.FindAnnotation(ParadeDbAnnotationNames.IndexSearchTokenizer)?.Value as string;
 
         builder
             .Append("CREATE INDEX ")
@@ -47,7 +47,7 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
             .Append(helper.DelimitIdentifier(operation.Name))
             .Append(" ON ")
             .Append(helper.DelimitIdentifier(operation.Table, operation.Schema))
-            .Append(" USING bm25 (")
+            .Append(" USING paradedb (")
             .Append(string.Join(", ", fields))
             .Append(") WITH (key_field = ")
             .Append(stringMapping.GenerateSqlLiteral(keyField));

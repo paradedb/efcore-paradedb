@@ -27,7 +27,7 @@ public sealed class IndexingTest : TestBase
         }
     }
 
-    // We include a regular index here to check that the code changes to support bm25 indexes aren't inadvertently
+    // We include a regular index here to check that the code changes to support ParadeDB indexes aren't inadvertently
     // breaking regular ones
     [Test]
     public async Task RegularIndex()
@@ -69,7 +69,7 @@ public sealed class IndexingTest : TestBase
                 entity.Property(e => e.Rating).HasColumnName("rating");
 
                 entity
-                    .HasBm25Index("indexing_items_idx", e => e.Id)
+                    .HasParadeDbIndex("indexing_items_idx", e => e.Id)
                     .HasField(
                         e => e.Description,
                         Tokenizer.Ngram(3, 3, new() { ["positions"] = true })
@@ -87,7 +87,7 @@ public sealed class IndexingTest : TestBase
     }
 
     [Test]
-    public async Task Bm25Index_WithJsonExpressionTokenizerOptionsAndFilter()
+    public async Task ParadeDbIndex_WithJsonExpressionTokenizerOptionsAndFilter()
     {
         await using var context = DbFixture.CreateContext();
         await context.Database.OpenConnectionAsync();
@@ -106,7 +106,7 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON indexing_items USING bm25 (id, (description::pdb.ngram(3,3,'positions=true')), ((metadata ->> 'color')::pdb.literal('alias=metadata_color')), (rating::pdb.alias('my_rating_alias')), ((rating + 1)::pdb.alias('escape'' me'))) WITH (key_field = 'id', search_tokenizer = 'simple(lowercase=false)') WHERE rating > 0;
+            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, (description::pdb.ngram(3,3,'positions=true')), ((metadata ->> 'color')::pdb.literal('alias=metadata_color')), (rating::pdb.alias('my_rating_alias')), ((rating + 1)::pdb.alias('escape'' me'))) WITH (key_field = 'id', search_tokenizer = 'simple(lowercase=false)') WHERE rating > 0;
 
             """
         );
@@ -127,7 +127,7 @@ public sealed class IndexingTest : TestBase
                 entity.Property(e => e.Rating).HasColumnName("rating");
 
                 entity
-                    .HasBm25Index("indexing_items_idx", e => e.Id)
+                    .HasParadeDbIndex("indexing_items_idx", e => e.Id)
                     .IsCreatedConcurrently()
                     .HasField(e => e.Description)
                     .HasField(e => e.Metadata);
@@ -136,7 +136,7 @@ public sealed class IndexingTest : TestBase
     }
 
     [Test]
-    public async Task SimpleBm25Index()
+    public async Task SimpleParadeDbIndex()
     {
         await using var context = DbFixture.CreateContext();
         await context.Database.OpenConnectionAsync();
@@ -155,7 +155,7 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX CONCURRENTLY indexing_items_idx ON indexing_items USING bm25 (id, description, metadata) WITH (key_field = 'id');
+            CREATE INDEX CONCURRENTLY indexing_items_idx ON indexing_items USING paradedb (id, description, metadata) WITH (key_field = 'id');
 
             """
         );
@@ -178,7 +178,7 @@ public sealed class IndexingTest : TestBase
                 entity.Property(e => e.Tags).HasColumnName("tags");
 
                 entity
-                    .HasBm25Index("indexing_items_idx", e => e.Id)
+                    .HasParadeDbIndex("indexing_items_idx", e => e.Id)
                     .HasField(e => e.Categories)
                     .HasField(e => e.Tags, Tokenizer.Literal())
                     .HasField(
@@ -195,7 +195,7 @@ public sealed class IndexingTest : TestBase
     }
 
     [Test]
-    public async Task Bm25Index_WithArrayExpressionAndMultipleTokenizers()
+    public async Task ParadeDbIndex_WithArrayExpressionAndMultipleTokenizers()
     {
         await using var context = DbFixture.CreateContext();
         await context.Database.OpenConnectionAsync();
@@ -215,7 +215,7 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON indexing_items USING bm25 (id, categories, (tags::pdb.literal), ((description || ' ' || category)::pdb.simple('alias=description_concat')), (description::pdb.literal), (description::pdb.simple('alias=description_simple'))) WITH (key_field = 'id');
+            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, categories, (tags::pdb.literal), ((description || ' ' || category)::pdb.simple('alias=description_concat')), (description::pdb.literal), (description::pdb.simple('alias=description_simple'))) WITH (key_field = 'id');
 
             """
         );
@@ -279,7 +279,7 @@ public sealed class IndexingTest : TestBase
                 entity.Property(e => e.Description).HasColumnName("description");
 
                 entity
-                    .HasBm25Index("indexing_items_idx", e => e.Id)
+                    .HasParadeDbIndex("indexing_items_idx", e => e.Id)
                     .HasField(e => e.Description)
                     .HasSearchTokenizer(Tokenizer);
             });
@@ -298,7 +298,7 @@ public sealed class IndexingTest : TestBase
 
     [Test]
     [MethodDataSource(nameof(SearchTokenizerVariations))]
-    public async Task Bm25Index_SearchTokenizerRendersTokenizer(
+    public async Task ParadeDbIndex_SearchTokenizerRendersTokenizer(
         Tokenizer tokenizer,
         string expectedSearchTokenizer
     )
@@ -317,7 +317,7 @@ public sealed class IndexingTest : TestBase
         var sql = GenerateSearchTokenizerCreateIndexSql(tokenizer);
 
         sql.ShouldBe(
-            $"CREATE INDEX indexing_items_idx ON indexing_items USING bm25 (id, description) WITH (key_field = 'id', search_tokenizer = '{expectedSearchTokenizer}');\n"
+            $"CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description) WITH (key_field = 'id', search_tokenizer = '{expectedSearchTokenizer}');\n"
         );
         await context.Database.ExecuteSqlRawAsync(sql);
     }

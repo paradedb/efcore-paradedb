@@ -14,7 +14,7 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
     public async Task InitializeAsync()
     {
         _container = new PostgreSqlBuilder("postgres:18")
-            .WithImage("paradedb/paradedb:latest")
+            .WithImage("paradedb/paradedb:0.25.0-pg18")
             .WithDatabase("pg_search_test")
             .WithUsername("test")
             .WithPassword("Pass!w0rd1")
@@ -28,6 +28,7 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
             .Options;
 
         await using var context = new TestDbContext(_options);
+        await context.Database.ExecuteSqlRawAsync("CREATE EXTENSION IF NOT EXISTS vector");
         await context.Database.ExecuteSqlRawAsync(
             """
             DO $$
@@ -45,7 +46,7 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
         await context.Database.ExecuteSqlRawAsync(
             """
             CREATE INDEX IF NOT EXISTS search_idx ON mock_items
-            USING bm25 (
+            USING paradedb (
               id,
               description,
               (description::pdb.simple('alias=description_simple')),
@@ -54,7 +55,8 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
               in_stock,
               created_at,
               metadata,
-              weight_range
+              weight_range,
+              embedding vector_cosine_ops
             )
             WITH (key_field='id');
             """
