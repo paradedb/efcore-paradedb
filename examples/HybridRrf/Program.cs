@@ -1,19 +1,10 @@
 using HybridRrf.Data;
 using Microsoft.EntityFrameworkCore;
 using ParadeDB.EntityFrameworkCore.Extensions;
-using Pgvector;
-using Pgvector.EntityFrameworkCore;
 using Shared;
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
-    .UseNpgsql(
-        ExampleSetup.ConnectionString,
-        o =>
-        {
-            o.UseParadeDb();
-            o.UseVector();
-        }
-    )
+    .UseNpgsql(ExampleSetup.ConnectionString, o => o.UseParadeDb())
     .UseSnakeCaseNamingConvention()
     .Options;
 
@@ -52,7 +43,7 @@ static async Task Demo(AppDbContext db, string query, string seedDescription)
 static async Task<List<(string Description, double RrfScore)>> HybridSearch(
     AppDbContext db,
     string query,
-    Vector queryEmbedding,
+    float[] queryEmbedding,
     int topK = 20,
     int rrfK = 60,
     int limit = 5
@@ -71,12 +62,12 @@ static async Task<List<(string Description, double RrfScore)>> HybridSearch(
         .ToListAsync();
 
     var semantic = await db
-        .MockItems.Where(x => x.Embedding != null)
+        .MockItems.Where(x => EF.Functions.All(x.Id))
         .Select(x => new
         {
             x.Id,
             x.Description,
-            Distance = x.Embedding!.CosineDistance(queryEmbedding),
+            Distance = EF.Functions.CosineDistance(x.Embedding, queryEmbedding),
         })
         .OrderBy(x => x.Distance)
         .Take(topK)

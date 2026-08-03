@@ -3,10 +3,15 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using ParadeDB.EntityFrameworkCore.Internal.Metadata;
 using ParadeDB.EntityFrameworkCore.Internal.Migrations;
 using ParadeDB.EntityFrameworkCore.Internal.Query;
+using ParadeDB.EntityFrameworkCore.Internal.Storage;
+#if !NET8_0
+using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
+#endif
 
 namespace ParadeDB.EntityFrameworkCore.Internal;
 
@@ -23,6 +28,16 @@ internal sealed class ParadeDbOptionsExtension : IDbContextOptionsExtension
         services.AddScoped<IMigrationsSqlGenerator, ParadeDbMigrationsSqlGenerator>();
         services.AddSingleton<IRelationalAnnotationProvider, ParadeDbAnnotationProvider>();
         services.AddScoped<IMethodCallTranslatorPlugin, ParadeDbMethodCallTranslatorPlugin>();
+        services.AddSingleton<
+            IRelationalTypeMappingSourcePlugin,
+            ParadeDbTypeMappingSourcePlugin
+        >();
+#if !NET8_0
+        new EntityFrameworkNpgsqlServicesBuilder(services).TryAdd<
+            INpgsqlDataSourceConfigurationPlugin,
+            ParadeDbDataSourceConfigurationPlugin
+        >();
+#endif
         services.AddScoped<IMemberTranslatorPlugin, ParadeDbMemberTranslatorPlugin>();
         services.AddSingleton<IConventionSetPlugin, ParadeDbConventionSetPlugin>();
         services.AddSingleton<

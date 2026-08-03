@@ -11,6 +11,15 @@ scoring, and highlighting.
 dotnet run --project examples/Examples.csproj -p:Example=Quickstart
 ```
 
+## Vector Search (`examples/VectorSearch`)
+
+Runs Top-K nearest-neighbor queries over a pgvector column with ParadeDB
+vector support, backed by a paradedb index.
+
+```bash
+dotnet run --project examples/Examples.csproj -p:Example=VectorSearch
+```
+
 ## Faceted Search (`examples/FacetedSearch`)
 
 Builds an e-commerce-style filtering sidebar with facet counts alongside

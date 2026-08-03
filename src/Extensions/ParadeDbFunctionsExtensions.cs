@@ -197,6 +197,27 @@ public static class ParadeDbFunctionsExtensions
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(RangeTerm)));
 
     [DbFunction]
+    public static double L2Distance<TProperty>(
+        this DbFunctions _,
+        TProperty property,
+        float[] queryVector
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(L2Distance)));
+
+    [DbFunction]
+    public static double CosineDistance<TProperty>(
+        this DbFunctions _,
+        TProperty property,
+        float[] queryVector
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(CosineDistance)));
+
+    [DbFunction]
+    public static double InnerProduct<TProperty>(
+        this DbFunctions _,
+        TProperty property,
+        float[] queryVector
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(InnerProduct)));
+
+    [DbFunction]
     public static bool PhrasePrefix<TProperty>(
         this DbFunctions _,
         TProperty property,

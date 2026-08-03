@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+### Added
+
+- Native vector search support: `vector(n)` column mapping for `float[]`
+  properties (`HasVectorType`), vector fields with metric operator classes in
+  ParadeDB indexes (`HasField(..., VectorMetric)`), and the `L2Distance`,
+  `CosineDistance`, and `InnerProduct` distance functions.
+
 ### Changed
 
 - **Breaking**: `HasBm25Index` and `Bm25IndexBuilder<TEntity>` are renamed to

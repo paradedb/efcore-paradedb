@@ -36,20 +36,22 @@
 
 ## ParadeDB for Entity Framework Core
 
-The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/) integration for [ParadeDB](https://paradedb.com) (powered by the [`pg_search`](https://github.com/paradedb/paradedb) Postgres extension), including first-class support for managing ParadeDB indexes and running queries using the full ParadeDB API. Follow the [getting started guide](https://docs.paradedb.com/documentation/getting-started/environment#entity-framework-core) to begin.
+The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/) integration for [ParadeDB](https://paradedb.com) (powered by the [`pg_search`](https://github.com/paradedb/paradedb) Postgres extension), including first-class support for managing ParadeDB indexes and running queries using the full ParadeDB API. The integration covers both full-text search and [vector search](https://docs.paradedb.com/documentation/vector/overview) over pgvector `vector` types. Follow the [getting started guide](https://docs.paradedb.com/documentation/getting-started/environment#entity-framework-core) to begin.
 
 ## Requirements & Compatibility
 
-| Component  | Supported                     |
-| ---------- | ----------------------------- |
-| .NET       | 8.0+                          |
-| EF Core    | 8.0+                          |
-| ParadeDB   | 0.25.0+                       |
-| PostgreSQL | 15+ (with ParadeDB extension) |
+| Component  | Supported                                                         |
+| ---------- | ----------------------------------------------------------------- |
+| .NET       | 8.0+                                                              |
+| EF Core    | 8.0+                                                              |
+| ParadeDB   | 0.25.0+                                                           |
+| PostgreSQL | 15+ (with ParadeDB extension)                                     |
+| pgvector   | Required for vector search; included in the ParadeDB Docker image |
 
 ## Examples
 
 - [Quickstart](examples/Quickstart/Program.cs)
+- [Vector Search](examples/VectorSearch/Program.cs)
 - [Faceted Search](examples/FacetedSearch/Program.cs)
 - [Autocomplete](examples/Autocomplete/Program.cs)
 - [More Like This](examples/MoreLikeThis/Program.cs)

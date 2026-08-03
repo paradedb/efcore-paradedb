@@ -322,6 +322,67 @@ public sealed class IndexingTest : TestBase
         await context.Database.ExecuteSqlRawAsync(sql);
     }
 
+    private sealed class VectorIndexContext(DbContextOptions<VectorIndexContext> options)
+        : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<IndexingItem>(entity =>
+            {
+                entity.ToTable("indexing_items");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Description).HasColumnName("description");
+                entity
+                    .Property(e => e.EmbeddingL2)
+                    .HasColumnName("embedding_l2")
+                    .HasColumnType("vector(3)");
+                entity
+                    .Property(e => e.EmbeddingCosine)
+                    .HasColumnName("embedding_cosine")
+                    .HasColumnType("vector(3)");
+                entity
+                    .Property(e => e.EmbeddingIp)
+                    .HasColumnName("embedding_ip")
+                    .HasColumnType("vector(3)");
+
+                entity
+                    .HasParadeDbIndex("indexing_items_idx", e => e.Id)
+                    .HasField(e => e.Description)
+                    .HasField(e => e.EmbeddingL2, VectorMetric.L2)
+                    .HasField(e => e.EmbeddingCosine, VectorMetric.Cosine)
+                    .HasField("embedding_ip", VectorMetric.InnerProduct);
+            });
+        }
+    }
+
+    [Test]
+    public async Task ParadeDbIndex_WithVectorFields()
+    {
+        await using var context = DbFixture.CreateContext();
+        await context.Database.OpenConnectionAsync();
+        await context.Database.ExecuteSqlRawAsync(
+            """
+            CREATE TEMP TABLE indexing_items (
+                id int PRIMARY KEY,
+                description text,
+                embedding_l2 vector(3),
+                embedding_cosine vector(3),
+                embedding_ip vector(3)
+            );
+            """
+        );
+
+        var sql = GenerateCreateIndexSql<VectorIndexContext, IndexingItem>();
+
+        sql.ShouldBe(
+            """
+            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description, embedding_l2 vector_l2_ops, embedding_cosine vector_cosine_ops, (embedding_ip) vector_ip_ops) WITH (key_field = 'id');
+
+            """
+        );
+        await context.Database.ExecuteSqlRawAsync(sql);
+    }
+
     private static string GenerateCreateIndexSql<TContext, TEntity>()
         where TContext : DbContext
     {
@@ -380,5 +441,8 @@ public sealed class IndexingTest : TestBase
         public string[] Tags { get; set; } = [];
         public JsonDocument? Metadata { get; set; }
         public int Rating { get; set; }
+        public float[]? EmbeddingL2 { get; set; }
+        public float[]? EmbeddingCosine { get; set; }
+        public float[]? EmbeddingIp { get; set; }
     }
 }

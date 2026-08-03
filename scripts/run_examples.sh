@@ -9,6 +9,7 @@ set -euo pipefail
 
 examples=(
   Quickstart
+  VectorSearch
   FacetedSearch
   Autocomplete
   MoreLikeThis

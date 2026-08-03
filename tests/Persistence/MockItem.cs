@@ -15,4 +15,5 @@ public sealed class MockItem
     public DateOnly LastUpdatedDate { get; set; }
     public TimeOnly LatestAvailableTime { get; set; }
     public NpgsqlRange<int>? WeightRange { get; set; }
+    public float[]? Embedding { get; set; }
 }
