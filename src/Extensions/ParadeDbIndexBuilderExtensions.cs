@@ -7,7 +7,7 @@ namespace ParadeDB.EntityFrameworkCore.Extensions;
 
 public static class ParadeDbIndexBuilderExtensions
 {
-    public static Bm25IndexBuilder<TEntity> HasBm25Index<TEntity>(
+    public static ParadeDbIndexBuilder<TEntity> HasParadeDbIndex<TEntity>(
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         string name,
         Expression<Func<TEntity, object?>> keyExpression
@@ -17,18 +17,18 @@ public static class ParadeDbIndexBuilderExtensions
         var keyProperty = GetPropertyName(keyExpression);
         var indexBuilder = entityTypeBuilder.HasIndex(keyExpression).HasDatabaseName(name);
 
-        indexBuilder.HasAnnotation(ParadeDbAnnotationNames.Bm25KeyProperty, keyProperty);
+        indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexKeyProperty, keyProperty);
         indexBuilder.HasAnnotation(
-            ParadeDbAnnotationNames.Bm25FieldProperties,
+            ParadeDbAnnotationNames.IndexFieldProperties,
             new[] { keyProperty }
         );
-        // BM25FieldKinds is used to track if each index field is an EF Core property or a SQL expression
+        // IndexFieldKinds is used to track if each index field is an EF Core property or a SQL expression
         // so that it can be rendered appropriately
-        indexBuilder.HasAnnotation(ParadeDbAnnotationNames.Bm25FieldKinds, new[] { "property" });
-        indexBuilder.HasAnnotation(ParadeDbAnnotationNames.Bm25FieldTokenizers, new[] { "" });
-        indexBuilder.HasAnnotation(ParadeDbAnnotationNames.Bm25FieldAliases, new[] { "" });
+        indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexFieldKinds, new[] { "property" });
+        indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexFieldTokenizers, new[] { "" });
+        indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexFieldAliases, new[] { "" });
 
-        return new Bm25IndexBuilder<TEntity>(indexBuilder);
+        return new ParadeDbIndexBuilder<TEntity>(indexBuilder);
     }
 
     internal static string GetPropertyName<TEntity, TProperty>(
@@ -41,7 +41,9 @@ public static class ParadeDbIndexBuilderExtensions
 
         return body is MemberExpression member
             ? member.Member.Name
-            : throw new ArgumentException("The BM25 key expression must be a property access.");
+            : throw new ArgumentException(
+                "The ParadeDB index key expression must be a property access."
+            );
     }
 }
 
@@ -49,17 +51,17 @@ public record FieldAlias(string Name);
 
 // We use a custom index builder class instead of IndexBuilder directly to make it clear that not all
 // normal index creation operations are supported here (e.g. `IsUnique`)
-public sealed class Bm25IndexBuilder<TEntity>
+public sealed class ParadeDbIndexBuilder<TEntity>
     where TEntity : class
 {
     private readonly IndexBuilder<TEntity> _indexBuilder;
 
-    internal Bm25IndexBuilder(IndexBuilder<TEntity> indexBuilder)
+    internal ParadeDbIndexBuilder(IndexBuilder<TEntity> indexBuilder)
     {
         _indexBuilder = indexBuilder;
     }
 
-    public Bm25IndexBuilder<TEntity> HasField<TProperty>(
+    public ParadeDbIndexBuilder<TEntity> HasField<TProperty>(
         Expression<Func<TEntity, TProperty>> propertyExpression
     )
     {
@@ -73,7 +75,7 @@ public sealed class Bm25IndexBuilder<TEntity>
         return this;
     }
 
-    public Bm25IndexBuilder<TEntity> HasField<TProperty>(
+    public ParadeDbIndexBuilder<TEntity> HasField<TProperty>(
         Expression<Func<TEntity, TProperty>> propertyExpression,
         Tokenizer tokenizer
     )
@@ -88,14 +90,14 @@ public sealed class Bm25IndexBuilder<TEntity>
         return this;
     }
 
-    public Bm25IndexBuilder<TEntity> HasField(string sql, Tokenizer tokenizer)
+    public ParadeDbIndexBuilder<TEntity> HasField(string sql, Tokenizer tokenizer)
     {
         AddField(sql, "sql", tokenizer, null);
 
         return this;
     }
 
-    public Bm25IndexBuilder<TEntity> HasField<TProperty>(
+    public ParadeDbIndexBuilder<TEntity> HasField<TProperty>(
         Expression<Func<TEntity, TProperty>> propertyExpression,
         FieldAlias alias
     )
@@ -110,31 +112,31 @@ public sealed class Bm25IndexBuilder<TEntity>
         return this;
     }
 
-    public Bm25IndexBuilder<TEntity> HasField(string sql, FieldAlias alias)
+    public ParadeDbIndexBuilder<TEntity> HasField(string sql, FieldAlias alias)
     {
         AddField(sql, "sql", null, alias.Name);
 
         return this;
     }
 
-    public Bm25IndexBuilder<TEntity> HasFilter(string? sql)
+    public ParadeDbIndexBuilder<TEntity> HasFilter(string? sql)
     {
         _indexBuilder.HasFilter(sql);
 
         return this;
     }
 
-    public Bm25IndexBuilder<TEntity> IsCreatedConcurrently(bool createdConcurrently = true)
+    public ParadeDbIndexBuilder<TEntity> IsCreatedConcurrently(bool createdConcurrently = true)
     {
         _indexBuilder.IsCreatedConcurrently(createdConcurrently);
 
         return this;
     }
 
-    public Bm25IndexBuilder<TEntity> HasSearchTokenizer(Tokenizer tokenizer)
+    public ParadeDbIndexBuilder<TEntity> HasSearchTokenizer(Tokenizer tokenizer)
     {
         _indexBuilder.HasAnnotation(
-            ParadeDbAnnotationNames.Bm25SearchTokenizer,
+            ParadeDbAnnotationNames.IndexSearchTokenizer,
             tokenizer.ToSearchString()
         );
 
@@ -143,26 +145,26 @@ public sealed class Bm25IndexBuilder<TEntity>
 
     private void AddField(string field, string kind, Tokenizer? tokenizer, string? alias)
     {
-        var properties = GetAnnotation(ParadeDbAnnotationNames.Bm25FieldProperties);
-        var kinds = GetAnnotation(ParadeDbAnnotationNames.Bm25FieldKinds);
-        var tokenizers = GetAnnotation(ParadeDbAnnotationNames.Bm25FieldTokenizers);
-        var aliases = GetAnnotation(ParadeDbAnnotationNames.Bm25FieldAliases);
+        var properties = GetAnnotation(ParadeDbAnnotationNames.IndexFieldProperties);
+        var kinds = GetAnnotation(ParadeDbAnnotationNames.IndexFieldKinds);
+        var tokenizers = GetAnnotation(ParadeDbAnnotationNames.IndexFieldTokenizers);
+        var aliases = GetAnnotation(ParadeDbAnnotationNames.IndexFieldAliases);
 
         _indexBuilder.HasAnnotation(
-            ParadeDbAnnotationNames.Bm25FieldProperties,
+            ParadeDbAnnotationNames.IndexFieldProperties,
             properties.Append(field).ToArray()
         );
         _indexBuilder.HasAnnotation(
-            ParadeDbAnnotationNames.Bm25FieldKinds,
+            ParadeDbAnnotationNames.IndexFieldKinds,
             kinds.Append(kind).ToArray()
         );
         _indexBuilder.HasAnnotation(
-            ParadeDbAnnotationNames.Bm25FieldTokenizers,
+            ParadeDbAnnotationNames.IndexFieldTokenizers,
             tokenizers.Append(tokenizer?.ToString() ?? "").ToArray()
         );
 
         _indexBuilder.HasAnnotation(
-            ParadeDbAnnotationNames.Bm25FieldAliases,
+            ParadeDbAnnotationNames.IndexFieldAliases,
             aliases.Append(alias is null ? "" : alias.Replace("'", "''")).ToArray()
         );
     }

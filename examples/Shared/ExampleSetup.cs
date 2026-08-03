@@ -41,20 +41,22 @@ public static class ExampleSetup
 
     public static async Task SetupMockItemsAsync(DbContext db)
     {
+        await db.Database.ExecuteSqlRawAsync("CREATE EXTENSION IF NOT EXISTS vector");
         await db.Database.ExecuteSqlRawAsync("CREATE EXTENSION IF NOT EXISTS pg_search");
         await db.Database.ExecuteSqlRawAsync(
             "CALL paradedb.create_bm25_test_table(schema_name => 'public', table_name => 'mock_items')"
         );
-        await db.Database.ExecuteSqlRawAsync("DROP INDEX IF EXISTS mock_items_bm25_idx");
+        await db.Database.ExecuteSqlRawAsync("DROP INDEX IF EXISTS search_idx");
         await db.Database.ExecuteSqlRawAsync(
             """
-            CREATE INDEX mock_items_bm25_idx ON mock_items
-            USING bm25 (
+            CREATE INDEX search_idx ON mock_items
+            USING paradedb (
                 id,
                 description,
                 rating,
                 (category::pdb.literal('alias=category')),
-                metadata
+                metadata,
+                embedding vector_cosine_ops
             )
             WITH (key_field='id', json_fields='{{"metadata":{{"fast":true}}}}');
             """
@@ -87,32 +89,13 @@ public static class ExampleSetup
         await db.Database.ExecuteSqlRawAsync(
             """
             CREATE INDEX autocomplete_items_idx ON autocomplete_items
-            USING bm25 (
+            USING paradedb (
                 id,
                 (description::pdb.unicode_words),
                 (description::pdb.ngram(3,8,'alias=description_ngram')),
                 (category::pdb.literal('alias=category'))
             )
             WITH (key_field='id');
-            """
-        );
-    }
-
-    public static async Task SetupHybridAsync(DbContext db)
-    {
-        await SetupMockItemsAsync(db);
-        await db.Database.ExecuteSqlRawAsync("CREATE EXTENSION IF NOT EXISTS vector");
-        await db.Database.ExecuteSqlRawAsync(
-            """
-            DO $$
-            BEGIN
-                IF NOT EXISTS (
-                    SELECT 1 FROM information_schema.columns
-                    WHERE table_name = 'mock_items' AND column_name = 'embedding'
-                ) THEN
-                    ALTER TABLE mock_items ADD COLUMN embedding vector(384);
-                END IF;
-            END $$;
             """
         );
     }

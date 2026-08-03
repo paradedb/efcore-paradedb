@@ -93,7 +93,7 @@ namespace HybridRrf.Data
             modelBuilder
                 .Entity<MockItemWithEmbedding>()
                 .Property(x => x.Embedding)
-                .HasColumnType("vector(384)");
+                .HasColumnType("vector(8)");
         }
     }
 }

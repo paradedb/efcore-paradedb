@@ -2,12 +2,12 @@ namespace ParadeDB.EntityFrameworkCore.Internal.Metadata;
 
 internal static class ParadeDbAnnotationNames
 {
-    public const string Bm25KeyProperty = "ParadeDB:Bm25KeyProperty";
-    public const string Bm25FieldProperties = "ParadeDB:Bm25FieldProperties";
-    public const string Bm25FieldKinds = "ParadeDB:Bm25FieldKinds";
-    public const string Bm25FieldTokenizers = "ParadeDB:Bm25FieldTokenizers";
-    public const string Bm25FieldAliases = "ParadeDB:Bm25FieldAliases";
-    public const string Bm25SearchTokenizer = "ParadeDB:Bm25SearchTokenizer";
-    public const string Bm25KeyField = "ParadeDB:Bm25KeyField";
-    public const string Bm25Fields = "ParadeDB:Bm25Fields";
+    public const string IndexKeyProperty = "ParadeDB:IndexKeyProperty";
+    public const string IndexFieldProperties = "ParadeDB:IndexFieldProperties";
+    public const string IndexFieldKinds = "ParadeDB:IndexFieldKinds";
+    public const string IndexFieldTokenizers = "ParadeDB:IndexFieldTokenizers";
+    public const string IndexFieldAliases = "ParadeDB:IndexFieldAliases";
+    public const string IndexSearchTokenizer = "ParadeDB:IndexSearchTokenizer";
+    public const string IndexKeyField = "ParadeDB:IndexKeyField";
+    public const string IndexFields = "ParadeDB:IndexFields";
 }
