@@ -413,6 +413,79 @@ public sealed class IndexingTest : TestBase
         await context.Database.ExecuteSqlRawAsync(sql);
     }
 
+    private sealed class VectorIndexOptionsContext(
+        DbContextOptions<VectorIndexOptionsContext> options
+    ) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<IndexingItem>(entity =>
+            {
+                entity.ToTable("indexing_items");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Description).HasColumnName("description");
+                entity
+                    .Property(e => e.EmbeddingCosine)
+                    .HasColumnName("embedding_cosine")
+                    .HasColumnType("vector(3)");
+
+                entity
+                    .HasParadeDbIndex("indexing_items_idx", e => e.Id)
+                    .HasField(e => e.Description)
+                    .HasField(e => e.EmbeddingCosine, VectorMetric.Cosine)
+                    .HasCentroidRatio(0.05)
+                    .HasTrainingSamplesPerCentroid(64)
+                    .HasClusterReplication(2);
+            });
+        }
+    }
+
+    [Test]
+    public void ParadeDbIndex_WithVectorIndexOptions()
+    {
+        var sql = GenerateCreateIndexSql<VectorIndexOptionsContext, IndexingItem>();
+
+        sql.ShouldBe(
+            """
+            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description, embedding_cosine vector_cosine_ops) WITH (key_field = 'id', centroid_ratio = 0.05, training_samples_per_centroid = 64, cluster_replication = 2);
+
+            """
+        );
+    }
+
+    private sealed class CentroidRatioIndexContext(
+        DbContextOptions<CentroidRatioIndexContext> options
+    ) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<IndexingItem>(entity =>
+            {
+                entity.ToTable("indexing_items");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Description).HasColumnName("description");
+
+                entity
+                    .HasParadeDbIndex("indexing_items_idx", e => e.Id)
+                    .HasField(e => e.Description)
+                    .HasCentroidRatio(0.5);
+            });
+        }
+    }
+
+    [Test]
+    public void ParadeDbIndex_WithSingleVectorIndexOption()
+    {
+        var sql = GenerateCreateIndexSql<CentroidRatioIndexContext, IndexingItem>();
+
+        sql.ShouldBe(
+            """
+            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description) WITH (key_field = 'id', centroid_ratio = 0.5);
+
+            """
+        );
+    }
+
     private static string GenerateCreateIndexSql<TContext, TEntity>()
         where TContext : DbContext
     {

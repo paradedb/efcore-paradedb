@@ -11,4 +11,8 @@ internal static class ParadeDbAnnotationNames
     public const string IndexSearchTokenizer = "ParadeDB:IndexSearchTokenizer";
     public const string IndexKeyField = "ParadeDB:IndexKeyField";
     public const string IndexFields = "ParadeDB:IndexFields";
+    public const string IndexCentroidRatio = "ParadeDB:IndexCentroidRatio";
+    public const string IndexTrainingSamplesPerCentroid =
+        "ParadeDB:IndexTrainingSamplesPerCentroid";
+    public const string IndexClusterReplication = "ParadeDB:IndexClusterReplication";
 }
