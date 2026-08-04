@@ -172,7 +172,9 @@ public sealed class IndexingTest : TestBase
                 entity.ToTable("Items");
                 entity
                     .HasParadeDbIndex("indexing_items_idx", e => e.Id)
-                    .HasField(e => e.Description);
+                    .HasField(e => e.Description, Tokenizer.Literal())
+                    .HasField(e => e.Rating, new FieldAlias("rating_alias"))
+                    .HasField(e => e.EmbeddingL2, VectorMetric.L2);
             });
         }
     }
@@ -184,7 +186,7 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON "Items" USING paradedb ("Id", "Description") WITH (key_field = 'Id');
+            CREATE INDEX indexing_items_idx ON "Items" USING paradedb ("Id", ("Description"::pdb.literal), ("Rating"::pdb.alias('rating_alias')), "EmbeddingL2" vector_l2_ops) WITH (key_field = 'Id');
 
             """
         );
