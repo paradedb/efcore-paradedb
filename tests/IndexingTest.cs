@@ -162,6 +162,34 @@ public sealed class IndexingTest : TestBase
         await context.Database.ExecuteSqlRawAsync(sql);
     }
 
+    private sealed class PascalCaseIndexContext(DbContextOptions<PascalCaseIndexContext> options)
+        : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<IndexingItem>(entity =>
+            {
+                entity.ToTable("Items");
+                entity
+                    .HasParadeDbIndex("indexing_items_idx", e => e.Id)
+                    .HasField(e => e.Description);
+            });
+        }
+    }
+
+    [Test]
+    public void ParadeDbIndex_QuotesPascalCaseColumnNames()
+    {
+        var sql = GenerateCreateIndexSql<PascalCaseIndexContext, IndexingItem>();
+
+        sql.ShouldBe(
+            """
+            CREATE INDEX indexing_items_idx ON "Items" USING paradedb ("Id", "Description") WITH (key_field = 'Id');
+
+            """
+        );
+    }
+
     private sealed class ArrayExpressionIndexContext(
         DbContextOptions<ArrayExpressionIndexContext> options
     ) : DbContext(options)
