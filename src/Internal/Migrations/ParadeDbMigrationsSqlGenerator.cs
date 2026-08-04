@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -57,6 +58,36 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
             builder
                 .Append(", search_tokenizer = ")
                 .Append(stringMapping.GenerateSqlLiteral(searchTokenizer));
+        }
+
+        if (
+            operation.FindAnnotation(ParadeDbAnnotationNames.IndexCentroidRatio)?.Value
+            is double centroidRatio
+        )
+        {
+            builder
+                .Append(", centroid_ratio = ")
+                .Append(centroidRatio.ToString(CultureInfo.InvariantCulture));
+        }
+
+        if (
+            operation.FindAnnotation(ParadeDbAnnotationNames.IndexTrainingSamplesPerCentroid)?.Value
+            is int trainingSamplesPerCentroid
+        )
+        {
+            builder
+                .Append(", training_samples_per_centroid = ")
+                .Append(trainingSamplesPerCentroid.ToString(CultureInfo.InvariantCulture));
+        }
+
+        if (
+            operation.FindAnnotation(ParadeDbAnnotationNames.IndexClusterReplication)?.Value
+            is int clusterReplication
+        )
+        {
+            builder
+                .Append(", cluster_replication = ")
+                .Append(clusterReplication.ToString(CultureInfo.InvariantCulture));
         }
 
         builder.Append(")");

@@ -97,6 +97,20 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
                 searchTokenizer
             );
         }
+
+        string[] vectorOptionNames =
+        [
+            ParadeDbAnnotationNames.IndexCentroidRatio,
+            ParadeDbAnnotationNames.IndexTrainingSamplesPerCentroid,
+            ParadeDbAnnotationNames.IndexClusterReplication,
+        ];
+        foreach (var name in vectorOptionNames)
+        {
+            if (mappedIndex.FindAnnotation(name)?.Value is { } value)
+            {
+                yield return new Annotation(name, value);
+            }
+        }
     }
 
     private string RenderField(

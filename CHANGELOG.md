@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+### Added
+
+- Vector index build options on ParadeDB indexes: `HasCentroidRatio`,
+  `HasTrainingSamplesPerCentroid`, and `HasClusterReplication` emit the
+  `centroid_ratio`, `training_samples_per_centroid`, and `cluster_replication`
+  `WITH` options in index DDL.
+
 ## [0.2.0] - 2026-08-04
 
 ### Added

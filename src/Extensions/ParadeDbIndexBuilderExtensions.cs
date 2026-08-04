@@ -167,6 +167,35 @@ public sealed class ParadeDbIndexBuilder<TEntity>
         return this;
     }
 
+    public ParadeDbIndexBuilder<TEntity> HasCentroidRatio(double centroidRatio)
+    {
+        _indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexCentroidRatio, centroidRatio);
+
+        return this;
+    }
+
+    public ParadeDbIndexBuilder<TEntity> HasTrainingSamplesPerCentroid(
+        int trainingSamplesPerCentroid
+    )
+    {
+        _indexBuilder.HasAnnotation(
+            ParadeDbAnnotationNames.IndexTrainingSamplesPerCentroid,
+            trainingSamplesPerCentroid
+        );
+
+        return this;
+    }
+
+    public ParadeDbIndexBuilder<TEntity> HasClusterReplication(int clusterReplication)
+    {
+        _indexBuilder.HasAnnotation(
+            ParadeDbAnnotationNames.IndexClusterReplication,
+            clusterReplication
+        );
+
+        return this;
+    }
+
     private void AddField(
         string field,
         string kind,
