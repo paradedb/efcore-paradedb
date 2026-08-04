@@ -1,14 +1,23 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.Internal;
 
 namespace ParadeDB.EntityFrameworkCore.Internal.Metadata;
 
 internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
 {
-    public ParadeDbAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
-        : base(dependencies) { }
+    private readonly ISqlGenerationHelper _sqlGenerationHelper;
+
+    public ParadeDbAnnotationProvider(
+        RelationalAnnotationProviderDependencies dependencies,
+        ISqlGenerationHelper sqlGenerationHelper
+    )
+        : base(dependencies)
+    {
+        _sqlGenerationHelper = sqlGenerationHelper;
+    }
 
     public override IEnumerable<IAnnotation> For(ITableIndex index, bool designTime)
     {
@@ -90,7 +99,7 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
         }
     }
 
-    private static string RenderField(
+    private string RenderField(
         IReadOnlyEntityType entityType,
         string field,
         string kind,
@@ -102,7 +111,9 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
     {
         var sql = kind switch
         {
-            "property" => entityType.FindProperty(field)!.GetColumnName(storeObject)!,
+            "property" => _sqlGenerationHelper.DelimitIdentifier(
+                entityType.FindProperty(field)!.GetColumnName(storeObject)!
+            ),
             "sql" => field,
             _ => throw new InvalidOperationException($"Unknown field kind '{kind}'"),
         };
