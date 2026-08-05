@@ -57,7 +57,6 @@ Prefer `dotnet test` over `dotnet build` when verifying changes.
 
 Some tests require newer pg_search versions and are skipped automatically if the feature is not available.
 
-The tests provision their own database with Testcontainers. The examples instead use `scripts/run_paradedb.sh`, whose default container is `efcore-paradedb` on port `5432`. Each ParadeDB ORM integration uses its own container name, so a container from another repo is never reused by mistake. They all bind port `5432`, so stop one before starting another.
 
 ### Linting and Formatting
 
