@@ -45,6 +45,9 @@ jobs:
       - name: Verify build (no warnings)
         run: dotnet build build.slnf --configuration Release --no-restore -warnaserror
 
+      - name: Package install smoke test
+        run: bash scripts/smoke_package_install.sh
+
   build:
     name: .NET ${{ matrix.framework }}
     runs-on: ubuntu-latest
@@ -137,6 +140,3 @@ jobs:
 
       - name: Check API coverage
         run: uv run --with json5 scripts/check_api_coverage.py
-
-      - name: Package install smoke test
-        run: bash scripts/smoke_package_install.sh
