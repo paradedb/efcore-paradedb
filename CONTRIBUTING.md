@@ -57,7 +57,6 @@ Prefer `dotnet test` over `dotnet build` when verifying changes.
 
 Some tests require newer pg_search versions and are skipped automatically if the feature is not available.
 
-
 ### Linting and Formatting
 
 ```bash
