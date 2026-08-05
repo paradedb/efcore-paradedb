@@ -49,22 +49,6 @@ Builds an e-commerce-style filter sidebar. Computes search results and facet cou
 dotnet run --project examples/Examples.csproj -p:Example=FacetedSearch
 ```
 
-## Autocomplete (`Autocomplete/Program.cs`)
-
-As-you-type suggestions using n-gram tokenization, which matches substrings in the middle of words — typing `wir` matches `wireless`.
-
-```bash
-dotnet run --project examples/Examples.csproj -p:Example=Autocomplete
-```
-
-## More Like This (`MoreLikeThis/Program.cs`)
-
-"Related content" recommendations. Finds documents with similar keywords using TF-IDF logic, without requiring vector embeddings.
-
-```bash
-dotnet run --project examples/Examples.csproj -p:Example=MoreLikeThis
-```
-
 ## Hybrid Search (RRF) (`HybridRrf/Program.cs`)
 
 Combines BM25 keyword search (good for exact matches like part numbers) with vector similarity (good for meaning) using Reciprocal Rank Fusion, which ranks better than either method alone.
@@ -84,6 +68,22 @@ Requires an [OpenRouter](https://openrouter.ai/) API key:
 ```bash
 export OPENROUTER_API_KEY=sk-...
 dotnet run --project examples/Examples.csproj -p:Example=Rag
+```
+
+## Autocomplete (`Autocomplete/Program.cs`)
+
+As-you-type suggestions using n-gram tokenization, which matches substrings in the middle of words — typing `wir` matches `wireless`.
+
+```bash
+dotnet run --project examples/Examples.csproj -p:Example=Autocomplete
+```
+
+## More Like This (`MoreLikeThis/Program.cs`)
+
+"Related content" recommendations. Finds documents with similar keywords using TF-IDF logic, without requiring vector embeddings.
+
+```bash
+dotnet run --project examples/Examples.csproj -p:Example=MoreLikeThis
 ```
 
 ## Shared Helpers (`Shared/`)

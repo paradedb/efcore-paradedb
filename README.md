@@ -53,10 +53,10 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 - [Quickstart](examples/Quickstart/Program.cs)
 - [Vector Search](examples/VectorSearch/Program.cs)
 - [Faceted Search](examples/FacetedSearch/Program.cs)
-- [Autocomplete](examples/Autocomplete/Program.cs)
-- [More Like This](examples/MoreLikeThis/Program.cs)
 - [Hybrid Search (RRF)](examples/HybridRrf/Program.cs)
 - [RAG](examples/Rag/Program.cs)
+- [Autocomplete](examples/Autocomplete/Program.cs)
+- [More Like This](examples/MoreLikeThis/Program.cs)
 
 See [examples/README.md](examples/README.md) for setup instructions and a description of each example.
 
