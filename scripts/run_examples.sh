@@ -11,10 +11,10 @@ examples=(
   Quickstart
   VectorSearch
   FacetedSearch
-  Autocomplete
-  MoreLikeThis
   HybridRrf
   Rag
+  Autocomplete
+  MoreLikeThis
 )
 
 for example in "${examples[@]}"; do
