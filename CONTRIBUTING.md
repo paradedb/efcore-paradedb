@@ -41,10 +41,10 @@ uvx prek install
 
 ### Running Tests
 
-Run the tests to verify every change. Target a single .NET version for speed:
+Run the tests to verify every change. This targets a single .NET version for speed:
 
 ```bash
-dotnet test -f net10.0
+bash scripts/run_tests.sh
 ```
 
 Or run against .NET 8, 9, and 10:
