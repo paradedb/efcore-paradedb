@@ -70,15 +70,8 @@ namespace Quickstart.Data
     }
 }
 
-namespace Rag.Data
-{
-    public class AppDbContext : Shared.MockItemsDbContext<AppDbContext, Shared.MockItem>
-    {
-        public AppDbContext(DbContextOptions<AppDbContext> options)
-            : base(options) { }
-    }
-}
-
+// The Rag and VectorSearch examples reuse HybridRrf.Data.AppDbContext, since
+// they also query the embedding column.
 namespace HybridRrf.Data
 {
     public class AppDbContext : Shared.MockItemsDbContext<AppDbContext, MockItemWithEmbedding>

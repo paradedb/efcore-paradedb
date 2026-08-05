@@ -1,11 +1,11 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using HybridRrf.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using ParadeDB.EntityFrameworkCore.Extensions;
 using Rag;
-using Rag.Data;
 using Shared;
 
 var config = new ConfigurationBuilder().AddUserSecrets<ProductResult>().Build();
@@ -36,16 +36,39 @@ await ExampleSetup.SetupMockItemsAsync(dbContext);
 var count = await dbContext.MockItems.CountAsync();
 Console.WriteLine($"Loaded {count} products");
 
-await Rag(dbContext, "What running shoes do you have?", openRouterApiKey, model);
-await Rag(dbContext, "I need comfortable shoes for everyday use", openRouterApiKey, model);
-await Rag(dbContext, "Do you have any wireless audio products?", openRouterApiKey, model);
+await Rag(
+    dbContext,
+    "What running shoes do you have?",
+    "Sleek running shoes",
+    openRouterApiKey,
+    model
+);
+await Rag(
+    dbContext,
+    "I need comfortable shoes for everyday use",
+    "Comfortable slippers",
+    openRouterApiKey,
+    model
+);
+await Rag(
+    dbContext,
+    "Do you have any wireless audio products?",
+    "Innovative wireless earbuds",
+    openRouterApiKey,
+    model
+);
 
 Console.WriteLine();
 Console.WriteLine(new string('=', 60));
 Console.WriteLine("Done!");
 return;
 
-static async Task<List<ProductResult>> Retrieve(AppDbContext db, string query, int topK = 5)
+static async Task<List<ProductResult>> Retrieve(
+    AppDbContext db,
+    string query,
+    float[] queryEmbedding,
+    int topK = 5
+)
 {
     return await db
         .MockItems.Where(x => EF.Functions.Parse(x.Description, query, lenient: true))
@@ -57,9 +80,9 @@ static async Task<List<ProductResult>> Retrieve(AppDbContext db, string query, i
             Rating = x.Rating,
             InStock = x.InStock,
             Metadata = x.Metadata,
-            Score = EF.Functions.Score(x.Id),
+            Distance = EF.Functions.CosineDistance(x.Embedding, queryEmbedding),
         })
-        .OrderByDescending(x => x.Score)
+        .OrderBy(x => x.Distance)
         .Take(topK)
         .ToListAsync();
 }
@@ -150,17 +173,30 @@ static async Task<string> Generate(string query, string context, string? apiKey,
     }
 }
 
-static async Task Rag(AppDbContext db, string query, string? apiKey, string model)
+static async Task Rag(
+    AppDbContext db,
+    string query,
+    string seedDescription,
+    string? apiKey,
+    string model
+)
 {
     Console.WriteLine($"\n{new string('=', 60)}");
     Console.WriteLine($"Question: {query}");
     Console.WriteLine(new string('=', 60));
 
-    var items = await Retrieve(db, query);
+    // The mock_items table ships with a pre-populated embedding column; use the
+    // embedding of a known item as the semantic query vector
+    var queryEmbedding = await db
+        .MockItems.Where(x => x.Description == seedDescription)
+        .Select(x => x.Embedding!)
+        .FirstAsync();
+
+    var items = await Retrieve(db, query, queryEmbedding);
 
     Console.WriteLine($"\nRetrieved {items.Count} products:");
     foreach (var item in items)
-        Console.WriteLine($"  • {item.Description} (score: {item.Score:F2})");
+        Console.WriteLine($"  • {item.Description} (distance: {item.Distance:F4})");
 
     var context = FormatContext(items);
 
@@ -181,6 +217,6 @@ namespace Rag
         public int Rating { get; set; }
         public bool InStock { get; set; }
         public JsonDocument? Metadata { get; set; }
-        public float Score { get; set; }
+        public double Distance { get; set; }
     }
 }
