@@ -137,3 +137,6 @@ jobs:
 
       - name: Check API coverage
         run: uv run --with json5 scripts/check_api_coverage.py
+
+      - name: Package install smoke test
+        run: bash scripts/smoke_package_install.sh
