@@ -58,6 +58,8 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 - [Hybrid Search (RRF)](examples/HybridRrf/Program.cs)
 - [RAG](examples/Rag/Program.cs)
 
+See [examples/README.md](examples/README.md) for setup instructions and a description of each example.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, running tests, linting, and the PR workflow.
