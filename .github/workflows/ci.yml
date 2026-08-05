@@ -137,3 +137,19 @@ jobs:
 
       - name: Check API coverage
         run: uv run --with json5 scripts/check_api_coverage.py
+
+  package-smoke:
+    name: Package Install Smoke Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Package install smoke test
+        run: bash scripts/smoke_package_install.sh
