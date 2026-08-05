@@ -45,7 +45,7 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 | .NET       | 8.0+                                                               |
 | EF Core    | 8.0+                                                               |
 | ParadeDB   | 0.25.0+                                                            |
-| PostgreSQL | 15+ (with ParadeDB extension)                                      |
+| PostgreSQL | 15+ (with the ParadeDB pg_search extension)                        |
 | pgvector   | Required for vector search (included in the ParadeDB Docker image) |
 
 ## Examples
@@ -54,7 +54,7 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 - [Vector Search](examples/VectorSearch/Program.cs)
 - [Faceted Search](examples/FacetedSearch/Program.cs)
 - [Hybrid Search (RRF)](examples/HybridRrf/Program.cs)
-- [RAG](examples/Rag/Program.cs)
+- [Retrieval-Augmented Generation (RAG)](examples/Rag/Program.cs)
 - [Autocomplete](examples/Autocomplete/Program.cs)
 - [More Like This](examples/MoreLikeThis/Program.cs)
 
