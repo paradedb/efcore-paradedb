@@ -70,9 +70,6 @@ static async Task<List<ProductResult>> Retrieve(
     int topK = 5
 )
 {
-    // The @@@ predicate (Parse) narrows to keyword matches and activates the
-    // ParadeDB index scan; ordering by CosineDistance then ranks those matches
-    // semantically. One index serves both halves.
     return await db
         .MockItems.Where(x => EF.Functions.Parse(x.Description, query, lenient: true))
         .Select(x => new ProductResult
