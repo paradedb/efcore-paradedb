@@ -36,7 +36,7 @@ dotnet tool restore
 dotnet restore build.slnf
 
 # Install prek hooks
-prek install -f
+uvx prek install
 ```
 
 ### Running Tests
@@ -55,6 +55,8 @@ dotnet test
 
 Prefer `dotnet test` over `dotnet build` when verifying changes.
 
+The tests provision their own database with Testcontainers. The examples use `scripts/run_paradedb.sh`. The default container is `efcore-paradedb` on port `5432`.
+
 Some tests require newer pg_search versions and are skipped automatically if the feature is not available.
 
 ### Linting and Formatting
@@ -65,8 +67,8 @@ dotnet csharpier check .
 dotnet csharpier format .
 
 # Pre-commit hooks (markdownlint, codespell, etc.)
-prek install -f
-prek run --all-files
+uvx prek install
+uvx prek run --all-files
 ```
 
 ### API and Packaging Consistency Checks
@@ -84,7 +86,7 @@ All changes to efcore-paradedb happen through GitHub Pull Requests. Here is the 
 1. Before working on a change, please check if there is already a GitHub issue open for it.
 2. If there is not, please open an issue first. This gives the community visibility into your work and allows others to make suggestions and leave comments.
 3. Fork the efcore-paradedb repo and branch out from the `main` branch.
-4. Install [prek](https://prek.j178.dev/quickstart/#already-using-pre-commit) hooks within your fork with `prek install -f` to ensure code quality and consistency with upstream.
+4. Install [prek](https://prek.j178.dev/quickstart/#already-using-pre-commit) hooks within your fork with `uvx prek install` to ensure code quality and consistency with upstream.
 5. Make your changes. If you've added new functionality, please add tests. We will not merge a feature without appropriate tests.
 6. Open a pull request towards the `main` branch. Ensure that all tests and checks pass. Note that the efcore-paradedb repository has pull request title linting in place and follows the [Conventional Commits spec](https://www.conventionalcommits.org/).
 7. Congratulations! Our team will review your pull request.
