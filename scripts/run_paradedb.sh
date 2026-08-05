@@ -14,7 +14,7 @@ fi
 PARADEDB_VERSION="${PARADEDB_VERSION:-0.25.0}"
 PARADEDB_POSTGRES_VERSION="${PARADEDB_POSTGRES_VERSION:-18}"
 IMAGE="${PARADEDB_IMAGE:-paradedb/paradedb:${PARADEDB_VERSION}-pg${PARADEDB_POSTGRES_VERSION}}"
-CONTAINER_NAME="${PARADEDB_CONTAINER_NAME:-paradedb-integration}"
+CONTAINER_NAME="${PARADEDB_CONTAINER_NAME:-efcore-paradedb}"
 
 # Allow overriding connection details via env vars
 PORT="${PARADEDB_PORT:-5432}"
@@ -23,6 +23,7 @@ PASSWORD="${PARADEDB_PASSWORD:-postgres}"
 DB="${PARADEDB_DB:-postgres}"
 
 DATABASE_URL="${DATABASE_URL:-postgresql://${USER}:${PASSWORD}@localhost:${PORT}/${DB}}"
+export DATABASE_URL
 
 if ! command -v docker >/dev/null 2>&1; then
   echo "docker is required to run ParadeDB" >&2
