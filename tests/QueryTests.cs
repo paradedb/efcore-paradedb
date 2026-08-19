@@ -38,6 +38,30 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
+    public async Task MatchAll_InSubquery()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var matchingIds = context
+            .MockItems.Where(p => EF.Functions.MatchAll(p.Description, "shoes"))
+            .Select(p => p.Id);
+        var query = context.MockItems.Where(p => matchingIds.Contains(p.Id));
+
+        var sql = """
+            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
+            FROM mock_items AS m
+            WHERE m.id IN (
+                SELECT m0.id
+                FROM mock_items AS m0
+                WHERE m0.description &&& 'shoes'
+            )
+            """;
+
+        AssertSql(query, sql);
+        await query.ToListAsync();
+    }
+
+    [Test]
     public async Task MatchAll_WithDbFunction()
     {
         await using var context = DbFixture.CreateContext();
