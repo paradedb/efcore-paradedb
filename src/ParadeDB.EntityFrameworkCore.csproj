@@ -8,7 +8,7 @@
     <PackageId>ParadeDB.EntityFrameworkCore</PackageId>
     <Title>ParadeDB Entity Framework Core Integration</Title>
     <Description>Official ParadeDB integration for Entity Framework Core</Description>
-    <PackageTags>BM25;EntityFrameworkCore;EFCore;Faceted Search;Facets;Full Text Search;Hybrid Search;ParadeDB;Postgres;PostgreSQL;Search;Text Search</PackageTags>
+    <PackageTags>BM25;EntityFrameworkCore;EFCore;Faceted Search;Facets;Full Text Search;Hybrid Search;ParadeDB;Postgres;PostgreSQL;Search;Text Search;Vector Search</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
