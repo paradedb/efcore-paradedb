@@ -1,6 +1,6 @@
 # ParadeDB for Entity Framework Core
 
-The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/) integration for [ParadeDB](https://paradedb.com), including first-class support for managing ParadeDB indexes and running queries using the full ParadeDB API. The integration covers both full-text search and [vector search](https://docs.paradedb.com/documentation/vector/overview) over pgvector `vector` types. Follow the [getting started guide](https://docs.paradedb.com/documentation/getting-started/environment#entity-framework-core) to begin.
+The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/) integration for [ParadeDB](https://paradedb.com), including first-class support for managing ParadeDB indexes and running queries using the full ParadeDB API. The integration covers both full-text search and [vector search](https://paradedb.com/docs/documentation/vector/overview) over pgvector `vector` types. Follow the [getting started guide](https://paradedb.com/docs/documentation/getting-started/environment#entity-framework-core) to begin.
 
 ## Requirements & Compatibility
 
