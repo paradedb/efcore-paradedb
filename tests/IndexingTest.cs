@@ -11,6 +11,32 @@ namespace ParadeDB.EntityFrameworkCore.Tests;
 
 public sealed class IndexingTest : TestBase
 {
+    [Test]
+    public void ExistingMigrationRetainsExplicitKeyField()
+    {
+        using var context = new RegularIndexContext(
+            new DbContextOptionsBuilder<RegularIndexContext>()
+                .UseNpgsql("Host=localhost;Database=test", o => o.UseParadeDb())
+                .Options
+        );
+        var operation = new CreateIndexOperation
+        {
+            Name = "legacy_idx",
+            Table = "indexing_items",
+            Columns = ["id", "description"],
+        };
+        operation.AddAnnotation("ParadeDB:IndexFields", new[] { "id", "description" });
+        operation.AddAnnotation("ParadeDB:IndexKeyField", "id");
+        var sql = context
+            .GetService<IMigrationsSqlGenerator>()
+            .Generate([operation], context.Model)
+            .Single()
+            .CommandText;
+        sql.ShouldBe(
+            "CREATE INDEX legacy_idx ON indexing_items USING paradedb (id, description) WITH (key_field = 'id');\n"
+        );
+    }
+
     private sealed class RegularIndexContext(DbContextOptions<RegularIndexContext> options)
         : DbContext(options)
     {
@@ -106,7 +132,7 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, (description::pdb.ngram(3,3,'positions=true')), ((metadata ->> 'color')::pdb.literal('alias=metadata_color')), (rating::pdb.alias('my_rating_alias')), ((rating + 1)::pdb.alias('escape'' me'))) WITH (key_field = 'id', search_tokenizer = 'simple(lowercase=false)') WHERE rating > 0;
+            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, (description::pdb.ngram(3,3,'positions=true')), ((metadata ->> 'color')::pdb.literal('alias=metadata_color')), (rating::pdb.alias('my_rating_alias')), ((rating + 1)::pdb.alias('escape'' me'))) WITH (search_tokenizer = 'simple(lowercase=false)') WHERE rating > 0;
 
             """
         );
@@ -127,9 +153,9 @@ public sealed class IndexingTest : TestBase
                 entity.Property(e => e.Rating).HasColumnName("rating");
 
                 entity
-                    .HasParadeDbIndex("indexing_items_idx", e => e.Id)
+                    .HasParadeDbIndex("indexing_items_idx", e => e.Description)
                     .IsCreatedConcurrently()
-                    .HasField(e => e.Description)
+                    .HasField(e => e.Id)
                     .HasField(e => e.Metadata);
             });
         }
@@ -155,7 +181,7 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX CONCURRENTLY indexing_items_idx ON indexing_items USING paradedb (id, description, metadata) WITH (key_field = 'id');
+            CREATE INDEX CONCURRENTLY indexing_items_idx ON indexing_items USING paradedb (description, id, metadata);
 
             """
         );
@@ -186,7 +212,7 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON "Items" USING paradedb ("Id", ("Description"::pdb.literal), ("Rating"::pdb.alias('rating_alias')), "EmbeddingL2" vector_l2_ops) WITH (key_field = 'Id');
+            CREATE INDEX indexing_items_idx ON "Items" USING paradedb ("Id", ("Description"::pdb.literal), ("Rating"::pdb.alias('rating_alias')), "EmbeddingL2" vector_l2_ops);
 
             """
         );
@@ -245,7 +271,7 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, categories, (tags::pdb.literal), ((description || ' ' || category)::pdb.simple('alias=description_concat')), (description::pdb.literal), (description::pdb.simple('alias=description_simple'))) WITH (key_field = 'id');
+            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, categories, (tags::pdb.literal), ((description || ' ' || category)::pdb.simple('alias=description_concat')), (description::pdb.literal), (description::pdb.simple('alias=description_simple')));
 
             """
         );
@@ -347,7 +373,7 @@ public sealed class IndexingTest : TestBase
         var sql = GenerateSearchTokenizerCreateIndexSql(tokenizer);
 
         sql.ShouldBe(
-            $"CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description) WITH (key_field = 'id', search_tokenizer = '{expectedSearchTokenizer}');\n"
+            $"CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description) WITH (search_tokenizer = '{expectedSearchTokenizer}');\n"
         );
         await context.Database.ExecuteSqlRawAsync(sql);
     }
@@ -406,7 +432,7 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description, embedding_l2 vector_l2_ops, embedding_cosine vector_cosine_ops, (embedding_ip) vector_ip_ops) WITH (key_field = 'id');
+            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description, embedding_l2 vector_l2_ops, embedding_cosine vector_cosine_ops, (embedding_ip) vector_ip_ops);
 
             """
         );
@@ -447,7 +473,7 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description, embedding_cosine vector_cosine_ops) WITH (key_field = 'id', centroid_ratio = 0.05, training_samples_per_centroid = 64, cluster_replication = 2);
+            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description, embedding_cosine vector_cosine_ops) WITH (centroid_ratio = 0.05, training_samples_per_centroid = 64, cluster_replication = 2);
 
             """
         );
@@ -480,7 +506,7 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description) WITH (key_field = 'id', centroid_ratio = 0.5);
+            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description) WITH (centroid_ratio = 0.5);
 
             """
         );

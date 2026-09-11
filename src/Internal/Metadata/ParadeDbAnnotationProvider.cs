@@ -27,12 +27,9 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
         }
 
         var mappedIndex = index.MappedIndexes.FirstOrDefault(i =>
-            i.FindAnnotation(ParadeDbAnnotationNames.IndexKeyProperty)?.Value is string
+            i.FindAnnotation(ParadeDbAnnotationNames.IndexFieldProperties)?.Value is string[]
         );
-        if (
-            mappedIndex?.FindAnnotation(ParadeDbAnnotationNames.IndexKeyProperty)?.Value
-            is not string keyPropertyName
-        )
+        if (mappedIndex is null)
         {
             yield break;
         }
@@ -61,13 +58,6 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
         }
 
         var storeObject = StoreObjectIdentifier.Table(index.Table.Name, index.Table.Schema);
-
-        yield return new Annotation(
-            ParadeDbAnnotationNames.IndexKeyField,
-            mappedIndex
-                .DeclaringEntityType.FindProperty(keyPropertyName)!
-                .GetColumnName(storeObject)!
-        );
 
         yield return new Annotation(
             ParadeDbAnnotationNames.IndexFields,

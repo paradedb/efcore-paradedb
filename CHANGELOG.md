@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **Breaking:** New ParadeDB indexes no longer generate `key_field`; the initial property is an ordinary indexed field. Existing migration annotations retain their explicit key option. New indexes require a pg_search version with keyless index support.
+
 ## [0.3.0] - 2026-08-04
 
 ### Added
