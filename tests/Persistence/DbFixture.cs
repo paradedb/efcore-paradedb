@@ -13,17 +13,25 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
 
     public async Task InitializeAsync()
     {
-        _container = new PostgreSqlBuilder("postgres:18")
-            .WithImage("paradedb/paradedb:0.25.0-pg18")
-            .WithDatabase("pg_search_test")
-            .WithUsername("test")
-            .WithPassword("Pass!w0rd1")
-            .Build();
+        var connectionString = Environment.GetEnvironmentVariable("PARADEDB_TEST_DSN");
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            _container = new PostgreSqlBuilder("postgres:18")
+                .WithImage(
+                    Environment.GetEnvironmentVariable("PARADEDB_IMAGE")
+                        ?? "paradedb/paradedb:0.25.0-pg18"
+                )
+                .WithDatabase("pg_search_test")
+                .WithUsername("test")
+                .WithPassword("Pass!w0rd1")
+                .Build();
 
-        await _container.StartAsync();
+            await _container.StartAsync();
+            connectionString = _container.GetConnectionString();
+        }
 
         _options = new DbContextOptionsBuilder<TestDbContext>()
-            .UseNpgsql(_container.GetConnectionString(), o => o.UseParadeDb())
+            .UseNpgsql(connectionString, o => o.UseParadeDb())
             .UseSnakeCaseNamingConvention()
             .Options;
 
