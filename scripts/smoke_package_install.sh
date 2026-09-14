@@ -44,7 +44,7 @@ dotnet new console --output . >/dev/null
 
 # Restore the packed package from the local feed only; its dependencies still
 # come from nuget.org.
-cat > nuget.config <<XML
+cat >nuget.config <<XML
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <packageSources>
@@ -55,7 +55,7 @@ cat > nuget.config <<XML
 </configuration>
 XML
 
-cat > Program.cs <<'CSHARP'
+cat >Program.cs <<'CSHARP'
 using System.Reflection;
 using ParadeDB.EntityFrameworkCore.Extensions;
 
