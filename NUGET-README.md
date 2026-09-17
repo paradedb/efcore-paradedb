@@ -1,6 +1,6 @@
 # ParadeDB for Entity Framework Core
 
-The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/) integration for [ParadeDB](https://paradedb.com). The integration covers both full-text search and [vector search](https://www.paradedb.com/docs/reference/vector/overview) over pgvector `vector` types. Follow the [getting started guide](https://www.paradedb.com/docs/start/connect-your-app#ef-core) to begin.
+The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/) integration for [ParadeDB](https://paradedb.com). Follow the [getting started guide](https://www.paradedb.com/docs/start/connect-your-app#ef-core) to begin.
 
 ## Requirements & Compatibility
 
