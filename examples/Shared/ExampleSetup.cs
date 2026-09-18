@@ -44,7 +44,7 @@ public static class ExampleSetup
         await db.Database.ExecuteSqlRawAsync("CREATE EXTENSION IF NOT EXISTS vector");
         await db.Database.ExecuteSqlRawAsync("CREATE EXTENSION IF NOT EXISTS pg_search");
         await db.Database.ExecuteSqlRawAsync(
-            "CALL paradedb.create_bm25_test_table(schema_name => 'public', table_name => 'mock_items')"
+            "CALL paradedb.create_paradedb_test_table(schema_name => 'public', table_name => 'mock_items')"
         );
         await db.Database.ExecuteSqlRawAsync("DROP INDEX IF EXISTS search_idx");
         await db.Database.ExecuteSqlRawAsync(
@@ -58,7 +58,7 @@ public static class ExampleSetup
                 metadata,
                 embedding vector_cosine_ops
             )
-            WITH (key_field='id', json_fields='{{"metadata":{{"fast":true}}}}');
+            WITH (json_fields='{{"metadata":{{"fast":true}}}}');
             """
         );
     }
@@ -94,8 +94,7 @@ public static class ExampleSetup
                 (description::pdb.unicode_words),
                 (description::pdb.ngram(3,8,'alias=description_ngram')),
                 (category::pdb.literal('alias=category'))
-            )
-            WITH (key_field='id');
+            );
             """
         );
     }

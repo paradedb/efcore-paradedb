@@ -48,6 +48,10 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 | PostgreSQL | 15+ (with the ParadeDB pg_search extension)                        |
 | pgvector   | Required for vector search (included in the ParadeDB Docker image) |
 
+`HasParadeDbIndex()` treats its initial property as an ordinary indexed field and no longer generates `key_field`. New indexes require a pg_search version with keyless index support. Existing migration annotations retain their explicit key option.
+
+To test against a keyless build, set `PARADEDB_TEST_DSN` to an Npgsql connection string or `PARADEDB_IMAGE` to a compatible container image.
+
 ## Examples
 
 - [Quickstart](examples/Quickstart/Program.cs)

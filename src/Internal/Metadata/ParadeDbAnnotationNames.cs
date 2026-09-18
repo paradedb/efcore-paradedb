@@ -2,7 +2,6 @@ namespace ParadeDB.EntityFrameworkCore.Internal.Metadata;
 
 internal static class ParadeDbAnnotationNames
 {
-    public const string IndexKeyProperty = "ParadeDB:IndexKeyProperty";
     public const string IndexFieldProperties = "ParadeDB:IndexFieldProperties";
     public const string IndexFieldKinds = "ParadeDB:IndexFieldKinds";
     public const string IndexFieldTokenizers = "ParadeDB:IndexFieldTokenizers";
