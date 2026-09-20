@@ -14,7 +14,7 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 
 ## Examples
 
-Follow the [example setup guide](https://www.paradedb.com/docs/guides/setup), then select the EF Core tab in a guide:
+Complete the [Start tutorial](https://www.paradedb.com/docs/start/connect-your-app), then select the EF Core tab in a guide:
 
 - [Quickstart](https://www.paradedb.com/docs/start/connect-your-app)
 - [Vector Search](https://www.paradedb.com/docs/guides/vector-search)
