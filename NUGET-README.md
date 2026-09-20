@@ -19,10 +19,10 @@ Complete the [Start tutorial](https://www.paradedb.com/docs/start/connect-your-a
 - [Quickstart](https://www.paradedb.com/docs/start/connect-your-app)
 - [Vector Search](https://www.paradedb.com/docs/guides/vector-search)
 - [Faceted Search](https://www.paradedb.com/docs/guides/faceted-search)
-- [Autocomplete](https://www.paradedb.com/docs/guides/search-as-you-type)
+- [Autocomplete](https://www.paradedb.com/docs/guides/autocomplete)
 - [More Like This](https://www.paradedb.com/docs/guides/more-like-this)
 - [Hybrid Search (RRF)](https://www.paradedb.com/docs/guides/hybrid-search)
-- [RAG](https://www.paradedb.com/docs/guides/rag-and-agents)
+- [RAG](https://www.paradedb.com/docs/guides/rag)
 
 ## Contributing
 
