@@ -50,15 +50,15 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 
 ## Examples
 
-- [Quickstart](examples/Quickstart/Program.cs)
-- [Vector Search](examples/VectorSearch/Program.cs)
-- [Faceted Search](examples/FacetedSearch/Program.cs)
-- [Hybrid Search (RRF)](examples/HybridRrf/Program.cs)
-- [Retrieval-Augmented Generation (RAG)](examples/Rag/Program.cs)
-- [Autocomplete](examples/Autocomplete/Program.cs)
-- [More Like This](examples/MoreLikeThis/Program.cs)
+Follow the [example setup guide](https://www.paradedb.com/docs/guides/setup), then choose a guide and select the EF Core tab:
 
-See [examples/README.md](examples/README.md) for setup instructions and a description of each example.
+- [Quickstart](https://www.paradedb.com/docs/guides/quickstart)
+- [Vector Search](https://www.paradedb.com/docs/guides/vector-search)
+- [Faceted Search](https://www.paradedb.com/docs/guides/faceted-search)
+- [Hybrid Search (RRF)](https://www.paradedb.com/docs/guides/hybrid-search)
+- [Retrieval-Augmented Generation (RAG)](https://www.paradedb.com/docs/guides/rag-and-agents)
+- [Autocomplete](https://www.paradedb.com/docs/guides/search-as-you-type)
+- [More Like This](https://www.paradedb.com/docs/guides/more-like-this)
 
 ## Contributing
 
