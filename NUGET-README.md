@@ -12,16 +12,6 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 | PostgreSQL | 15+ (with ParadeDB extension)                                     |
 | pgvector   | Required for vector search; included in the ParadeDB Docker image |
 
-## Examples
-
-- [Quickstart](examples/Quickstart/Program.cs)
-- [Vector Search](examples/VectorSearch/Program.cs)
-- [Faceted Search](examples/FacetedSearch/Program.cs)
-- [Autocomplete](examples/Autocomplete/Program.cs)
-- [More Like This](examples/MoreLikeThis/Program.cs)
-- [Hybrid Search (RRF)](examples/HybridRrf/Program.cs)
-- [RAG](examples/Rag/Program.cs)
-
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, running tests, linting, and the PR workflow.

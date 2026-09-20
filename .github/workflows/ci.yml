@@ -88,11 +88,6 @@ jobs:
             --coverlet \
             --coverlet-output-format cobertura
 
-      - name: Run Examples
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-        run: scripts/run_examples.sh
-
       - name: Upload to Codecov
         uses: codecov/codecov-action@v7
         with:

@@ -55,7 +55,7 @@ dotnet test
 
 Prefer `dotnet test` over `dotnet build` when verifying changes.
 
-The tests provision their own database with Testcontainers. The examples use `scripts/run_paradedb.sh`. The default container is `efcore-paradedb` on port `5432`.
+The tests provision their own database with Testcontainers. To start a database manually, use `scripts/run_paradedb.sh`. The default container is `efcore-paradedb` on port `5432`.
 
 Some tests require newer pg_search versions and are skipped automatically if the feature is not available.
 
@@ -102,7 +102,7 @@ If you are adding a new feature that requires new documentation, please add the 
 
 - The main README.md for user-facing features
 - XML doc comments for API documentation
-- The `examples/` directory for usage examples
+- The [ParadeDB documentation](https://www.paradedb.com/docs/reference/overview) for usage examples
 
 We will not merge a feature without appropriate documentation.
 

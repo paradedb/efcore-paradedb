@@ -25,11 +25,6 @@
     <File Path=".github\workflows\lint-yaml.yml" />
     <File Path=".github\workflows\release.yml" />
   </Folder>
-  <Folder Name="/examples/">
-    <File Path="examples\Directory.Build.props" />
-    <File Path="examples\Examples.csproj" />
-    <File Path="examples\README.md" />
-  </Folder>
   <Folder Name="/scripts/">
     <File Path="scripts\run_paradedb.sh" />
   </Folder>
