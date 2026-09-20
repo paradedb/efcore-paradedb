@@ -14,15 +14,7 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 
 ## Examples
 
-Complete the [Start tutorial](https://www.paradedb.com/docs/start/connect-your-app), then select the EF Core tab in a guide:
-
-- [Quickstart](https://www.paradedb.com/docs/start/connect-your-app)
-- [Vector Search](https://www.paradedb.com/docs/guides/vector-search)
-- [Faceted Search](https://www.paradedb.com/docs/guides/faceted-search)
-- [Autocomplete](https://www.paradedb.com/docs/guides/autocomplete)
-- [More Like This](https://www.paradedb.com/docs/guides/more-like-this)
-- [Hybrid Search (RRF)](https://www.paradedb.com/docs/guides/hybrid-search)
-- [RAG](https://www.paradedb.com/docs/guides/rag)
+See the [ParadeDB guides](https://www.paradedb.com/docs/guides/overview) for usage examples. Select the EF Core tab in each guide.
 
 ## Contributing
 
