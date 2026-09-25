@@ -56,11 +56,10 @@ jobs:
 
       - name: Validate version
         env:
+          VERSION: ${{ github.event.inputs.version }}
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-
-          VERSION="${{ github.event.inputs.version }}"
 
           if ! [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
             echo "Invalid version: ${VERSION}"
@@ -90,10 +89,12 @@ jobs:
           ls -l "${PACKAGES_OUTPUT_DIR}"
 
       - name: Publish to NuGet
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           set -euo pipefail
           dotnet nuget push "${PACKAGES_OUTPUT_DIR}"/*.nupkg \
-            --api-key "${{ secrets.NUGET_API_KEY }}" \
+            --api-key "${NUGET_API_KEY}" \
             --source https://api.nuget.org/v3/index.json
 
       - name: Determine if latest
