@@ -28,9 +28,9 @@ public sealed class QueryTests : TestBase
         var query = context.MockItems.Where(p => EF.Functions.MatchAll(p.Description, "these"));
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description &&& 'these'
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" &&& 'these'
             """;
 
         AssertSql(query, sql);
@@ -48,12 +48,12 @@ public sealed class QueryTests : TestBase
         var query = context.MockItems.Where(p => matchingIds.Contains(p.Id));
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.id IN (
-                SELECT m0.id
-                FROM mock_items AS m0
-                WHERE m0.description &&& 'shoes'
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Id" IN (
+                SELECT m0."Id"
+                FROM "MockItems" AS m0
+                WHERE m0."Description" &&& 'shoes'
             )
             """;
 
@@ -71,9 +71,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description &&& lower(m.category)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" &&& lower(m."Category")
             """;
 
         AssertSql(query, sql);
@@ -90,9 +90,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description &&& ARRAY['these','shoes']::text[]
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" &&& ARRAY['these','shoes']::text[]
             """;
 
         AssertSql(query, sql);
@@ -110,9 +110,9 @@ public sealed class QueryTests : TestBase
 
         var sql = """
             -- @terms={ 'these', 'shoes' } (DbType = Object)
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description &&& @terms
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" &&& @terms
             """;
 
         AssertSql(query, sql);
@@ -129,9 +129,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description &&& 'these'::pdb.fuzzy(2)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" &&& 'these'::pdb.fuzzy(2)
             """;
 
         AssertSql(query, sql);
@@ -148,9 +148,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description &&& ARRAY['these','shoes']::text[]::pdb.fuzzy(2)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" &&& ARRAY['these','shoes']::text[]::pdb.fuzzy(2)
             """;
 
         AssertSql(query, sql);
@@ -170,9 +170,9 @@ public sealed class QueryTests : TestBase
 
         var sql = """
             -- @terms={ 'these', 'shoes' } (DbType = Object)
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description &&& @terms::pdb.fuzzy(2)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" &&& @terms::pdb.fuzzy(2)
             """;
 
         AssertSql(query, sql);
@@ -189,9 +189,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description &&& 'these'::pdb.boost(2.3)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" &&& 'these'::pdb.boost(2.3)
             """;
 
         AssertSql(query, sql);
@@ -208,9 +208,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description &&& ARRAY['these','shoes']::text[]::pdb.boost(2.3)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" &&& ARRAY['these','shoes']::text[]::pdb.boost(2.3)
             """;
 
         AssertSql(query, sql);
@@ -230,9 +230,9 @@ public sealed class QueryTests : TestBase
 
         var sql = """
             -- @terms={ 'these', 'shoes' } (DbType = Object)
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description &&& @terms::pdb.boost(2.3)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" &&& @terms::pdb.boost(2.3)
             """;
 
         AssertSql(query, sql);
@@ -249,9 +249,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description &&& 'these'::pdb.const(20.3)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" &&& 'these'::pdb.const(20.3)
             """;
 
         AssertSql(query, sql);
@@ -268,9 +268,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description &&& ARRAY['these','shoes']::text[]::pdb.const(20.3)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" &&& ARRAY['these','shoes']::text[]::pdb.const(20.3)
             """;
 
         AssertSql(query, sql);
@@ -290,9 +290,9 @@ public sealed class QueryTests : TestBase
 
         var sql = """
             -- @terms={ 'these', 'shoes' } (DbType = Object)
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description &&& @terms::pdb.const(20.3)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" &&& @terms::pdb.const(20.3)
             """;
 
         AssertSql(query, sql);
@@ -309,9 +309,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description &&& 'these'::pdb.fuzzy(2)::pdb.boost(2.3)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" &&& 'these'::pdb.fuzzy(2)::pdb.boost(2.3)
             """;
 
         AssertSql(query, sql);
@@ -377,9 +377,9 @@ public sealed class QueryTests : TestBase
                 .Select(p => new { p.Id, p.Description });
 
             var sql = $$"""
-                SELECT m.id AS "Id", m.description AS "Description"
-                FROM mock_items AS m
-                WHERE m.description &&& 'running shoes'{{tokenizerVariation.ExpectedSqlSnippet}}
+                SELECT m."Id", m."Description"
+                FROM "MockItems" AS m
+                WHERE m."Description" &&& 'running shoes'{{tokenizerVariation.ExpectedSqlSnippet}}
                 """;
 
             AssertSql(query, sql);
@@ -424,9 +424,9 @@ public sealed class QueryTests : TestBase
         var query = context.MockItems.Where(p => EF.Functions.MatchAny(p.Description, "these"));
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description ||| 'these'
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" ||| 'these'
             """;
 
         AssertSql(query, sql);
@@ -443,9 +443,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description ||| ARRAY['these','shoes']::text[]
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" ||| ARRAY['these','shoes']::text[]
             """;
 
         AssertSql(query, sql);
@@ -463,9 +463,9 @@ public sealed class QueryTests : TestBase
 
         var sql = """
             -- @terms={ 'these', 'shoes' } (DbType = Object)
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description ||| @terms
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" ||| @terms
             """;
 
         AssertSql(query, sql);
@@ -482,9 +482,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description ||| 'these'::pdb.const(20.3)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" ||| 'these'::pdb.const(20.3)
             """;
 
         AssertSql(query, sql);
@@ -499,9 +499,9 @@ public sealed class QueryTests : TestBase
         var query = context.MockItems.Where(p => EF.Functions.Phrase(p.Description, "with"));
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description ### 'with'
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" ### 'with'
             """;
 
         AssertSql(query, sql);
@@ -518,9 +518,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description ### ARRAY['these','shoes']::text[]
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" ### ARRAY['these','shoes']::text[]
             """;
 
         AssertSql(query, sql);
@@ -538,9 +538,9 @@ public sealed class QueryTests : TestBase
 
         var sql = """
             -- @terms={ 'these', 'shoes' } (DbType = Object)
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description ### @terms
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" ### @terms
             """;
 
         AssertSql(query, sql);
@@ -557,9 +557,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description ### 'with'::pdb.boost(2.5)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" ### 'with'::pdb.boost(2.5)
             """;
 
         AssertSql(query, sql);
@@ -576,9 +576,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description ### 'with'::pdb.slop(2)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" ### 'with'::pdb.slop(2)
             """;
 
         AssertSql(query, sql);
@@ -595,9 +595,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description ### ARRAY['these','shoes']::text[]::pdb.slop(2)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" ### ARRAY['these','shoes']::text[]::pdb.slop(2)
             """;
 
         AssertSql(query, sql);
@@ -617,9 +617,9 @@ public sealed class QueryTests : TestBase
 
         var sql = """
             -- @terms={ 'these', 'shoes' } (DbType = Object)
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description ### @terms::pdb.slop(2)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" ### @terms::pdb.slop(2)
             """;
 
         AssertSql(query, sql);
@@ -636,9 +636,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description @@@ (('sleek' ## 1) ## 'shoes')
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ (('sleek' ## 1) ## 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -658,9 +658,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description @@@ (('sleek' ##> 1) ##> 'shoes')
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ (('sleek' ##> 1) ##> 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -684,9 +684,9 @@ public sealed class QueryTests : TestBase
             -- @left='sleek'
             -- @distance='1'
             -- @right='shoes'
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description @@@ ((@left ## @distance) ## @right)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ ((@left ## @distance) ## @right)
             """;
 
         AssertSql(query, sql);
@@ -703,9 +703,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description @@@ ((pdb.prox_regex('sl.*') ## 1) ## 'shoes')
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ ((pdb.prox_regex('sl.*') ## 1) ## 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -725,9 +725,9 @@ public sealed class QueryTests : TestBase
 
         var sql = """
             -- @pattern='sl.*'
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description @@@ ((pdb.prox_regex(@pattern) ## 1) ## 'shoes')
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ ((pdb.prox_regex(@pattern) ## 1) ## 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -747,9 +747,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description @@@ ((pdb.prox_regex('sl.*', 100) ## 1) ## 'shoes')
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ ((pdb.prox_regex('sl.*', 100) ## 1) ## 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -769,9 +769,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description @@@ ((pdb.prox_array('sleek', 'white') ## 1) ## 'shoes')
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ ((pdb.prox_array('sleek', 'white') ## 1) ## 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -793,9 +793,9 @@ public sealed class QueryTests : TestBase
         var sql = """
             -- @t1='sleek'
             -- @t2='white'
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description @@@ ((pdb.prox_array(@t1, @t2) ## 1) ## 'shoes')
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ ((pdb.prox_array(@t1, @t2) ## 1) ## 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -816,9 +816,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description @@@ ((pdb.prox_array(pdb.prox_regex('sl.*'), pdb.prox_array('white')) ## 1) ## 'shoes')
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ ((pdb.prox_array(pdb.prox_regex('sl.*'), pdb.prox_array('white')) ## 1) ## 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -838,9 +838,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description @@@ (((('sleek' ## 1) ## 'running') ## 2) ## 'shoes')
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ (((('sleek' ## 1) ## 'running') ## 2) ## 'shoes')
             """;
 
         AssertSql(query, sql);
@@ -862,9 +862,9 @@ public sealed class QueryTests : TestBase
             });
 
         var sql = """
-            SELECT m.id AS "Id", m.category AS "Category", pdb.score(m.description) AS "Score"
-            FROM mock_items AS m
-            WHERE m.description === 'rich'
+            SELECT m."Id", m."Category", pdb.score(m."Description") AS "Score"
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -887,10 +887,10 @@ public sealed class QueryTests : TestBase
             .OrderByDescending(x => x.Score);
 
         var sql = """
-            SELECT m.id AS "Id", m.category AS "Category", pdb.score(m.id) AS "Score"
-            FROM mock_items AS m
-            WHERE m.description === 'rich'
-            ORDER BY pdb.score(m.id) DESC
+            SELECT m."Id", m."Category", pdb.score(m."Id") AS "Score"
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'
+            ORDER BY pdb.score(m."Id") DESC
             """;
 
         AssertSql(query, sql);
@@ -905,9 +905,9 @@ public sealed class QueryTests : TestBase
         var query = context.MockItems.Where(p => EF.Functions.All(p.Id));
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.id @@@ pdb.all()
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Id" @@@ pdb.all()
             """;
 
         AssertSql(query, sql);
@@ -922,9 +922,9 @@ public sealed class QueryTests : TestBase
         var query = context.MockItems.Where(p => EF.Functions.Exists(p.Id));
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.id @@@ pdb.exists()
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Id" @@@ pdb.exists()
             """;
 
         AssertSql(query, sql);
@@ -939,9 +939,9 @@ public sealed class QueryTests : TestBase
         var query = context.MockItems.Where(p => EF.Functions.RangeTerm(p.WeightRange, 1));
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.weight_range @@@ pdb.range_term(1)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."WeightRange" @@@ pdb.range_term(1)
             """;
 
         AssertSql(query, sql);
@@ -961,9 +961,9 @@ public sealed class QueryTests : TestBase
 
         var sql = """
             -- @range='(10,12]' (DbType = Object)
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.weight_range @@@ pdb.range_term(@range, 'Intersects')
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."WeightRange" @@@ pdb.range_term(@range, 'Intersects')
             """;
 
         AssertSql(query, sql);
@@ -980,9 +980,9 @@ public sealed class QueryTests : TestBase
             .Select(p => EF.Functions.Snippet(p.Description));
 
         var sql = """
-            SELECT pdb.snippet(m.description)
-            FROM mock_items AS m
-            WHERE m.description === 'rich'
+            SELECT pdb.snippet(m."Description")
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -999,9 +999,9 @@ public sealed class QueryTests : TestBase
             .Select(p => EF.Functions.Snippet(p.Description, null));
 
         var sql = """
-            SELECT pdb.snippet(m.description)
-            FROM mock_items AS m
-            WHERE m.description === 'rich'
+            SELECT pdb.snippet(m."Description")
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -1019,9 +1019,9 @@ public sealed class QueryTests : TestBase
             .Select(p => EF.Functions.Snippet(p.Description, options));
 
         var sql = """
-            SELECT pdb.snippet(m.description, max_num_chars => 50)
-            FROM mock_items AS m
-            WHERE m.description === 'rich'
+            SELECT pdb.snippet(m."Description", max_num_chars => 50)
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -1041,9 +1041,9 @@ public sealed class QueryTests : TestBase
             .Select(p => EF.Functions.Snippet(p.Description, options));
 
         var sql = """
-            SELECT pdb.snippet(m.description, max_num_chars => 50)
-            FROM mock_items AS m
-            WHERE m.description === 'rich'
+            SELECT pdb.snippet(m."Description", max_num_chars => 50)
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -1061,9 +1061,9 @@ public sealed class QueryTests : TestBase
             .Select(p => EF.Functions.Snippet(p.Description, options));
 
         var sql = """
-            SELECT pdb.snippet(m.description, start_tag => '<a>', end_tag => '</a>')
-            FROM mock_items AS m
-            WHERE m.description === 'rich'
+            SELECT pdb.snippet(m."Description", start_tag => '<a>', end_tag => '</a>')
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -1084,9 +1084,9 @@ public sealed class QueryTests : TestBase
             .Select(p => EF.Functions.Snippet(p.Description, options));
 
         var sql = """
-            SELECT pdb.snippet(m.description, start_tag => '<a>', end_tag => '</a>')
-            FROM mock_items AS m
-            WHERE m.description === 'rich'
+            SELECT pdb.snippet(m."Description", start_tag => '<a>', end_tag => '</a>')
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -1109,9 +1109,9 @@ public sealed class QueryTests : TestBase
             .Select(p => EF.Functions.Snippet(p.Description, options));
 
         var sql = """
-            SELECT pdb.snippet(m.description, start_tag => '<a>', end_tag => '</a>', max_num_chars => 50)
-            FROM mock_items AS m
-            WHERE m.description === 'rich'
+            SELECT pdb.snippet(m."Description", start_tag => '<a>', end_tag => '</a>', max_num_chars => 50)
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -1138,9 +1138,9 @@ public sealed class QueryTests : TestBase
             .Select(p => EF.Functions.Snippet(p.Description, options));
 
         var sql = """
-            SELECT pdb.snippet(m.description, start_tag => '<a>', end_tag => '</a>', max_num_chars => 50)
-            FROM mock_items AS m
-            WHERE m.description === 'rich'
+            SELECT pdb.snippet(m."Description", start_tag => '<a>', end_tag => '</a>', max_num_chars => 50)
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -1157,9 +1157,9 @@ public sealed class QueryTests : TestBase
             .Select(p => new { p.Id, Description = EF.Functions.Snippet(p.Description) });
 
         var sql = """
-            SELECT m.id AS "Id", pdb.snippet(m.description) AS "Description"
-            FROM mock_items AS m
-            WHERE m.description ||| 'your'::pdb.fuzzy(2)
+            SELECT m."Id", pdb.snippet(m."Description") AS "Description"
+            FROM "MockItems" AS m
+            WHERE m."Description" ||| 'your'::pdb.fuzzy(2)
             """;
 
         AssertSql(query, sql);
@@ -1178,9 +1178,9 @@ public sealed class QueryTests : TestBase
             .Select(p => EF.Functions.Snippets(p.Description));
 
         var sql = """
-            SELECT pdb.snippets(m.description)
-            FROM mock_items AS m
-            WHERE m.description === 'rich'
+            SELECT pdb.snippets(m."Description")
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -1206,9 +1206,9 @@ public sealed class QueryTests : TestBase
             .Select(p => EF.Functions.Snippets(p.Description, options));
 
         var sql = """
-            SELECT pdb.snippets(m.description, start_tag => '<a>', end_tag => '</a>', max_num_chars => 15, "limit" => 1, "offset" => 1, sort_by => 'position')
-            FROM mock_items AS m
-            WHERE m.description === 'rich'
+            SELECT pdb.snippets(m."Description", start_tag => '<a>', end_tag => '</a>', max_num_chars => 15, "limit" => 1, "offset" => 1, sort_by => 'position')
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -1225,9 +1225,9 @@ public sealed class QueryTests : TestBase
             .Select(p => EF.Functions.SnippetPositions(p.Description));
 
         var sql = """
-            SELECT pdb.snippet_positions(m.description)
-            FROM mock_items AS m
-            WHERE m.description === 'rich'
+            SELECT pdb.snippet_positions(m."Description")
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -1242,9 +1242,9 @@ public sealed class QueryTests : TestBase
         var query = context.MockItems.Where(p => EF.Functions.Term(p.Description, "rich"));
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description === 'rich'
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'
             """;
 
         AssertSql(query, sql);
@@ -1261,9 +1261,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description === ARRAY['rich','cream']::text[]
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" === ARRAY['rich','cream']::text[]
             """;
 
         AssertSql(query, sql);
@@ -1281,9 +1281,9 @@ public sealed class QueryTests : TestBase
 
         var sql = """
             -- @terms={ 'rich', 'cream' } (DbType = Object)
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description === @terms
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" === @terms
             """;
 
         AssertSql(query, sql);
@@ -1300,9 +1300,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description === 'rich'::pdb.fuzzy(2)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'::pdb.fuzzy(2)
             """;
 
         AssertSql(query, sql);
@@ -1319,9 +1319,9 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description === 'rich'::pdb.fuzzy(2)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'::pdb.fuzzy(2)
             """;
 
         AssertSql(query, sql);
@@ -1332,9 +1332,9 @@ public sealed class QueryTests : TestBase
         );
 
         sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description === 'rich'::pdb.fuzzy(2, t)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'::pdb.fuzzy(2, t)
             """;
 
         AssertSql(query, sql);
@@ -1345,9 +1345,9 @@ public sealed class QueryTests : TestBase
         );
 
         sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description === 'rich'::pdb.fuzzy(2, f, t)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'::pdb.fuzzy(2, f, t)
             """;
 
         AssertSql(query, sql);
@@ -1358,9 +1358,9 @@ public sealed class QueryTests : TestBase
         );
 
         sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.description === 'rich'::pdb.fuzzy(2, t, t)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'::pdb.fuzzy(2, t, t)
             """;
 
         AssertSql(query, sql);
@@ -1382,9 +1382,9 @@ public sealed class QueryTests : TestBase
             .Select(p => p.Description);
 
         var sql = """
-            SELECT m.description
-            FROM mock_items AS m
-            WHERE m.description::pdb.alias('description_simple') ||| 'sleek'
+            SELECT m."Description"
+            FROM "MockItems" AS m
+            WHERE m."Description"::pdb.alias('description_simple') ||| 'sleek'
             """;
 
         AssertSql(query, sql);
@@ -1405,9 +1405,9 @@ public sealed class QueryTests : TestBase
             .Select(p => p.Description);
 
         var sql = """
-            SELECT m.description
-            FROM mock_items AS m
-            WHERE m.description::pdb.alias('description_simple') ||| 'sleek'
+            SELECT m."Description"
+            FROM "MockItems" AS m
+            WHERE m."Description"::pdb.alias('description_simple') ||| 'sleek'
             """;
 
         AssertSql(query, sql);
@@ -1422,9 +1422,9 @@ public sealed class QueryTests : TestBase
         var query = context.MockItems.Where(p => EF.Functions.MoreLikeThisId(p.Id, 5));
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.id @@@ pdb.more_like_this(5)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Id" @@@ pdb.more_like_this(5)
             """;
 
         AssertSql(query, sql);
@@ -1442,9 +1442,9 @@ public sealed class QueryTests : TestBase
 
         var sql = """
             -- @id='5'
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.id @@@ pdb.more_like_this(@id)
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Id" @@@ pdb.more_like_this(@id)
             """;
 
         AssertSql(query, sql);
@@ -1457,13 +1457,13 @@ public sealed class QueryTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context.MockItems.Where(p =>
-            EF.Functions.MoreLikeThisDocument(p.Id, """{"description":"running shoes"}""")
+            EF.Functions.MoreLikeThisDocument(p.Id, """{"Description":"running shoes"}""")
         );
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.id @@@ pdb.more_like_this('{"description":"running shoes"}')
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Id" @@@ pdb.more_like_this('{"Description":"running shoes"}')
             """;
 
         AssertSql(query, sql);
@@ -1475,15 +1475,15 @@ public sealed class QueryTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        string document = """{"description":"running shoes"}""";
+        string document = """{"Description":"running shoes"}""";
 
         var query = context.MockItems.Where(p => EF.Functions.MoreLikeThisDocument(p.Id, document));
 
         var sql = """
-            -- @document='{"description":"running shoes"}'
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.id @@@ pdb.more_like_this(@document)
+            -- @document='{"Description":"running shoes"}'
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Id" @@@ pdb.more_like_this(@document)
             """;
 
         AssertSql(query, sql);
@@ -1497,7 +1497,7 @@ public sealed class QueryTests : TestBase
 
         var options = new MoreLikeThisOptions
         {
-            Fields = new[] { "description", "category" },
+            Fields = new[] { "Description", "Category" },
             MinTermFrequency = 2,
             MinDocFrequency = 3,
             MaxDocFrequency = 100,
@@ -1510,9 +1510,9 @@ public sealed class QueryTests : TestBase
         var query = context.MockItems.Where(p => EF.Functions.MoreLikeThisId(p.Id, 5, options));
 
         var sql = """
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.id @@@ pdb.more_like_this(5, ARRAY['description','category']::text[], min_term_frequency => 2, min_doc_frequency => 3, max_doc_frequency => 100, max_query_terms => 12, min_word_length => 3, max_word_length => 20, stopwords => ARRAY['the','and']::text[])
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Id" @@@ pdb.more_like_this(5, ARRAY['Description','Category']::text[], min_term_frequency => 2, min_doc_frequency => 3, max_doc_frequency => 100, max_query_terms => 12, min_word_length => 3, max_word_length => 20, stopwords => ARRAY['the','and']::text[])
             """;
 
         AssertSql(query, sql);
@@ -1525,7 +1525,7 @@ public sealed class QueryTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         int id = 5;
-        var fields = new[] { "description", "category" };
+        var fields = new[] { "Description", "Category" };
         var stopwords = new[] { "the", "and" };
         int minTermFrequency = 2;
         int minDocFrequency = 3;
@@ -1549,9 +1549,9 @@ public sealed class QueryTests : TestBase
 
         var sql = """
             -- @id='5'
-            SELECT m.id, m.category, m.created_at, m.description, m.embedding, m.in_stock, m.last_updated_date, m.latest_available_time, m.metadata, m.rating, m.weight_range
-            FROM mock_items AS m
-            WHERE m.id @@@ pdb.more_like_this(@id, ARRAY['description','category']::text[], min_term_frequency => 2, min_doc_frequency => 3, max_doc_frequency => 100, max_query_terms => 12, min_word_length => 3, max_word_length => 20, stopwords => ARRAY['the','and']::text[])
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Id" @@@ pdb.more_like_this(@id, ARRAY['Description','Category']::text[], min_term_frequency => 2, min_doc_frequency => 3, max_doc_frequency => 100, max_query_terms => 12, min_word_length => 3, max_word_length => 20, stopwords => ARRAY['the','and']::text[])
             """;
 
         AssertSql(query, sql);
@@ -1564,12 +1564,12 @@ public sealed class QueryTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context.MockItems.Select(p =>
-            EF.Functions.Agg(new { value_count = new { field = "rating" } })
+            EF.Functions.Agg(new { value_count = new { field = "Rating" } })
         );
 
         var sql = """
-            SELECT pdb.agg('{"value_count":{"field":"rating"}}', TRUE)
-            FROM mock_items AS m
+            SELECT pdb.agg('{"value_count":{"field":"Rating"}}', TRUE)
+            FROM "MockItems" AS m
             """;
 
         AssertSql(query, sql);
@@ -1583,14 +1583,14 @@ public sealed class QueryTests : TestBase
 
         var query = context
             .MockItems.Select(p =>
-                EF.Functions.AggOver(new { value_count = new { field = "rating" } })
+                EF.Functions.AggOver(new { value_count = new { field = "Rating" } })
             )
             .Take(10);
 
         var sql = """
             -- @p='10'
-            SELECT pdb.agg('{"value_count":{"field":"rating"}}', TRUE) OVER ()
-            FROM mock_items AS m
+            SELECT pdb.agg('{"value_count":{"field":"Rating"}}', TRUE) OVER ()
+            FROM "MockItems" AS m
             LIMIT @p
             """;
 
@@ -1604,12 +1604,12 @@ public sealed class QueryTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context.MockItems.Select(p =>
-            EF.Functions.AggFilter(new { value_count = new { field = "rating" } }, p.Rating >= 4)
+            EF.Functions.AggFilter(new { value_count = new { field = "Rating" } }, p.Rating >= 4)
         );
 
         var sql = """
-            SELECT pdb.agg('{"value_count":{"field":"rating"}}', TRUE) FILTER (WHERE m.rating >= 4)
-            FROM mock_items AS m
+            SELECT pdb.agg('{"value_count":{"field":"Rating"}}', TRUE) FILTER (WHERE m."Rating" >= 4)
+            FROM "MockItems" AS m
             """;
 
         AssertSql(query, sql);
@@ -1624,7 +1624,7 @@ public sealed class QueryTests : TestBase
         var query = context
             .MockItems.Select(p =>
                 EF.Functions.AggFilterOver(
-                    new { value_count = new { field = "rating" } },
+                    new { value_count = new { field = "Rating" } },
                     p.Rating >= 4
                 )
             )
@@ -1632,8 +1632,8 @@ public sealed class QueryTests : TestBase
 
         var sql = """
             -- @p='10'
-            SELECT pdb.agg('{"value_count":{"field":"rating"}}', TRUE) FILTER (WHERE m.rating >= 4) OVER ()
-            FROM mock_items AS m
+            SELECT pdb.agg('{"value_count":{"field":"Rating"}}', TRUE) FILTER (WHERE m."Rating" >= 4) OVER ()
+            FROM "MockItems" AS m
             LIMIT @p
             """;
 
@@ -1647,13 +1647,13 @@ public sealed class QueryTests : TestBase
 
         var query = context.MockItems.Select(p => new
         {
-            Average = EF.Functions.Agg(new { avg = new { field = "rating" } }),
-            Sum = EF.Functions.Agg(new { sum = new { field = "rating" } }),
+            Average = EF.Functions.Agg(new { avg = new { field = "Rating" } }),
+            Sum = EF.Functions.Agg(new { sum = new { field = "Rating" } }),
         });
 
         var sql = """
-            SELECT pdb.agg('{"avg":{"field":"rating"}}', TRUE) AS "Average", pdb.agg('{"sum":{"field":"rating"}}', TRUE) AS "Sum"
-            FROM mock_items AS m
+            SELECT pdb.agg('{"avg":{"field":"Rating"}}', TRUE) AS "Average", pdb.agg('{"sum":{"field":"Rating"}}', TRUE) AS "Sum"
+            FROM "MockItems" AS m
             """;
 
         AssertSql(query, sql);
@@ -1671,7 +1671,7 @@ public sealed class QueryTests : TestBase
                 {
                     range = new
                     {
-                        field = "rating",
+                        field = "Rating",
                         ranges = new object[] { new { to = 3.0 }, new { @from = 3.0, to = 6.0 } },
                     },
                 }
@@ -1679,8 +1679,8 @@ public sealed class QueryTests : TestBase
         );
 
         var sql = """
-            SELECT pdb.agg('{"range":{"field":"rating","ranges":[{"to":3},{"from":3,"to":6}]}}', TRUE)
-            FROM mock_items AS m
+            SELECT pdb.agg('{"range":{"field":"Rating","ranges":[{"to":3},{"from":3,"to":6}]}}', TRUE)
+            FROM "MockItems" AS m
             """;
 
         AssertSql(query, sql);
@@ -1694,14 +1694,14 @@ public sealed class QueryTests : TestBase
 
         var query = context
             .MockItems.Where(p =>
-                EF.Functions.Parse(p.Description, "description:(sleek shoes) AND rating:>3")
+                EF.Functions.Parse(p.Description, "Description:(sleek shoes) AND Rating:>3")
             )
             .Select(p => p.Description);
 
         var sql = """
-            SELECT m.description
-            FROM mock_items AS m
-            WHERE m.description @@@ pdb.parse('description:(sleek shoes) AND rating:>3')
+            SELECT m."Description"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ pdb.parse('Description:(sleek shoes) AND Rating:>3')
             """;
 
         AssertSql(query, sql);
@@ -1718,9 +1718,9 @@ public sealed class QueryTests : TestBase
             .Select(p => p.Description);
 
         var sql = """
-            SELECT m.description
-            FROM mock_items AS m
-            WHERE m.description @@@ pdb.parse('sleek shoes', lenient => TRUE)
+            SELECT m."Description"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ pdb.parse('sleek shoes', lenient => TRUE)
             """;
 
         AssertSql(query, sql);
@@ -1734,14 +1734,14 @@ public sealed class QueryTests : TestBase
 
         var query = context
             .MockItems.Where(p =>
-                EF.Functions.Parse(p.Description, "description:(sleek shoes)", null, true)
+                EF.Functions.Parse(p.Description, "Description:(sleek shoes)", null, true)
             )
             .Select(p => p.Description);
 
         var sql = """
-            SELECT m.description
-            FROM mock_items AS m
-            WHERE m.description @@@ pdb.parse('description:(sleek shoes)', conjunction_mode => TRUE)
+            SELECT m."Description"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ pdb.parse('Description:(sleek shoes)', conjunction_mode => TRUE)
             """;
 
         AssertSql(query, sql);
@@ -1753,7 +1753,7 @@ public sealed class QueryTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
 
-        string pattern = "description:(sleek shoes)";
+        string pattern = "Description:(sleek shoes)";
         bool lenient = true;
         bool conjunctionMode = true;
 
@@ -1764,12 +1764,12 @@ public sealed class QueryTests : TestBase
             .Select(p => p.Description);
 
         var sql = """
-            -- @pattern='description:(sleek shoes)'
+            -- @pattern='Description:(sleek shoes)'
             -- @lenient='True' (Nullable = true)
             -- @conjunctionMode='True' (Nullable = true)
-            SELECT m.description
-            FROM mock_items AS m
-            WHERE m.description @@@ pdb.parse(@pattern, lenient => @lenient, conjunction_mode => @conjunctionMode)
+            SELECT m."Description"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ pdb.parse(@pattern, lenient => @lenient, conjunction_mode => @conjunctionMode)
             """;
 
         AssertSql(query, sql);
@@ -1786,9 +1786,9 @@ public sealed class QueryTests : TestBase
             .Select(p => p.Description);
 
         var sql = """
-            SELECT m.description
-            FROM mock_items AS m
-            WHERE m.description @@@ pdb.regex('ru.*')
+            SELECT m."Description"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ pdb.regex('ru.*')
             """;
 
         AssertSql(query, sql);
@@ -1805,9 +1805,9 @@ public sealed class QueryTests : TestBase
             .Select(p => p.Description);
 
         var sql = """
-            SELECT m.description
-            FROM mock_items AS m
-            WHERE m.description @@@ pdb.regex('ru.*')::pdb.boost(5)
+            SELECT m."Description"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ pdb.regex('ru.*')::pdb.boost(5)
             """;
 
         AssertSql(query, sql);
@@ -1824,9 +1824,9 @@ public sealed class QueryTests : TestBase
             .Select(p => p.Description);
 
         var sql = """
-            SELECT m.description
-            FROM mock_items AS m
-            WHERE m.description @@@ pdb.regex('ru.*')::pdb.const(5)
+            SELECT m."Description"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ pdb.regex('ru.*')::pdb.const(5)
             """;
 
         AssertSql(query, sql);
@@ -1845,9 +1845,9 @@ public sealed class QueryTests : TestBase
             .Select(p => p.Description);
 
         var sql = """
-            SELECT m.description
-            FROM mock_items AS m
-            WHERE m.description @@@ pdb.regex_phrase(ARRAY['ru.*','shoes']::text[])
+            SELECT m."Description"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ pdb.regex_phrase(ARRAY['ru.*','shoes']::text[])
             """;
 
         AssertSql(query, sql);
@@ -1866,9 +1866,9 @@ public sealed class QueryTests : TestBase
             .Select(p => p.Description);
 
         var sql = """
-            SELECT m.description
-            FROM mock_items AS m
-            WHERE m.description @@@ pdb.regex_phrase(ARRAY['ru.*','shoes']::text[], slop => 2, max_expansions => 100)
+            SELECT m."Description"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ pdb.regex_phrase(ARRAY['ru.*','shoes']::text[], slop => 2, max_expansions => 100)
             """;
 
         AssertSql(query, sql);
@@ -1887,9 +1887,9 @@ public sealed class QueryTests : TestBase
             .Select(p => p.Description);
 
         var sql = """
-            SELECT m.description
-            FROM mock_items AS m
-            WHERE m.description @@@ pdb.regex_phrase(ARRAY['ru.*','shoes']::text[], max_expansions => 100)
+            SELECT m."Description"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ pdb.regex_phrase(ARRAY['ru.*','shoes']::text[], max_expansions => 100)
             """;
 
         AssertSql(query, sql);
@@ -1908,9 +1908,9 @@ public sealed class QueryTests : TestBase
             .Select(p => p.Description);
 
         var sql = """
-            SELECT m.description
-            FROM mock_items AS m
-            WHERE m.description @@@ pdb.phrase_prefix(ARRAY['running','shoes']::text[])
+            SELECT m."Description"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ pdb.phrase_prefix(ARRAY['running','shoes']::text[])
             """;
 
         AssertSql(query, sql);
@@ -1929,9 +1929,9 @@ public sealed class QueryTests : TestBase
             .Select(p => p.Description);
 
         var sql = """
-            SELECT m.description
-            FROM mock_items AS m
-            WHERE m.description @@@ pdb.phrase_prefix(ARRAY['running','shoes']::text[], 100)
+            SELECT m."Description"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ pdb.phrase_prefix(ARRAY['running','shoes']::text[], 100)
             """;
 
         AssertSql(query, sql);
@@ -2044,9 +2044,9 @@ public sealed class QueryTests : TestBase
         var sql = $"""
             -- @queryVector={VectorParam(queryVector)} (DbType = Object)
             -- @p='3'
-            SELECT m.id
-            FROM mock_items AS m
-            ORDER BY m.embedding <-> @queryVector
+            SELECT m."Id"
+            FROM "MockItems" AS m
+            ORDER BY m."Embedding" <-> @queryVector
             LIMIT @p
             """;
 
@@ -2072,9 +2072,9 @@ public sealed class QueryTests : TestBase
         var sql = $"""
             -- @queryVector={VectorParam(queryVector)} (DbType = Object)
             -- @p='3'
-            SELECT m.id
-            FROM mock_items AS m
-            ORDER BY m.embedding <=> @queryVector
+            SELECT m."Id"
+            FROM "MockItems" AS m
+            ORDER BY m."Embedding" <=> @queryVector
             LIMIT @p
             """;
 
@@ -2100,9 +2100,9 @@ public sealed class QueryTests : TestBase
         var sql = $"""
             -- @queryVector={VectorParam(queryVector)} (DbType = Object)
             -- @p='3'
-            SELECT m.id
-            FROM mock_items AS m
-            ORDER BY m.embedding <#> @queryVector
+            SELECT m."Id"
+            FROM "MockItems" AS m
+            ORDER BY m."Embedding" <#> @queryVector
             LIMIT @p
             """;
 
@@ -2129,10 +2129,10 @@ public sealed class QueryTests : TestBase
         var sql = """
             -- @queryVector={ '1', '0', '0', '0', '0', ... } (DbType = Object)
             -- @p='2'
-            SELECT m.id
-            FROM mock_items AS m
-            WHERE m.id @@@ pdb.all()
-            ORDER BY m.embedding <=> @queryVector
+            SELECT m."Id"
+            FROM "MockItems" AS m
+            WHERE m."Id" @@@ pdb.all()
+            ORDER BY m."Embedding" <=> @queryVector
             LIMIT @p
             """;
 

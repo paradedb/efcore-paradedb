@@ -11,7 +11,6 @@ public sealed class TestDbContextFactory : IDesignTimeDbContextFactory<TestDbCon
     {
         var options = new DbContextOptionsBuilder<TestDbContext>()
             .UseNpgsql("Host=localhost;Database=factory;Username=factory;Password=factory")
-            .UseSnakeCaseNamingConvention()
             .Options;
 
         return new TestDbContext(options);

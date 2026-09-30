@@ -24,7 +24,6 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
 
         _options = new DbContextOptionsBuilder<TestDbContext>()
             .UseNpgsql(_container.GetConnectionString(), o => o.UseParadeDb())
-            .UseSnakeCaseNamingConvention()
             .Options;
 
         await using var context = new TestDbContext(_options);
@@ -45,20 +44,39 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
 
         await context.Database.ExecuteSqlRawAsync(
             """
-            CREATE INDEX IF NOT EXISTS search_idx ON mock_items
+            CREATE TABLE "MockItems" AS
+            SELECT
+              id AS "Id",
+              description AS "Description",
+              rating AS "Rating",
+              category AS "Category",
+              in_stock AS "InStock",
+              metadata AS "Metadata",
+              created_at AS "CreatedAt",
+              last_updated_date AS "LastUpdatedDate",
+              latest_available_time AS "LatestAvailableTime",
+              weight_range AS "WeightRange",
+              embedding AS "Embedding"
+            FROM mock_items;
+            """
+        );
+
+        await context.Database.ExecuteSqlRawAsync(
+            """
+            CREATE INDEX IF NOT EXISTS search_idx ON "MockItems"
             USING paradedb (
-              id,
-              description,
-              (description::pdb.simple('alias=description_simple')),
-              category,
-              rating,
-              in_stock,
-              created_at,
-              metadata,
-              weight_range,
-              embedding vector_cosine_ops
+              "Id",
+              "Description",
+              ("Description"::pdb.simple('alias=description_simple')),
+              "Category",
+              "Rating",
+              "InStock",
+              "CreatedAt",
+              "Metadata",
+              "WeightRange",
+              "Embedding" vector_cosine_ops
             )
-            WITH (key_field='id');
+            WITH (key_field='Id');
             """
         );
     }
