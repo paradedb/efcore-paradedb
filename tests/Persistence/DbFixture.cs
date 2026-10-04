@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using ParadeDB.EntityFrameworkCore.Extensions;
 using Testcontainers.PostgreSql;
 using TUnit.Core.Interfaces;
@@ -8,6 +9,8 @@ namespace ParadeDB.EntityFrameworkCore.Tests.Persistence;
 public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
 {
     private PostgreSqlContainer? _container;
+    private readonly string _schemaName = $"paradedb_tests_{Guid.NewGuid():N}";
+    private bool _schemaCreated;
 
     private DbContextOptions<TestDbContext> _options = null!;
 
@@ -19,9 +22,7 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
             _container = new PostgreSqlBuilder("postgres:18")
                 .WithImage(
                     Environment.GetEnvironmentVariable("PARADEDB_IMAGE")
-                        ?? throw new InvalidOperationException(
-                            "Set PARADEDB_IMAGE or PARADEDB_TEST_DSN to run database tests."
-                        )
+                        ?? $"paradedb/paradedb:{Environment.GetEnvironmentVariable("PARADEDB_VERSION") ?? "0.26.0"}-pg{Environment.GetEnvironmentVariable("PARADEDB_POSTGRES_VERSION") ?? "18"}"
                 )
                 .WithDatabase("pg_search_test")
                 .WithUsername("test")
@@ -38,21 +39,24 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
 
         await using var context = new TestDbContext(_options);
         await context.Database.ExecuteSqlRawAsync("CREATE EXTENSION IF NOT EXISTS vector");
-        await context.Database.ExecuteSqlRawAsync(
-            """
-            DO $$
-            BEGIN
-              IF to_regclass('public.mock_items') IS NULL THEN
-                CALL paradedb.create_paradedb_test_table(
-                  schema_name => 'public',
-                  table_name => 'mock_items'
-                );
-              END IF;
-            END $$;
-            """
+        // The schema identifier is generated from a GUID, never supplied by the caller.
+        var createSchemaSql = $"CREATE SCHEMA \"{_schemaName}\"";
+        await context.Database.ExecuteSqlRawAsync(createSchemaSql);
+        _schemaCreated = true;
+        var connectionBuilder = new NpgsqlConnectionStringBuilder(connectionString)
+        {
+            SearchPath = $"{_schemaName}, public",
+        };
+        _options = new DbContextOptionsBuilder<TestDbContext>()
+            .UseNpgsql(connectionBuilder.ConnectionString, o => o.UseParadeDb())
+            .Options;
+
+        await using var isolatedContext = new TestDbContext(_options);
+        await isolatedContext.Database.ExecuteSqlInterpolatedAsync(
+            $"CALL paradedb.create_paradedb_test_table(schema_name => {_schemaName}, table_name => 'mock_items')"
         );
 
-        await context.Database.ExecuteSqlRawAsync(
+        await isolatedContext.Database.ExecuteSqlRawAsync(
             """
             CREATE TABLE "MockItems" AS
             SELECT
@@ -71,7 +75,7 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
             """
         );
 
-        await context.Database.ExecuteSqlRawAsync(
+        await isolatedContext.Database.ExecuteSqlRawAsync(
             """
             CREATE INDEX IF NOT EXISTS search_idx ON "MockItems"
             USING paradedb (
@@ -92,9 +96,22 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if (_container is not null)
+        try
         {
-            await _container.DisposeAsync();
+            if (_schemaCreated)
+            {
+                await using var context = new TestDbContext(_options);
+                var dropSchemaSql = $"DROP SCHEMA \"{_schemaName}\" CASCADE";
+                await context.Database.ExecuteSqlRawAsync(dropSchemaSql);
+                _schemaCreated = false;
+            }
+        }
+        finally
+        {
+            if (_container is not null)
+            {
+                await _container.DisposeAsync();
+            }
         }
     }
 

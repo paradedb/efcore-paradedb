@@ -57,7 +57,11 @@ Prefer `dotnet test` over `dotnet build` when verifying changes.
 
 The tests provision their own database with Testcontainers. To start a database manually, use `scripts/run_paradedb.sh`. The default container is `efcore-paradedb` on port `5432`.
 
-Some tests require newer pg_search versions and are skipped automatically if the feature is not available.
+Set `PARADEDB_TEST_DSN` to an Npgsql connection string to use an existing database.
+Each test session creates and cleans up its own schema. Without this variable,
+Testcontainers uses ParadeDB 0.26.0 on PG18 by default. Override the image with
+`PARADEDB_IMAGE`, or select versions with `PARADEDB_VERSION` and
+`PARADEDB_POSTGRES_VERSION`.
 
 ### Linting and Formatting
 
