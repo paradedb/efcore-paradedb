@@ -2,9 +2,9 @@
 #
 # run_tests.sh
 #
-# Runs the full test suite. The tests provision their own database with
-# Testcontainers, so no ParadeDB container is started here. Extra arguments are
-# forwarded to dotnet test.
+# Runs the full test suite against PARADEDB_TEST_DSN when supplied, or a
+# Testcontainers database using the requested ParadeDB release. Extra arguments
+# are forwarded to dotnet test.
 
 set -euo pipefail
 
