@@ -485,6 +485,140 @@ public sealed class IndexingTest : TestBase
         );
     }
 
+    private sealed class LayeredIndexContext(DbContextOptions<LayeredIndexContext> options)
+        : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<IndexingItem>(entity =>
+            {
+                entity.ToTable("indexing_items");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Rating).HasColumnName("rating");
+                entity.Property(e => e.Description).HasColumnName("description");
+                entity
+                    .Property(e => e.EmbeddingL2)
+                    .HasColumnName("embedding")
+                    .HasColumnType("vector(64)");
+                entity
+                    .HasParadeDbIndex("indexing_items_idx", e => e.Id)
+                    .HasField(e => e.Rating)
+                    .HasField(e => e.Description, Tokenizer.Simple(new() { ["pnorms"] = true }))
+                    .HasField(
+                        e => e.Description,
+                        Tokenizer.Jieba(
+                            new() { ["alias"] = "description_jieba", ["search_mode"] = false }
+                        )
+                    )
+                    .HasField(
+                        e => e.Description,
+                        Tokenizer.ChineseCompatible(
+                            new() { ["alias"] = "description_chinese", ["chinese_convert"] = "t2s" }
+                        )
+                    )
+                    .HasField(e => e.EmbeddingL2, VectorMetric.L2)
+                    .HasVectorRouter("ivf")
+                    .HasPartitionBy("rating,id")
+                    .HasTargetSegmentCount(8)
+                    .HasVectorQuantization("embedding", 1, 4);
+            });
+        }
+    }
+
+    [Test]
+    public void ExplicitQuantizationLayers()
+    {
+        GenerateCreateIndexSql<LayeredIndexContext, IndexingItem>()
+            .ShouldContain("\"quantization\":{\"layers\":[1,4]}");
+    }
+
+    private sealed class PartitionedIndexContext(DbContextOptions<PartitionedIndexContext> options)
+        : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<IndexingItem>(entity =>
+            {
+                entity.ToTable("indexing_items");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Rating).HasColumnName("rating");
+                entity.Property(e => e.Description).HasColumnName("description");
+                entity
+                    .Property(e => e.EmbeddingL2)
+                    .HasColumnName("embedding")
+                    .HasColumnType("vector(64)");
+                entity
+                    .HasParadeDbIndex("indexing_items_idx", e => e.Id)
+                    .HasField(e => e.Rating)
+                    .HasField(e => e.Description, Tokenizer.Simple(new() { ["pnorms"] = true }))
+                    .HasField(
+                        e => e.Description,
+                        Tokenizer.Jieba(
+                            new() { ["alias"] = "description_jieba", ["search_mode"] = false }
+                        )
+                    )
+                    .HasField(
+                        e => e.Description,
+                        Tokenizer.ChineseCompatible(
+                            new() { ["alias"] = "description_chinese", ["chinese_convert"] = "t2s" }
+                        )
+                    )
+                    .HasField(e => e.EmbeddingL2, VectorMetric.L2)
+                    .HasVectorRouter("ivf")
+                    .HasPartitionBy("rating,id")
+                    .HasTargetSegmentCount(8)
+                    .HasVectorQuantization("embedding", false);
+            });
+        }
+    }
+
+    [Test]
+    public async Task PartitioningQuantizationAndVectorDiagnostics()
+    {
+        await using var context = DbFixture.CreateContext();
+        await context.Database.OpenConnectionAsync();
+        await context.Database.ExecuteSqlRawAsync(
+            "CREATE TABLE indexing_items (id int, rating int, description text, embedding vector(64))"
+        );
+        await context.Database.ExecuteSqlRawAsync(
+            "INSERT INTO indexing_items SELECT i, i % 3, 'partitioned shoes', ARRAY(SELECT sin(i*j)::real FROM generate_series(1,64) j)::vector FROM generate_series(1,2048) i"
+        );
+        var sql = GenerateCreateIndexSql<PartitionedIndexContext, IndexingItem>();
+        sql.ShouldContain("partition_by = 'rating,id'");
+        sql.ShouldContain("target_segment_count = 8");
+        sql.ShouldContain("vector_fields = '");
+        await context.Database.ExecuteSqlRawAsync(sql.Replace("{", "{{").Replace("}", "}}"));
+        var config = await context
+            .Database.VectorConfig("indexing_items_idx", "embedding")
+            .ToListAsync();
+        config.Single().Quantized.ShouldBeFalse();
+        (
+            await context.Database.VectorInfo("indexing_items_idx", "embedding").ToListAsync()
+        ).ShouldNotBeEmpty();
+        await context.Database.ExecuteSqlRawAsync(
+            "ALTER INDEX indexing_items_idx SET (target_segment_count = 1, max_leaf_size = 16, vector_fields = '{{\"embedding\":{{\"quantization\":true}}}}')"
+        );
+        await context.Database.ExecuteSqlRawAsync("REINDEX INDEX indexing_items_idx");
+        (await context.Database.VectorConfig("indexing_items_idx", "embedding").ToListAsync())
+            .Single()
+            .Quantized.ShouldBeTrue();
+        await context.Database.VectorEstimatorInfo("indexing_items_idx", "embedding").ToListAsync();
+        await context
+            .Database.VectorEstimatorInfo(
+                "indexing_items_idx",
+                "embedding",
+                [Enumerable.Repeat(0.1f, 64).ToArray()]
+            )
+            .ToListAsync();
+        var count = await context
+            .Database.SqlQuery<int>(
+                $"SELECT COUNT(*)::int AS \"Value\" FROM indexing_items WHERE description @@@ 'shoes' AND rating = 1"
+            )
+            .SingleAsync();
+        count.ShouldBe(683);
+        await context.Database.ExecuteSqlRawAsync("DROP TABLE indexing_items");
+    }
+
     private static string GenerateCreateIndexSql<TContext, TEntity>()
         where TContext : DbContext
     {

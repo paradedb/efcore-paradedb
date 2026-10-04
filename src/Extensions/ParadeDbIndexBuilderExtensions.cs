@@ -183,6 +183,78 @@ public sealed class ParadeDbIndexBuilder<TEntity>
         return this;
     }
 
+    /// <summary>Partition segments by single-valued columnar index field names.</summary>
+    public ParadeDbIndexBuilder<TEntity> HasPartitionBy(string partitionBy)
+    {
+        if (
+            string.IsNullOrWhiteSpace(partitionBy)
+            || partitionBy.Split(',').Any(string.IsNullOrWhiteSpace)
+        )
+            throw new ArgumentException(
+                "Partition keys must be non-empty index field names.",
+                nameof(partitionBy)
+            );
+        _indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexPartitionBy, partitionBy);
+        return this;
+    }
+
+    public ParadeDbIndexBuilder<TEntity> HasTargetSegmentCount(int targetSegmentCount)
+    {
+        if (targetSegmentCount < 1)
+            throw new ArgumentOutOfRangeException(nameof(targetSegmentCount));
+        _indexBuilder.HasAnnotation(
+            ParadeDbAnnotationNames.IndexTargetSegmentCount,
+            targetSegmentCount
+        );
+        return this;
+    }
+
+    /// <summary>Configure quantization for a vector index field at CREATE INDEX or REINDEX time.</summary>
+    public ParadeDbIndexBuilder<TEntity> HasVectorQuantization(string field, bool quantization) =>
+        SetVectorQuantization(field, quantization);
+
+    /// <summary>Configure one to three quantization layers, with one to four bits per layer.</summary>
+    public ParadeDbIndexBuilder<TEntity> HasVectorQuantization(string field, params int[] layers)
+    {
+        if (layers.Length is < 1 or > 3 || layers.Any(bits => bits is < 1 or > 4))
+            throw new ArgumentException(
+                "Use one to three layers with one to four bits per layer.",
+                nameof(layers)
+            );
+        return SetVectorQuantization(field, new { layers });
+    }
+
+    private ParadeDbIndexBuilder<TEntity> SetVectorQuantization(string field, object quantization)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(field);
+        var fields = _indexBuilder
+            .Metadata.FindAnnotation(ParadeDbAnnotationNames.IndexVectorFields)
+            ?.Value
+            is string json
+            ? System.Text.Json.JsonSerializer.Deserialize<
+                Dictionary<string, System.Text.Json.JsonElement>
+            >(json)!
+            : new Dictionary<string, System.Text.Json.JsonElement>();
+        fields[field] = System.Text.Json.JsonSerializer.SerializeToElement(new { quantization });
+        _indexBuilder.HasAnnotation(
+            ParadeDbAnnotationNames.IndexVectorFields,
+            System.Text.Json.JsonSerializer.Serialize(fields)
+        );
+        return this;
+    }
+
+    /// <summary>Choose graph routing or the experimental stacked IVF router.</summary>
+    public ParadeDbIndexBuilder<TEntity> HasVectorRouter(string vectorRouter)
+    {
+        if (vectorRouter is not ("graph" or "ivf"))
+            throw new ArgumentException(
+                "Vector router must be graph or ivf.",
+                nameof(vectorRouter)
+            );
+        _indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexVectorRouter, vectorRouter);
+        return this;
+    }
+
     private void AddField(
         string field,
         string kind,

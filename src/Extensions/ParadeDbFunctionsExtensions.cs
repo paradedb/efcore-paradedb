@@ -156,6 +156,36 @@ public static class ParadeDbFunctionsExtensions
     ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AggFilterOver)));
 
     [DbFunction]
+    public static JsonElement? Agg(
+        this DbFunctions _,
+        [NotParameterized] object aggregate,
+        [NotParameterized] string visibility
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Agg)));
+
+    [DbFunction]
+    public static JsonElement? AggFilter(
+        this DbFunctions _,
+        [NotParameterized] object aggregate,
+        bool filter,
+        [NotParameterized] string visibility
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AggFilter)));
+
+    [DbFunction]
+    public static JsonElement? AggOver(
+        this DbFunctions _,
+        [NotParameterized] object aggregate,
+        [NotParameterized] string visibility
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AggOver)));
+
+    [DbFunction]
+    public static JsonElement? AggFilterOver(
+        this DbFunctions _,
+        [NotParameterized] object aggregate,
+        bool filter,
+        [NotParameterized] string visibility
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AggFilterOver)));
+
+    [DbFunction]
     public static bool All<TProperty>(this DbFunctions _, TProperty property) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(All)));
 

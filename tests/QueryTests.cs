@@ -1559,6 +1559,52 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
+    [Arguments("transaction")]
+    [Arguments("raw")]
+    [Arguments("threshold")]
+    public async Task Aggregate_Visibility(string visibility)
+    {
+        await using var context = DbFixture.CreateContext();
+        var count = await context.MockItems.CountAsync();
+        var filteredCount = await context.MockItems.Where(p => p.Rating >= 4).CountAsync();
+        var aggregate = await context
+            .MockItems.Select(p =>
+                EF.Functions.Agg(new { value_count = new { field = "Rating" } }, visibility)
+            )
+            .ToListAsync();
+        aggregate.First()!.Value.GetProperty("value").GetDouble().ShouldBe((double)count);
+        var window = await context
+            .MockItems.Select(p =>
+                EF.Functions.AggOver(new { value_count = new { field = "Rating" } }, visibility)
+            )
+            .Take(1)
+            .ToListAsync();
+        window.First()!.Value.GetProperty("value").GetDouble().ShouldBe((double)count);
+        var filtered = await context
+            .MockItems.Select(p =>
+                EF.Functions.AggFilter(
+                    new { value_count = new { field = "Rating" } },
+                    p.Rating >= 4,
+                    visibility
+                )
+            )
+            .ToListAsync();
+        filtered.First()!.Value.GetProperty("value").GetDouble().ShouldBe((double)filteredCount);
+        var filteredWindow = context.MockItems.Select(p =>
+            EF.Functions.AggFilterOver(
+                new { value_count = new { field = "Rating" } },
+                p.Rating >= 4,
+                visibility
+            )
+        );
+        // Window FILTER execution is gated by a server feature flag in 0.26.0.
+        var sql = filteredWindow.ToQueryString();
+        sql.ShouldContain($"'{visibility}'");
+        sql.ShouldContain("FILTER (WHERE");
+        sql.ShouldContain("OVER ()");
+    }
+
+    [Test]
     public async Task Aggregate_ValueCount()
     {
         await using var context = DbFixture.CreateContext();

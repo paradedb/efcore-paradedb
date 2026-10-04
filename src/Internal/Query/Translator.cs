@@ -561,6 +561,12 @@ internal sealed class Translator : IMethodCallTranslator
             return null;
         }
 
+        if (
+            arguments[exactArgumentIndex] is SqlConstantExpression { Value: string visibility }
+            && visibility is not ("transaction" or "raw" or "threshold")
+        )
+            throw new ArgumentException("Visibility must be transaction, raw, or threshold.");
+
         List<SqlExpression> args =
         [
             _sqlExpressionFactory.Constant(JsonSerializer.Serialize(aggregate)),

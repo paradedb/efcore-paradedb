@@ -74,6 +74,30 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
             options.Add($"max_leaf_size = {maxLeafSize.ToString(CultureInfo.InvariantCulture)}");
         }
 
+        if (
+            operation.FindAnnotation(ParadeDbAnnotationNames.IndexPartitionBy)?.Value
+            is string partitionBy
+        )
+            options.Add($"partition_by = {stringMapping.GenerateSqlLiteral(partitionBy)}");
+        if (
+            operation.FindAnnotation(ParadeDbAnnotationNames.IndexTargetSegmentCount)?.Value
+            is int targetSegmentCount
+        )
+            options.Add(
+                $"target_segment_count = {targetSegmentCount.ToString(CultureInfo.InvariantCulture)}"
+            );
+        if (
+            operation.FindAnnotation(ParadeDbAnnotationNames.IndexVectorFields)?.Value
+            is string vectorFields
+        )
+            options.Add($"vector_fields = {stringMapping.GenerateSqlLiteral(vectorFields)}");
+
+        if (
+            operation.FindAnnotation(ParadeDbAnnotationNames.IndexVectorRouter)?.Value
+            is string vectorRouter
+        )
+            options.Add($"vector_router = {stringMapping.GenerateSqlLiteral(vectorRouter)}");
+
         if (options.Count > 0)
         {
             builder.Append(" WITH (").Append(string.Join(", ", options)).Append(")");

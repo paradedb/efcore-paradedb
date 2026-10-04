@@ -92,6 +92,10 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
         [
             ParadeDbAnnotationNames.IndexTrainingSampleRatio,
             ParadeDbAnnotationNames.IndexMaxLeafSize,
+            ParadeDbAnnotationNames.IndexVectorRouter,
+            ParadeDbAnnotationNames.IndexPartitionBy,
+            ParadeDbAnnotationNames.IndexTargetSegmentCount,
+            ParadeDbAnnotationNames.IndexVectorFields,
         ];
         foreach (var name in vectorOptionNames)
         {
