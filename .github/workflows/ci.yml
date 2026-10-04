@@ -49,7 +49,7 @@ jobs:
         run: bash scripts/smoke_package_install.sh
 
   build:
-    name: .NET ${{ matrix.framework }}
+    name: .NET ${{ matrix.framework }} / PG ${{ matrix.postgres-version }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -58,14 +58,27 @@ jobs:
         include:
           - dotnet: "8.0.x"
             framework: "net8.0"
+            postgres-version: "18"
           - dotnet: "9.0.x"
             framework: "net9.0"
+            postgres-version: "18"
           - dotnet: "10.0.x"
             framework: "net10.0"
+            postgres-version: "18"
+
+          - dotnet: "10.0.x"
+            framework: "net10.0"
+            postgres-version: "15"
+          - dotnet: "10.0.x"
+            framework: "net10.0"
+            postgres-version: "16"
+          - dotnet: "10.0.x"
+            framework: "net10.0"
+            postgres-version: "17"
 
     services:
       paradedb:
-        image: paradedb/paradedb:0.26.0-pg18
+        image: paradedb/paradedb:0.26.0-pg${{ matrix.postgres-version }}
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -110,7 +123,7 @@ jobs:
         uses: codecov/codecov-action@v7
         with:
           directory: TestResults/${{ matrix.framework }}
-          flags: ${{ matrix.framework }}
+          flags: ${{ matrix.framework }},pg${{ matrix.postgres-version }}
           fail_ci_if_error: false
           verbose: true
         env:
