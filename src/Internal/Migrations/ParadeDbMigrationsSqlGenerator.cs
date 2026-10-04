@@ -51,45 +51,27 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
             .Append(")");
 
         var options = new List<string>();
-        if (
-            operation.FindAnnotation(ParadeDbAnnotationNames.IndexKeyField)?.Value
-            is string keyField
-        )
-        {
-            options.Add($"key_field = {stringMapping.GenerateSqlLiteral(keyField)}");
-        }
-
         if (searchTokenizer is not null)
         {
             options.Add($"search_tokenizer = {stringMapping.GenerateSqlLiteral(searchTokenizer)}");
         }
 
         if (
-            operation.FindAnnotation(ParadeDbAnnotationNames.IndexCentroidRatio)?.Value
-            is double centroidRatio
-        )
-        {
-            options.Add($"centroid_ratio = {centroidRatio.ToString(CultureInfo.InvariantCulture)}");
-        }
-
-        if (
-            operation.FindAnnotation(ParadeDbAnnotationNames.IndexTrainingSamplesPerCentroid)?.Value
-            is int trainingSamplesPerCentroid
+            operation.FindAnnotation(ParadeDbAnnotationNames.IndexTrainingSampleRatio)?.Value
+            is double trainingSampleRatio
         )
         {
             options.Add(
-                $"training_samples_per_centroid = {trainingSamplesPerCentroid.ToString(CultureInfo.InvariantCulture)}"
+                $"training_sample_ratio = {trainingSampleRatio.ToString(CultureInfo.InvariantCulture)}"
             );
         }
 
         if (
-            operation.FindAnnotation(ParadeDbAnnotationNames.IndexClusterReplication)?.Value
-            is int clusterReplication
+            operation.FindAnnotation(ParadeDbAnnotationNames.IndexMaxLeafSize)?.Value
+            is int maxLeafSize
         )
         {
-            options.Add(
-                $"cluster_replication = {clusterReplication.ToString(CultureInfo.InvariantCulture)}"
-            );
+            options.Add($"max_leaf_size = {maxLeafSize.ToString(CultureInfo.InvariantCulture)}");
         }
 
         if (options.Count > 0)

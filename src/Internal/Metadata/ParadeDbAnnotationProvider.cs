@@ -90,9 +90,8 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
 
         string[] vectorOptionNames =
         [
-            ParadeDbAnnotationNames.IndexCentroidRatio,
-            ParadeDbAnnotationNames.IndexTrainingSamplesPerCentroid,
-            ParadeDbAnnotationNames.IndexClusterReplication,
+            ParadeDbAnnotationNames.IndexTrainingSampleRatio,
+            ParadeDbAnnotationNames.IndexMaxLeafSize,
         ];
         foreach (var name in vectorOptionNames)
         {

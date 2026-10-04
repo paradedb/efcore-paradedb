@@ -19,6 +19,9 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  PARADEDB_IMAGE: paradedb/paradedb:0.26.0-pg18
+
 jobs:
   lint:
     name: Lint

@@ -11,32 +11,6 @@ namespace ParadeDB.EntityFrameworkCore.Tests;
 
 public sealed class IndexingTest : TestBase
 {
-    [Test]
-    public void ExistingMigrationRetainsExplicitKeyField()
-    {
-        using var context = new RegularIndexContext(
-            new DbContextOptionsBuilder<RegularIndexContext>()
-                .UseNpgsql("Host=localhost;Database=test", o => o.UseParadeDb())
-                .Options
-        );
-        var operation = new CreateIndexOperation
-        {
-            Name = "legacy_idx",
-            Table = "indexing_items",
-            Columns = ["id", "description"],
-        };
-        operation.AddAnnotation("ParadeDB:IndexFields", new[] { "id", "description" });
-        operation.AddAnnotation("ParadeDB:IndexKeyField", "id");
-        var sql = context
-            .GetService<IMigrationsSqlGenerator>()
-            .Generate([operation], context.Model)
-            .Single()
-            .CommandText;
-        sql.ShouldBe(
-            "CREATE INDEX legacy_idx ON indexing_items USING paradedb (id, description) WITH (key_field = 'id');\n"
-        );
-    }
-
     private sealed class RegularIndexContext(DbContextOptions<RegularIndexContext> options)
         : DbContext(options)
     {
@@ -459,9 +433,8 @@ public sealed class IndexingTest : TestBase
                     .HasParadeDbIndex("indexing_items_idx", e => e.Id)
                     .HasField(e => e.Description)
                     .HasField(e => e.EmbeddingCosine, VectorMetric.Cosine)
-                    .HasCentroidRatio(0.05)
-                    .HasTrainingSamplesPerCentroid(64)
-                    .HasClusterReplication(2);
+                    .HasTrainingSampleRatio(0.05)
+                    .HasMaxLeafSize(64);
             });
         }
     }
@@ -473,14 +446,14 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description, embedding_cosine vector_cosine_ops) WITH (centroid_ratio = 0.05, training_samples_per_centroid = 64, cluster_replication = 2);
+            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description, embedding_cosine vector_cosine_ops) WITH (training_sample_ratio = 0.05, max_leaf_size = 64);
 
             """
         );
     }
 
-    private sealed class CentroidRatioIndexContext(
-        DbContextOptions<CentroidRatioIndexContext> options
+    private sealed class TrainingSampleRatioIndexContext(
+        DbContextOptions<TrainingSampleRatioIndexContext> options
     ) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -494,7 +467,7 @@ public sealed class IndexingTest : TestBase
                 entity
                     .HasParadeDbIndex("indexing_items_idx", e => e.Id)
                     .HasField(e => e.Description)
-                    .HasCentroidRatio(0.5);
+                    .HasTrainingSampleRatio(0.5);
             });
         }
     }
@@ -502,11 +475,11 @@ public sealed class IndexingTest : TestBase
     [Test]
     public void ParadeDbIndex_WithSingleVectorIndexOption()
     {
-        var sql = GenerateCreateIndexSql<CentroidRatioIndexContext, IndexingItem>();
+        var sql = GenerateCreateIndexSql<TrainingSampleRatioIndexContext, IndexingItem>();
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description) WITH (centroid_ratio = 0.5);
+            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description) WITH (training_sample_ratio = 0.5);
 
             """
         );

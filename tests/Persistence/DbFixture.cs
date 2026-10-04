@@ -19,7 +19,9 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
             _container = new PostgreSqlBuilder("postgres:18")
                 .WithImage(
                     Environment.GetEnvironmentVariable("PARADEDB_IMAGE")
-                        ?? "paradedb/paradedb:0.25.0-pg18"
+                        ?? throw new InvalidOperationException(
+                            "Set PARADEDB_IMAGE or PARADEDB_TEST_DSN to run database tests."
+                        )
                 )
                 .WithDatabase("pg_search_test")
                 .WithUsername("test")
@@ -41,7 +43,7 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
             DO $$
             BEGIN
               IF to_regclass('public.mock_items') IS NULL THEN
-                CALL paradedb.create_bm25_test_table(
+                CALL paradedb.create_paradedb_test_table(
                   schema_name => 'public',
                   table_name => 'mock_items'
                 );
@@ -83,8 +85,7 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
               "Metadata",
               "WeightRange",
               "Embedding" vector_cosine_ops
-            )
-            WITH (key_field='Id');
+            );
             """
         );
     }

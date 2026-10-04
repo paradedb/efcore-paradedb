@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Changed
 
-- **Breaking:** New ParadeDB indexes no longer generate `key_field`; the initial property is an ordinary indexed field. Existing migration annotations retain their explicit key option. New indexes require a pg_search version with keyless index support.
+- **Breaking:** Create indexes without an implicit key field and remove legacy key-field migration annotations. Require ParadeDB 0.26.0 or newer.
+- **Breaking:** Update vector index build options to `HasTrainingSampleRatio` and `HasMaxLeafSize` for ParadeDB 0.26.0 and remove the obsolete cluster replication option.
 
 ## [0.3.0] - 2026-08-04
 

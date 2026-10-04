@@ -166,31 +166,19 @@ public sealed class ParadeDbIndexBuilder<TEntity>
         return this;
     }
 
-    public ParadeDbIndexBuilder<TEntity> HasCentroidRatio(double centroidRatio)
-    {
-        _indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexCentroidRatio, centroidRatio);
-
-        return this;
-    }
-
-    public ParadeDbIndexBuilder<TEntity> HasTrainingSamplesPerCentroid(
-        int trainingSamplesPerCentroid
-    )
+    public ParadeDbIndexBuilder<TEntity> HasTrainingSampleRatio(double trainingSampleRatio)
     {
         _indexBuilder.HasAnnotation(
-            ParadeDbAnnotationNames.IndexTrainingSamplesPerCentroid,
-            trainingSamplesPerCentroid
+            ParadeDbAnnotationNames.IndexTrainingSampleRatio,
+            trainingSampleRatio
         );
 
         return this;
     }
 
-    public ParadeDbIndexBuilder<TEntity> HasClusterReplication(int clusterReplication)
+    public ParadeDbIndexBuilder<TEntity> HasMaxLeafSize(int maxLeafSize)
     {
-        _indexBuilder.HasAnnotation(
-            ParadeDbAnnotationNames.IndexClusterReplication,
-            clusterReplication
-        );
+        _indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexMaxLeafSize, maxLeafSize);
 
         return this;
     }
