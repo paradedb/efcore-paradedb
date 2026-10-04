@@ -11,6 +11,4 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
-export PARADEDB_IMAGE="${PARADEDB_IMAGE:-paradedb/paradedb:${PARADEDB_VERSION:-0.26.0}-pg${PARADEDB_POSTGRES_VERSION:-18}}"
-
 dotnet test --framework "${DOTNET_FRAMEWORK:-net10.0}" "$@"
