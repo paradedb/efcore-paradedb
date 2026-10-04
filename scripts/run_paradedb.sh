@@ -18,12 +18,20 @@ CONTAINER_NAME="${PARADEDB_CONTAINER_NAME:-efcore-paradedb}"
 
 # Allow overriding connection details via env vars
 PORT="${PARADEDB_PORT:-5432}"
+HOST="${PARADEDB_HOST:-127.0.0.1}"
 USER="${PARADEDB_USER:-postgres}"
 PASSWORD="${PARADEDB_PASSWORD:-postgres}"
 DB="${PARADEDB_DB:-postgres}"
 
-DATABASE_URL="${DATABASE_URL:-postgresql://${USER}:${PASSWORD}@localhost:${PORT}/${DB}}"
+DATABASE_URL="${DATABASE_URL:-postgresql://${USER}:${PASSWORD}@${HOST}:${PORT}/${DB}}"
 export DATABASE_URL
+
+# Npgsql accepts quoted values, with embedded double quotes escaped by doubling.
+paradedb_npgsql_quote() {
+  local value="${1//\"/\"\"}"
+  printf '"%s"' "${value}"
+}
+export PARADEDB_TEST_DSN="${PARADEDB_TEST_DSN:-Host=$(paradedb_npgsql_quote "${HOST}");Port=${PORT};Database=$(paradedb_npgsql_quote "${DB}");Username=$(paradedb_npgsql_quote "${USER}");Password=$(paradedb_npgsql_quote "${PASSWORD}")}"
 
 if ! command -v docker >/dev/null 2>&1; then
   echo "docker is required to run ParadeDB" >&2
@@ -67,11 +75,11 @@ fi
 # temporary socket-only server that seeds extensions and sample data, and it
 # must not be mistaken for the real one.
 echo "Waiting for ParadeDB to become ready..."
-for _ in {1..30}; do
+for ((paradedb_attempt = 1; paradedb_attempt <= ${PARADEDB_WAIT_ATTEMPTS:-30}; paradedb_attempt++)); do
   if docker exec "${CONTAINER_NAME}" pg_isready -h 127.0.0.1 -U "${USER}" -d "${DB}" >/dev/null 2>&1; then
     break
   fi
-  sleep 5
+  sleep "${PARADEDB_WAIT_INTERVAL:-2}"
 done
 
 if ! docker exec "${CONTAINER_NAME}" pg_isready -h 127.0.0.1 -U "${USER}" -d "${DB}" >/dev/null 2>&1; then
@@ -80,8 +88,8 @@ if ! docker exec "${CONTAINER_NAME}" pg_isready -h 127.0.0.1 -U "${USER}" -d "${
 fi
 
 echo "ParadeDB is running in container ${CONTAINER_NAME}."
-echo "Connection: ${DATABASE_URL}"
+echo "PARADEDB_TEST_DSN is set for tests in the current shell."
 
 if [[ "$RUNNING" == "0" ]]; then
-  echo "ParadeDB is ready. Connect using DATABASE_URL in your current shell."
+  echo "ParadeDB is ready. Run dotnet test in your current shell."
 fi

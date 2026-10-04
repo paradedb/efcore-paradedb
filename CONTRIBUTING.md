@@ -55,7 +55,9 @@ dotnet test
 
 Prefer `dotnet test` over `dotnet build` when verifying changes.
 
-The test runner starts a ParadeDB container via Testcontainers when no connection is supplied. To use an existing test database, set `PARADEDB_TEST_DSN` to an Npgsql connection string. The runner preserves the supplied connection and skips local Docker startup. To start a container manually, use `scripts/run_paradedb.sh`; its default container is `efcore-paradedb` on port `5432`.
+The test runner starts a ParadeDB container via Testcontainers when no connection is supplied. To use an existing test database, set `PARADEDB_TEST_DSN` to an Npgsql connection string. The runner preserves the supplied connection and skips local Docker startup. To start a container manually and set `PARADEDB_TEST_DSN` in the current shell, use `source scripts/run_paradedb.sh`; its default container is `efcore-paradedb` on port `5432`.
+
+Local container startup supports `PARADEDB_HOST` (default `127.0.0.1`), `PARADEDB_PORT` (default `5432`), `PARADEDB_WAIT_ATTEMPTS` (default `30`), and `PARADEDB_WAIT_INTERVAL` (default `2` seconds).
 
 ### Linting and Formatting
 
