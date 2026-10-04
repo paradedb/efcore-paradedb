@@ -65,7 +65,6 @@ jobs:
           - dotnet: "10.0.x"
             framework: "net10.0"
             postgres-version: "18"
-
           - dotnet: "10.0.x"
             framework: "net10.0"
             postgres-version: "15"
