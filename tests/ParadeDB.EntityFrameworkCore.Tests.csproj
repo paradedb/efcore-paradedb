@@ -12,6 +12,7 @@
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Shouldly" />
+    <!-- Pin Testcontainers' transitive SSH.NET dependency to the patched version. -->
     <PackageReference Include="SSH.NET" />
     <PackageReference Include="Testcontainers.PostgreSql" />
     <PackageReference Include="TUnit" />
