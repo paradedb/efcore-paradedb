@@ -4,13 +4,13 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 
 ## Requirements & Compatibility
 
-| Component            | Supported                                                                                                                                                            |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| .NET                 | 8.0+                                                                                                                                                                 |
-| EF Core              | 8.0+                                                                                                                                                                 |
-| PostgreSQL           | 15+                                                                                                                                                                  |
-| pgvector             | 0.7.0+ (provides vector types for ParadeDB’s [native vector search](https://www.paradedb.com/docs/reference/vector/overview), included in the ParadeDB Docker image) |
-| ParadeDB / pg_search | 0.26.0+                                                                                                                                                              |
+| Component            | Supported                                                                                                                     |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| .NET                 | 8.0+                                                                                                                          |
+| EF Core              | 8.0+                                                                                                                          |
+| PostgreSQL           | 15+                                                                                                                           |
+| pgvector             | 0.7.0+ (provides vector types for ParadeDB’s [native vector search](https://www.paradedb.com/docs/reference/vector/overview)) |
+| ParadeDB / pg_search | 0.26.0+                                                                                                                       |
 
 ## Contributing
 
