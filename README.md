@@ -44,7 +44,7 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 | ---------- | ------------------------------------------------------------------ |
 | .NET       | 8.0+                                                               |
 | EF Core    | 8.0+                                                               |
-| ParadeDB   | 0.25.0+                                                            |
+| ParadeDB   | 0.26.0+                                                            |
 | PostgreSQL | 15+ (with the ParadeDB pg_search extension)                        |
 | pgvector   | Required for vector search (included in the ParadeDB Docker image) |
 

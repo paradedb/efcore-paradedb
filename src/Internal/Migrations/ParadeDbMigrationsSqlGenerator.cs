@@ -26,9 +26,7 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
     {
         if (
             operation.FindAnnotation(ParadeDbAnnotationNames.IndexFields)?.Value
-                is not string[] fields
-            || operation.FindAnnotation(ParadeDbAnnotationNames.IndexKeyField)?.Value
-                is not string keyField
+            is not string[] fields
         )
         {
             base.Generate(operation, model, builder, terminate);
@@ -50,47 +48,36 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
             .Append(helper.DelimitIdentifier(operation.Table, operation.Schema))
             .Append(" USING paradedb (")
             .Append(string.Join(", ", fields))
-            .Append(") WITH (key_field = ")
-            .Append(stringMapping.GenerateSqlLiteral(keyField));
+            .Append(")");
 
+        var options = new List<string>();
         if (searchTokenizer is not null)
         {
-            builder
-                .Append(", search_tokenizer = ")
-                .Append(stringMapping.GenerateSqlLiteral(searchTokenizer));
+            options.Add($"search_tokenizer = {stringMapping.GenerateSqlLiteral(searchTokenizer)}");
         }
 
         if (
-            operation.FindAnnotation(ParadeDbAnnotationNames.IndexCentroidRatio)?.Value
-            is double centroidRatio
+            operation.FindAnnotation(ParadeDbAnnotationNames.IndexTrainingSampleRatio)?.Value
+            is double trainingSampleRatio
         )
         {
-            builder
-                .Append(", centroid_ratio = ")
-                .Append(centroidRatio.ToString(CultureInfo.InvariantCulture));
+            options.Add(
+                $"training_sample_ratio = {trainingSampleRatio.ToString(CultureInfo.InvariantCulture)}"
+            );
         }
 
         if (
-            operation.FindAnnotation(ParadeDbAnnotationNames.IndexTrainingSamplesPerCentroid)?.Value
-            is int trainingSamplesPerCentroid
+            operation.FindAnnotation(ParadeDbAnnotationNames.IndexMaxLeafSize)?.Value
+            is int maxLeafSize
         )
         {
-            builder
-                .Append(", training_samples_per_centroid = ")
-                .Append(trainingSamplesPerCentroid.ToString(CultureInfo.InvariantCulture));
+            options.Add($"max_leaf_size = {maxLeafSize.ToString(CultureInfo.InvariantCulture)}");
         }
 
-        if (
-            operation.FindAnnotation(ParadeDbAnnotationNames.IndexClusterReplication)?.Value
-            is int clusterReplication
-        )
+        if (options.Count > 0)
         {
-            builder
-                .Append(", cluster_replication = ")
-                .Append(clusterReplication.ToString(CultureInfo.InvariantCulture));
+            builder.Append(" WITH (").Append(string.Join(", ", options)).Append(")");
         }
-
-        builder.Append(")");
 
         if (operation.Filter is not null)
         {

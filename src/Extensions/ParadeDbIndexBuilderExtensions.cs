@@ -14,13 +14,12 @@ public static class ParadeDbIndexBuilderExtensions
     )
         where TEntity : class
     {
-        var keyProperty = GetPropertyName(keyExpression);
+        var fieldProperty = GetPropertyName(keyExpression);
         var indexBuilder = entityTypeBuilder.HasIndex(keyExpression).HasDatabaseName(name);
 
-        indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexKeyProperty, keyProperty);
         indexBuilder.HasAnnotation(
             ParadeDbAnnotationNames.IndexFieldProperties,
-            new[] { keyProperty }
+            new[] { fieldProperty }
         );
         // IndexFieldKinds is used to track if each index field is an EF Core property or a SQL expression
         // so that it can be rendered appropriately
@@ -43,7 +42,7 @@ public static class ParadeDbIndexBuilderExtensions
         return body is MemberExpression member
             ? member.Member.Name
             : throw new ArgumentException(
-                "The ParadeDB index key expression must be a property access."
+                "The ParadeDB index field expression must be a property access."
             );
     }
 }
@@ -167,31 +166,19 @@ public sealed class ParadeDbIndexBuilder<TEntity>
         return this;
     }
 
-    public ParadeDbIndexBuilder<TEntity> HasCentroidRatio(double centroidRatio)
-    {
-        _indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexCentroidRatio, centroidRatio);
-
-        return this;
-    }
-
-    public ParadeDbIndexBuilder<TEntity> HasTrainingSamplesPerCentroid(
-        int trainingSamplesPerCentroid
-    )
+    public ParadeDbIndexBuilder<TEntity> HasTrainingSampleRatio(double trainingSampleRatio)
     {
         _indexBuilder.HasAnnotation(
-            ParadeDbAnnotationNames.IndexTrainingSamplesPerCentroid,
-            trainingSamplesPerCentroid
+            ParadeDbAnnotationNames.IndexTrainingSampleRatio,
+            trainingSampleRatio
         );
 
         return this;
     }
 
-    public ParadeDbIndexBuilder<TEntity> HasClusterReplication(int clusterReplication)
+    public ParadeDbIndexBuilder<TEntity> HasMaxLeafSize(int maxLeafSize)
     {
-        _indexBuilder.HasAnnotation(
-            ParadeDbAnnotationNames.IndexClusterReplication,
-            clusterReplication
-        );
+        _indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexMaxLeafSize, maxLeafSize);
 
         return this;
     }
