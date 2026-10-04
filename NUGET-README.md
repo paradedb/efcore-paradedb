@@ -24,7 +24,7 @@ If you're missing a feature or have found a bug, please open a [GitHub Issue](ht
 
 We would like to thank the following members of the Entity Framework Core community for their valuable contributions during the development of this package:
 
-- [Nandor Krizbai](https://github.com/nandor23) - Initial implementation of this project
+- [Nandor Krizbai](https://github.com/nandor23) - Initial author of this project
 - [Daniel Oliveira](https://github.com/daniel3303) - Creator of [ParadeDbEntityFrameworkCore](https://github.com/daniel3303/ParadeDbEntityFrameworkCore), which inspired our indexing implementation
 
 ## License
