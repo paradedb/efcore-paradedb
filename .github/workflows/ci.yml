@@ -19,9 +19,6 @@ concurrency:
 permissions:
   contents: read
 
-env:
-  PARADEDB_IMAGE: paradedb/paradedb:0.26.0-pg18
-
 jobs:
   lint:
     name: Lint
@@ -65,6 +62,24 @@ jobs:
             framework: "net9.0"
           - dotnet: "10.0.x"
             framework: "net10.0"
+
+    services:
+      paradedb:
+        image: paradedb/paradedb:0.26.0-pg18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U postgres -d postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+
+    env:
+      PARADEDB_TEST_DSN: Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres
 
     steps:
       - name: Checkout
@@ -140,3 +155,6 @@ jobs:
 
       - name: Check API coverage
         run: uv run --with json5 scripts/check_api_coverage.py
+
+      - name: Test tooling scripts
+        run: uv run --with json5 python -m unittest discover -s scripts/tests -p "test_*.py"
