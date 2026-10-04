@@ -35,6 +35,15 @@ internal sealed class Translator : IMethodCallTranslator
         {
             nameof(Pdb.Boost) or nameof(Pdb.Const) or nameof(Pdb.Fuzzy) or nameof(Pdb.Slop) =>
                 BuildModifier(arguments, method.Name),
+            nameof(ParadeDbFunctionsExtensions.Search)
+                when arguments[2] is SqlConstantExpression { Value: SearchQuery searchQuery } =>
+                BuildQueryBuilderFunction(
+                    arguments[1],
+                    new SqlFragmentExpression(
+                        PdbTypeMappings.Text.GenerateSqlLiteral(searchQuery.ToJson())
+                            + "::paradedb.searchqueryinput"
+                    )
+                ),
             nameof(ParadeDbFunctionsExtensions.MatchAny) => BuildOperator(
                 arguments,
                 PdbOperatorType.Disjunction
@@ -116,12 +125,8 @@ internal sealed class Translator : IMethodCallTranslator
             ),
             nameof(ParadeDbFunctionsExtensions.Snippet) => BuildSnippet(arguments),
             nameof(ParadeDbFunctionsExtensions.Snippets) => BuildSnippets(arguments),
-            nameof(ParadeDbFunctionsExtensions.SnippetPositions) => _sqlExpressionFactory.Function(
-                name: "pdb.snippet_positions",
-                nullable: true,
-                arguments: [arguments[1]],
-                argumentsPropagateNullability: [false],
-                returnType: typeof(int[,])
+            nameof(ParadeDbFunctionsExtensions.SnippetPositions) => BuildSnippetPositions(
+                arguments
             ),
             nameof(ParadeDbFunctionsExtensions.Proximity)
                 when method.DeclaringType == typeof(ParadeDbFunctionsExtensions) =>
@@ -339,7 +344,10 @@ internal sealed class Translator : IMethodCallTranslator
 
         Add(options?.StartTag, "start_tag");
         Add(options?.EndTag, "end_tag");
+        ValidatePagination(options?.Limit, options?.Offset);
         Add(options?.MaxNumChars, "max_num_chars");
+        Add(options?.Limit, "\"limit\"");
+        Add(options?.Offset, "\"offset\"");
 
         return PgFunctionExpression.CreateWithNamedArguments(
             name: "pdb.snippet",
@@ -364,6 +372,50 @@ internal sealed class Translator : IMethodCallTranslator
             );
             argNames.Add(name);
         }
+    }
+
+    private static void ValidatePagination(int? limit, int? offset)
+    {
+        if (limit < 0)
+            throw new ArgumentOutOfRangeException(nameof(limit));
+        if (offset < 0)
+            throw new ArgumentOutOfRangeException(nameof(offset));
+    }
+
+    private PgFunctionExpression BuildSnippetPositions(IReadOnlyList<SqlExpression> arguments)
+    {
+        var options =
+            arguments.Count == 3
+                ? (SnippetPositionsOptions?)((SqlConstantExpression)arguments[2]).Value
+                : null;
+        ValidatePagination(options?.Limit, options?.Offset);
+        List<SqlExpression> args = [arguments[1]];
+        List<string?> names = [null];
+        foreach (
+            var (name, value) in new[]
+            {
+                ("\"limit\"", options?.Limit),
+                ("\"offset\"", options?.Offset),
+            }
+        )
+        {
+            if (value is null)
+                continue;
+            args.Add(
+                _sqlExpressionFactory.ApplyDefaultTypeMapping(_sqlExpressionFactory.Constant(value))
+            );
+            names.Add(name);
+        }
+        return PgFunctionExpression.CreateWithNamedArguments(
+            name: "pdb.snippet_positions",
+            arguments: args,
+            argumentNames: names,
+            nullable: true,
+            argumentsPropagateNullability: new bool[args.Count],
+            builtIn: false,
+            type: typeof(int[,]),
+            typeMapping: null
+        );
     }
 
     private PgFunctionExpression BuildSnippets(IReadOnlyList<SqlExpression> arguments)

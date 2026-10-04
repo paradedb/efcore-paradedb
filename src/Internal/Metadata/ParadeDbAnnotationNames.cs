@@ -13,5 +13,8 @@ internal static class ParadeDbAnnotationNames
     public const string IndexPartitionBy = "ParadeDB:IndexPartitionBy";
     public const string IndexTargetSegmentCount = "ParadeDB:IndexTargetSegmentCount";
     public const string IndexVectorFields = "ParadeDB:IndexVectorFields";
+    public const string IndexLayerSizes = "ParadeDB:IndexLayerSizes";
+    public const string IndexBackgroundLayerSizes = "ParadeDB:IndexBackgroundLayerSizes";
+    public const string IndexMutableSegmentRows = "ParadeDB:IndexMutableSegmentRows";
     public const string IndexMaxLeafSize = "ParadeDB:IndexMaxLeafSize";
 }

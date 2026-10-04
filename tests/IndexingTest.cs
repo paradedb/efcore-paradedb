@@ -488,6 +488,51 @@ public sealed class IndexingTest : TestBase
         );
     }
 
+    private sealed class TunedIndexContext(DbContextOptions<TunedIndexContext> options)
+        : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<IndexingItem>(entity =>
+            {
+                entity.ToTable("indexing_items");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Description).HasColumnName("description");
+                entity
+                    .HasParadeDbIndex("indexing_items_idx", e => e.Id)
+                    .HasField(e => e.Description)
+                    .HasSearchTokenizer(Tokenizer.Simple(new() { ["lowercase"] = false }))
+                    .HasLayerSizes("0")
+                    .HasBackgroundLayerSizes("100MB, 1GB")
+                    .HasMutableSegmentRows(1000);
+            });
+        }
+    }
+
+    [Test]
+    public async Task IndexTuningOptionsSurviveMigrationGeneration()
+    {
+        await using var context = DbFixture.CreateContext();
+        await context.Database.OpenConnectionAsync();
+        await context.Database.ExecuteSqlRawAsync(
+            "CREATE TEMP TABLE indexing_items (id int PRIMARY KEY, description text)"
+        );
+        var sql = GenerateCreateIndexSql<TunedIndexContext, IndexingItem>();
+        sql.ShouldContain("layer_sizes = '0'");
+        sql.ShouldContain("background_layer_sizes = '100MB, 1GB'");
+        sql.ShouldContain("mutable_segment_rows = 1000");
+        await context.Database.ExecuteSqlRawAsync(sql);
+        var options = await context
+            .Database.SqlQueryRaw<string[]>(
+                "SELECT reloptions AS \"Value\" FROM pg_class WHERE oid = 'indexing_items_idx'::regclass"
+            )
+            .SingleAsync();
+        options.ShouldContain("search_tokenizer=simple(lowercase=false)");
+        options.ShouldContain("layer_sizes=0");
+        options.ShouldContain("background_layer_sizes=100MB, 1GB");
+        options.ShouldContain("mutable_segment_rows=1000");
+    }
+
     private static string GenerateCreateIndexSql<TContext, TEntity>()
         where TContext : DbContext
     {

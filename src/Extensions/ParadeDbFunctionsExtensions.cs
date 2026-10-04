@@ -11,6 +11,13 @@ namespace ParadeDB.EntityFrameworkCore.Extensions;
 public static class ParadeDbFunctionsExtensions
 {
     [DbFunction]
+    public static bool Search<TProperty>(
+        this DbFunctions _,
+        TProperty property,
+        [NotParameterized] SearchQuery query
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Search)));
+
+    [DbFunction]
     public static bool MatchAny<TProperty>(this DbFunctions _, TProperty property, string value) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MatchAny)));
 
@@ -76,6 +83,14 @@ public static class ParadeDbFunctionsExtensions
 
     [DbFunction]
     public static int[,]? SnippetPositions<TProperty>(this DbFunctions _, TProperty property) =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(SnippetPositions)));
+
+    [DbFunction]
+    public static int[,]? SnippetPositions<TProperty>(
+        this DbFunctions _,
+        TProperty property,
+        [NotParameterized] SnippetPositionsOptions? options
+    ) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(SnippetPositions)));
 
     [DbFunction]

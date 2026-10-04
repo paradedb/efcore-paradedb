@@ -94,6 +94,23 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
         )
             options.Add($"vector_fields = {stringMapping.GenerateSqlLiteral(vectorFields)}");
 
+        foreach (
+            var (annotation, name) in new[]
+            {
+                (ParadeDbAnnotationNames.IndexLayerSizes, "layer_sizes"),
+                (ParadeDbAnnotationNames.IndexBackgroundLayerSizes, "background_layer_sizes"),
+            }
+        )
+        {
+            if (operation.FindAnnotation(annotation)?.Value is string value)
+                options.Add($"{name} = {stringMapping.GenerateSqlLiteral(value)}");
+        }
+        if (
+            operation.FindAnnotation(ParadeDbAnnotationNames.IndexMutableSegmentRows)?.Value
+            is int rows
+        )
+            options.Add($"mutable_segment_rows = {rows.ToString(CultureInfo.InvariantCulture)}");
+
         if (options.Count > 0)
         {
             builder.Append(" WITH (").Append(string.Join(", ", options)).Append(")");
