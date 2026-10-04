@@ -4,13 +4,13 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 
 ## Requirements & Compatibility
 
-| Component  | Supported                                                                                                                                                         |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| .NET       | 8.0+                                                                                                                                                              |
-| EF Core    | 8.0+                                                                                                                                                              |
-| ParadeDB   | 0.26.0+                                                                                                                                                           |
-| PostgreSQL | 15+ (with ParadeDB extension)                                                                                                                                     |
-| pgvector   | Provides vector data types for ParadeDB’s [native vector search](https://www.paradedb.com/docs/reference/vector/overview) (included in the ParadeDB Docker image) |
+| Component  | Supported                                                         |
+| ---------- | ----------------------------------------------------------------- |
+| .NET       | 8.0+                                                              |
+| EF Core    | 8.0+                                                              |
+| ParadeDB   | 0.25.0+                                                           |
+| PostgreSQL | 15+ (with ParadeDB extension)                                     |
+| pgvector   | Required for vector search; included in the ParadeDB Docker image |
 
 ## Contributing
 
