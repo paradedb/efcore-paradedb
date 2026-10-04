@@ -24,7 +24,6 @@ concurrency:
 
 env:
   PARADEDB_VERSION: ${{ inputs.version || github.event.client_payload.version }}
-  PARADEDB_IMAGE: paradedb/paradedb:${{ inputs.version || github.event.client_payload.version }}-pg18
 
 permissions:
   contents: read
@@ -54,6 +53,24 @@ jobs:
   tests:
     name: Tests
     runs-on: ubuntu-latest
+
+    services:
+      paradedb:
+        image: paradedb/paradedb:${{ inputs.version || github.event.client_payload.version }}-pg18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+
+    env:
+      PARADEDB_TEST_DSN: Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres
 
     steps:
       - name: Checkout
