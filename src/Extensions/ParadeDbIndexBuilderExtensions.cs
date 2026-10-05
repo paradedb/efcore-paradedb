@@ -243,18 +243,6 @@ public sealed class ParadeDbIndexBuilder<TEntity>
         return this;
     }
 
-    /// <summary>Choose graph routing or the experimental stacked IVF router.</summary>
-    public ParadeDbIndexBuilder<TEntity> HasVectorRouter(string vectorRouter)
-    {
-        if (vectorRouter is not ("graph" or "ivf"))
-            throw new ArgumentException(
-                "Vector router must be graph or ivf.",
-                nameof(vectorRouter)
-            );
-        _indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexVectorRouter, vectorRouter);
-        return this;
-    }
-
     private void AddField(
         string field,
         string kind,

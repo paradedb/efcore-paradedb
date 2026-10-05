@@ -92,12 +92,6 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
         )
             options.Add($"vector_fields = {stringMapping.GenerateSqlLiteral(vectorFields)}");
 
-        if (
-            operation.FindAnnotation(ParadeDbAnnotationNames.IndexVectorRouter)?.Value
-            is string vectorRouter
-        )
-            options.Add($"vector_router = {stringMapping.GenerateSqlLiteral(vectorRouter)}");
-
         if (options.Count > 0)
         {
             builder.Append(" WITH (").Append(string.Join(", ", options)).Append(")");

@@ -517,7 +517,6 @@ public sealed class IndexingTest : TestBase
                         )
                     )
                     .HasField(e => e.EmbeddingL2, VectorMetric.L2)
-                    .HasVectorRouter("ivf")
                     .HasPartitionBy("rating,id")
                     .HasTargetSegmentCount(8)
                     .HasVectorQuantization("embedding", 1, 4);
@@ -564,7 +563,6 @@ public sealed class IndexingTest : TestBase
                         )
                     )
                     .HasField(e => e.EmbeddingL2, VectorMetric.L2)
-                    .HasVectorRouter("ivf")
                     .HasPartitionBy("rating,id")
                     .HasTargetSegmentCount(8)
                     .HasVectorQuantization("embedding", false);

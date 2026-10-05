@@ -10,7 +10,6 @@ internal static class ParadeDbAnnotationNames
     public const string IndexSearchTokenizer = "ParadeDB:IndexSearchTokenizer";
     public const string IndexFields = "ParadeDB:IndexFields";
     public const string IndexTrainingSampleRatio = "ParadeDB:IndexTrainingSampleRatio";
-    public const string IndexVectorRouter = "ParadeDB:IndexVectorRouter";
     public const string IndexPartitionBy = "ParadeDB:IndexPartitionBy";
     public const string IndexTargetSegmentCount = "ParadeDB:IndexTargetSegmentCount";
     public const string IndexVectorFields = "ParadeDB:IndexVectorFields";
