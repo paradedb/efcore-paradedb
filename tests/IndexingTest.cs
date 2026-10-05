@@ -617,6 +617,80 @@ public sealed class IndexingTest : TestBase
         await context.Database.ExecuteSqlRawAsync("DROP TABLE indexing_items");
     }
 
+    [Test]
+    [Arguments("graph")]
+    [Arguments("ivf")]
+    public async Task ExplicitVectorRouterPersistsInIndex(string router)
+    {
+        var table = router == "ivf" ? "router_items_ivf" : "router_items_graph";
+        var createTableSql =
+            router == "ivf"
+                ? "CREATE TABLE router_items_ivf (id int, embedding vector(64))"
+                : "CREATE TABLE router_items_graph (id int, embedding vector(64))";
+        var dropTableSql =
+            router == "ivf"
+                ? "DROP TABLE router_items_ivf CASCADE"
+                : "DROP TABLE router_items_graph CASCADE";
+        var indexName = $"router_idx_{router}";
+        await using var context = DbFixture.CreateContext();
+        await context.Database.OpenConnectionAsync();
+        await context.Database.ExecuteSqlRawAsync(createTableSql);
+        try
+        {
+            var operation = new CreateIndexOperation
+            {
+                Name = indexName,
+                Table = table,
+                Columns = ["id", "embedding"],
+            };
+            operation.AddAnnotation(
+                "ParadeDB:IndexFields",
+                new[] { "id", "embedding vector_l2_ops" }
+            );
+            var model = new ModelBuilder();
+            model
+                .Entity<IndexingItem>()
+                .HasParadeDbIndex("router_idx", e => e.Id)
+                .HasVectorRouter(router);
+            operation.AddAnnotation(
+                "ParadeDB:IndexVectorRouter",
+                model
+                    .Entity<IndexingItem>()
+                    .Metadata.GetIndexes()
+                    .Single()
+                    .FindAnnotation("ParadeDB:IndexVectorRouter")!
+                    .Value
+            );
+            var sql = context
+                .GetService<IMigrationsSqlGenerator>()
+                .Generate([operation])
+                .Single()
+                .CommandText;
+            sql.ShouldContain($"vector_router = '{router}'");
+            await context.Database.ExecuteSqlRawAsync(sql);
+            var options = await context
+                .Database.SqlQuery<string>(
+                    $"SELECT unnest(reloptions) AS \"Value\" FROM pg_class WHERE oid = {indexName}::regclass"
+                )
+                .ToListAsync();
+            options.ShouldContain($"vector_router={router}");
+        }
+        finally
+        {
+            await context.Database.ExecuteSqlRawAsync(dropTableSql);
+        }
+    }
+
+    [Test]
+    public void VectorRouterDefaultAndValidation()
+    {
+        GenerateCreateIndexSql<VectorIndexContext, IndexingItem>()
+            .ShouldNotContain("vector_router");
+        var model = new ModelBuilder();
+        var builder = model.Entity<IndexingItem>().HasParadeDbIndex("router_idx", e => e.Id);
+        Should.Throw<ArgumentException>(() => builder.HasVectorRouter("invalid"));
+    }
+
     private static string GenerateCreateIndexSql<TContext, TEntity>()
         where TContext : DbContext
     {
