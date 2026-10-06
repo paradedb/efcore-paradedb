@@ -35,15 +35,6 @@ internal sealed class Translator : IMethodCallTranslator
         {
             nameof(Pdb.Boost) or nameof(Pdb.Const) or nameof(Pdb.Fuzzy) or nameof(Pdb.Slop) =>
                 BuildModifier(arguments, method.Name),
-            nameof(ParadeDbFunctionsExtensions.Search)
-                when arguments[2] is SqlConstantExpression { Value: SearchQuery searchQuery } =>
-                BuildQueryBuilderFunction(
-                    arguments[1],
-                    new SqlFragmentExpression(
-                        PdbTypeMappings.Text.GenerateSqlLiteral(searchQuery.ToJson())
-                            + "::paradedb.searchqueryinput"
-                    )
-                ),
             nameof(ParadeDbFunctionsExtensions.MatchAny) => BuildOperator(
                 arguments,
                 PdbOperatorType.Disjunction
@@ -344,10 +335,7 @@ internal sealed class Translator : IMethodCallTranslator
 
         Add(options?.StartTag, "start_tag");
         Add(options?.EndTag, "end_tag");
-        ValidatePagination(options?.Limit, options?.Offset);
         Add(options?.MaxNumChars, "max_num_chars");
-        Add(options?.Limit, "\"limit\"");
-        Add(options?.Offset, "\"offset\"");
 
         return PgFunctionExpression.CreateWithNamedArguments(
             name: "pdb.snippet",

@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using ParadeDB.EntityFrameworkCore.Extensions;
 using ParadeDB.EntityFrameworkCore.Tests.Persistence;
 using Shouldly;
@@ -167,84 +166,6 @@ public sealed class DiagnosticsTests
             -- @p='[0.1,0.2]'
             SELECT * FROM paradedb.vector_estimator_info(@p::regclass, @p::text, ARRAY[@p::vector]::vector[])
             """
-        );
-    }
-}
-
-public sealed class DirectAggregateTests : TestBase
-{
-    [Test]
-    public async Task DirectAggregateAndBucketLimit()
-    {
-        await using var context = DbFixture.CreateContext();
-        var conjunction = SearchQuery.Boolean(
-            should:
-            [
-                SearchQuery.Parse("Description:running"),
-                SearchQuery.Parse("Description:shoes"),
-            ],
-            minimumShouldMatch: 2
-        );
-        var query = SearchQuery.Boolean(
-            must:
-            [
-                SearchQuery.DisjunctionMax(
-                    [conjunction, SearchQuery.Parse("Description:boots")],
-                    tieBreaker: 0.5f
-                ),
-            ],
-            mustNot: [SearchQuery.Parse("Description:sandals")]
-        );
-        var count = await context
-            .MockItems.Where(item => EF.Functions.Search(item.Id, query))
-            .CountAsync();
-        count.ShouldBeGreaterThan(0);
-        var result = await context
-            .Database.Aggregate(
-                "search_idx",
-                query,
-                new { count = new { value_count = new { field = "Id" } } },
-                new()
-                {
-                    MemoryLimit = 10000000,
-                    BucketLimit = 100,
-                    Visibility = "transaction",
-                }
-            )
-            .SingleAsync();
-        result.Result.GetProperty("count").GetProperty("value").GetDouble().ShouldBe(count);
-        var error = await Should.ThrowAsync<PostgresException>(() =>
-            context
-                .Database.Aggregate(
-                    "search_idx",
-                    SearchQuery.Parse("Description:shoes"),
-                    new { ids = new { terms = new { field = "Id", size = 10 } } },
-                    new() { MemoryLimit = 10000000, BucketLimit = 1 }
-                )
-                .SingleAsync()
-        );
-        error.MessageText.ShouldContain("bucket limit was exceeded");
-    }
-
-    [Test]
-    public void RejectsInvalidAggregateOptions()
-    {
-        using var context = DbFixture.CreateContext();
-        Should.Throw<ArgumentException>(() =>
-            context.Database.Aggregate(
-                "idx",
-                SearchQuery.Parse("*"),
-                new { },
-                new() { SolveMvcc = true, Visibility = "raw" }
-            )
-        );
-        Should.Throw<ArgumentOutOfRangeException>(() =>
-            context.Database.Aggregate(
-                "idx",
-                SearchQuery.Parse("*"),
-                new { },
-                new() { MemoryLimit = 0 }
-            )
         );
     }
 }

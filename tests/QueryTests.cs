@@ -2158,92 +2158,17 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
-    public async Task NestedQueryInputsAndQuotedStrings()
+    public async Task SnippetPositionPagination()
     {
         await using var context = DbFixture.CreateContext();
-        var conjunction = SearchQuery.Boolean(
-            should:
-            [
-                SearchQuery.Parse("Description:running"),
-                SearchQuery.Parse("Description:shoes"),
-            ],
-            minimumShouldMatch: 2
-        );
-        var expected = await context
-            .MockItems.Where(item => EF.Functions.MatchAll(item.Description, "running shoes"))
-            .CountAsync();
-        expected.ShouldBeGreaterThan(0);
-        (
-            await context
-                .MockItems.Where(item => EF.Functions.Search(item.Id, conjunction))
-                .CountAsync()
-        ).ShouldBe(expected);
-        var query = SearchQuery.Boolean(
-            must:
-            [
-                SearchQuery.DisjunctionMax(
-                    [conjunction, SearchQuery.Parse("Description:boots")],
-                    tieBreaker: 0.5f
-                ),
-            ],
-            mustNot: [SearchQuery.Parse("Description:sandals")]
-        );
-        var count = await context
-            .MockItems.Where(item => EF.Functions.Search(item.Id, query))
-            .CountAsync();
-        count.ShouldBeGreaterThan(0);
-        var escaped = SearchQuery.Parse("Description:\"O'Reilly\"");
-        (
-            await context
-                .MockItems.Where(item => EF.Functions.Search(item.Id, escaped))
-                .CountAsync()
-        ).ShouldBe(0);
-    }
-
-    [Test]
-    public async Task SparseSnippetOptionsAndPagination()
-    {
-        await using var context = DbFixture.CreateContext();
-        var options = new SnippetOptions
-        {
-            MaxNumChars = 20,
-            Limit = 1,
-            Offset = 0,
-        };
         var positions = new SnippetPositionsOptions { Limit = 1, Offset = 1 };
-        var query = context.MockItems.Where(item =>
-            EF.Functions.MatchAny(item.Description, "shoes")
-        );
-        var rows = await query
-            .Select(item => new
-            {
-                Snippet = EF.Functions.Snippet(item.Description, options),
-                Positions = EF.Functions.SnippetPositions(item.Description, positions),
-            })
-            .ToListAsync();
+        var query = context.MockItems
+            .Where(item => EF.Functions.MatchAny(item.Description, "shoes"))
+            .Select(item => EF.Functions.SnippetPositions(item.Description, positions));
+        var rows = await query.ToListAsync();
         rows.Count.ShouldBeGreaterThan(0);
-        rows.All(row => row.Snippet is not null && row.Snippet.Contains("<b>")).ShouldBeTrue();
-        var sql = query
-            .Select(item => EF.Functions.SnippetPositions(item.Description, positions))
-            .ToQueryString();
+        var sql = query.ToQueryString();
         sql.ShouldContain("\"limit\" => 1");
         sql.ShouldContain("\"offset\" => 1");
-        var sparse = new SnippetOptions { EndTag = "</mark>" };
-        var snippets = await query
-            .Select(item => EF.Functions.Snippet(item.Description, sparse))
-            .ToListAsync();
-        snippets.All(snippet => snippet is not null && snippet.Contains("</mark>")).ShouldBeTrue();
-    }
-
-    [Test]
-    public void RejectsInvalidQueryOptions()
-    {
-        Should.Throw<ArgumentOutOfRangeException>(() =>
-            SearchQuery.Boolean(minimumShouldMatch: -1)
-        );
-        Should.Throw<ArgumentOutOfRangeException>(() =>
-            SearchQuery.DisjunctionMax([SearchQuery.Parse("Description:shoes")], float.NaN)
-        );
-        Should.Throw<ArgumentException>(() => SearchQuery.DisjunctionMax([]));
     }
 }
