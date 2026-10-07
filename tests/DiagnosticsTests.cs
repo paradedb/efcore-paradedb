@@ -153,7 +153,11 @@ public sealed class DiagnosticsTests
             );
         }
         AssertSql(
-            context.Database.VectorEstimatorInfo("search_idx", "embedding", [[0.1f, 0.2f]]),
+            context.Database.VectorEstimatorInfo(
+                "search_idx",
+                "embedding",
+                [[0.1f, 0.2f]]
+            ),
             """
             -- @p='search_idx'
             -- @p='embedding'
