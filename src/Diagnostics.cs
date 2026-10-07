@@ -79,8 +79,146 @@ public sealed class IndexInfo
     public long TotalDocs { get; set; }
 }
 
+public sealed class VectorConfig
+{
+    [Column("index_oid", TypeName = "oid")]
+    public uint IndexOid { get; set; }
+
+    [Column("quantized")]
+    public bool Quantized { get; set; }
+
+    [Column("layers")]
+    public int[]? Layers { get; set; } = null!;
+
+    [Column("bytes_per_row")]
+    public int? BytesPerRow { get; set; }
+
+    [Column("settings_version")]
+    public int? SettingsVersion { get; set; }
+}
+
+public sealed class VectorEstimatorInfo
+{
+    [Column("depth")]
+    public int Depth { get; set; }
+
+    [Column("bias")]
+    public float Bias { get; set; }
+
+    [Column("spread")]
+    public float Spread { get; set; }
+
+    [Column("sample_rows")]
+    public int SampleRows { get; set; }
+
+    [Column("query_count")]
+    public int QueryCount { get; set; }
+
+    [Column("query_source")]
+    public string QuerySource { get; set; } = null!;
+}
+
+public sealed class VectorInfo
+{
+    [Column("segno")]
+    public string Segno { get; set; } = null!;
+
+    [Column("vector_field")]
+    public string VectorField { get; set; } = null!;
+
+    [Column("vector_format")]
+    public string VectorFormat { get; set; } = null!;
+
+    [Column("vector_num_vectors")]
+    public decimal VectorNumVectors { get; set; }
+
+    [Column("vector_num_centroids")]
+    public decimal? VectorNumCentroids { get; set; }
+
+    [Column("vector_min_cluster_size")]
+    public decimal? VectorMinClusterSize { get; set; }
+
+    [Column("vector_max_cluster_size")]
+    public decimal? VectorMaxClusterSize { get; set; }
+
+    [Column("vector_avg_cluster_size")]
+    public double? VectorAvgClusterSize { get; set; }
+
+    [Column("vector_empty_clusters")]
+    public decimal? VectorEmptyClusters { get; set; }
+
+    [Column("vector_total_rows")]
+    public decimal? VectorTotalRows { get; set; }
+
+    [Column("quantized")]
+    public bool Quantized { get; set; }
+
+    [Column("layers")]
+    public int[]? Layers { get; set; } = null!;
+
+    [Column("quantizer_kinds")]
+    public string[]? QuantizerKinds { get; set; } = null!;
+
+    [Column("bytes_per_row")]
+    public int? BytesPerRow { get; set; }
+}
+
 public static class ParadeDbDiagnosticsExtensions
 {
+    public static IQueryable<VectorInfo> VectorInfo(
+        this DatabaseFacade database,
+        string index,
+        string field
+    ) =>
+        database.SqlQuery<VectorInfo>(
+            $"SELECT * FROM paradedb.vector_info({index}::regclass, {field}::text)"
+        );
+
+    public static IQueryable<VectorConfig> VectorConfig(
+        this DatabaseFacade database,
+        string index,
+        string field
+    ) =>
+        database.SqlQuery<VectorConfig>(
+            $"SELECT * FROM paradedb.vector_config({index}::regclass, {field}::text)"
+        );
+
+    public static IQueryable<VectorEstimatorInfo> VectorEstimatorInfo(
+        this DatabaseFacade database,
+        string index,
+        string field,
+        IReadOnlyList<float[]>? queries = null
+    )
+    {
+        List<object> parameters = [index, field];
+        var queryArg = "";
+        if (queries is not null)
+        {
+            var values = queries.Select(query =>
+            {
+                var placeholder = $"{{{parameters.Count}}}::vector";
+                parameters.Add(
+                    "["
+                        + string.Join(
+                            ",",
+                            query.Select(value =>
+                                value.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                            )
+                        )
+                        + "]"
+                );
+                return placeholder;
+            });
+            queryArg = $", ARRAY[{string.Join(", ", values)}]::vector[]";
+        }
+        return database.SqlQuery<VectorEstimatorInfo>(
+            FormattableStringFactory.Create(
+                $"SELECT * FROM paradedb.vector_estimator_info({{0}}::regclass, {{1}}::text{queryArg})",
+                parameters.ToArray()
+            )
+        );
+    }
+
     public static IQueryable<VerifyIndexResult> VerifyIndex(
         this DatabaseFacade database,
         string index,

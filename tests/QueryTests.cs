@@ -1564,11 +1564,11 @@ public sealed class QueryTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context.MockItems.Select(p =>
-            EF.Functions.Agg(new { value_count = new { field = "Rating" } })
+            EF.Functions.Agg(new { value_count = new { field = "Rating" } }, "transaction")
         );
 
         var sql = """
-            SELECT pdb.agg('{"value_count":{"field":"Rating"}}', TRUE)
+            SELECT pdb.agg('{"value_count":{"field":"Rating"}}', 'transaction')
             FROM "MockItems" AS m
             """;
 
@@ -1583,13 +1583,13 @@ public sealed class QueryTests : TestBase
 
         var query = context
             .MockItems.Select(p =>
-                EF.Functions.AggOver(new { value_count = new { field = "Rating" } })
+                EF.Functions.AggOver(new { value_count = new { field = "Rating" } }, "threshold")
             )
             .Take(10);
 
         var sql = """
             -- @p='10'
-            SELECT pdb.agg('{"value_count":{"field":"Rating"}}', TRUE) OVER ()
+            SELECT pdb.agg('{"value_count":{"field":"Rating"}}', 'threshold') OVER ()
             FROM "MockItems" AS m
             LIMIT @p
             """;

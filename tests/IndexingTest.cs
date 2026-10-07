@@ -434,7 +434,10 @@ public sealed class IndexingTest : TestBase
                     .HasField(e => e.Description)
                     .HasField(e => e.EmbeddingCosine, VectorMetric.Cosine)
                     .HasTrainingSampleRatio(0.05)
-                    .HasMaxLeafSize(64);
+                    .HasMaxLeafSize(64)
+                    .HasPartitionBy("id")
+                    .HasTargetSegmentCount(8)
+                    .HasVectorQuantization("embedding_cosine", false);
             });
         }
     }
@@ -446,7 +449,7 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description, embedding_cosine vector_cosine_ops) WITH (training_sample_ratio = 0.05, max_leaf_size = 64);
+            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description, embedding_cosine vector_cosine_ops) WITH (training_sample_ratio = 0.05, max_leaf_size = 64, partition_by = 'id', target_segment_count = 8, vector_fields = '{"embedding_cosine":{"quantization":false}}');
 
             """
         );
