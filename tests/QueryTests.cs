@@ -2162,8 +2162,8 @@ public sealed class QueryTests : TestBase
     {
         await using var context = DbFixture.CreateContext();
         var positions = new SnippetPositionsOptions { Limit = 1, Offset = 1 };
-        var query = context.MockItems
-            .Where(item => EF.Functions.MatchAny(item.Description, "shoes"))
+        var query = context
+            .MockItems.Where(item => EF.Functions.MatchAny(item.Description, "shoes"))
             .Select(item => EF.Functions.SnippetPositions(item.Description, positions));
         var rows = await query.ToListAsync();
         rows.Count.ShouldBeGreaterThan(0);
