@@ -156,7 +156,9 @@ public sealed class DiagnosticsTests
             context.Database.VectorEstimatorInfo(
                 "search_idx",
                 "embedding",
-                [[0.1f, 0.2f]]
+                [
+                    [0.1f, 0.2f],
+                ]
             ),
             """
             -- @p='search_idx'
