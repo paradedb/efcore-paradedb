@@ -2156,4 +2156,19 @@ public sealed class QueryTests : TestBase
         results.ShouldBe(await ExpectedTopKAsync(context, queryVector, CosineDistance, 3));
         results[0].ShouldBe(seedId);
     }
+
+    [Test]
+    public async Task SnippetPositionPagination()
+    {
+        await using var context = DbFixture.CreateContext();
+        var positions = new SnippetPositionsOptions { Limit = 1, Offset = 1 };
+        var query = context
+            .MockItems.Where(item => EF.Functions.MatchAny(item.Description, "shoes"))
+            .Select(item => EF.Functions.SnippetPositions(item.Description, positions));
+        var rows = await query.ToListAsync();
+        rows.Count.ShouldBeGreaterThan(0);
+        var sql = query.ToQueryString();
+        sql.ShouldContain("\"limit\" => 1");
+        sql.ShouldContain("\"offset\" => 1");
+    }
 }

@@ -166,6 +166,34 @@ public sealed class ParadeDbIndexBuilder<TEntity>
         return this;
     }
 
+    public ParadeDbIndexBuilder<TEntity> HasLayerSizes(string layerSizes)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(layerSizes);
+        _indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexLayerSizes, layerSizes);
+        return this;
+    }
+
+    public ParadeDbIndexBuilder<TEntity> HasBackgroundLayerSizes(string backgroundLayerSizes)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(backgroundLayerSizes);
+        _indexBuilder.HasAnnotation(
+            ParadeDbAnnotationNames.IndexBackgroundLayerSizes,
+            backgroundLayerSizes
+        );
+        return this;
+    }
+
+    public ParadeDbIndexBuilder<TEntity> HasMutableSegmentRows(int mutableSegmentRows)
+    {
+        if (mutableSegmentRows is < 0 or > 10000)
+            throw new ArgumentOutOfRangeException(nameof(mutableSegmentRows));
+        _indexBuilder.HasAnnotation(
+            ParadeDbAnnotationNames.IndexMutableSegmentRows,
+            mutableSegmentRows
+        );
+        return this;
+    }
+
     public ParadeDbIndexBuilder<TEntity> HasTrainingSampleRatio(double trainingSampleRatio)
     {
         _indexBuilder.HasAnnotation(

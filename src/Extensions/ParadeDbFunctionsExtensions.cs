@@ -79,6 +79,14 @@ public static class ParadeDbFunctionsExtensions
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(SnippetPositions)));
 
     [DbFunction]
+    public static int[,]? SnippetPositions<TProperty>(
+        this DbFunctions _,
+        TProperty property,
+        [NotParameterized] SnippetPositionsOptions? options
+    ) =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(SnippetPositions)));
+
+    [DbFunction]
     public static bool Proximity<TProperty>(
         this DbFunctions _,
         TProperty property,
