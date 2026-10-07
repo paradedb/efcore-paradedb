@@ -131,18 +131,26 @@ public sealed class DiagnosticsTests
     public void VectorDiagnostics()
     {
         using var context = new TestDbContext(Options);
-        foreach (var (query, function) in new (IQueryable, string)[]
+        foreach (
+            var (query, function) in new (IQueryable, string)[]
+            {
+                (context.Database.VectorInfo("search_idx", "embedding"), "vector_info"),
+                (context.Database.VectorConfig("search_idx", "embedding"), "vector_config"),
+                (
+                    context.Database.VectorEstimatorInfo("search_idx", "embedding"),
+                    "vector_estimator_info"
+                ),
+            }
+        )
         {
-            (context.Database.VectorInfo("search_idx", "embedding"), "vector_info"),
-            (context.Database.VectorConfig("search_idx", "embedding"), "vector_config"),
-            (context.Database.VectorEstimatorInfo("search_idx", "embedding"), "vector_estimator_info"),
-        })
-        {
-            AssertSql(query, $"""
+            AssertSql(
+                query,
+                $"""
                 -- @p='search_idx'
                 -- @p='embedding'
                 SELECT * FROM paradedb.{function}(@p::regclass, @p::text)
-                """);
+                """
+            );
         }
         AssertSql(
             context.Database.VectorEstimatorInfo("search_idx", "embedding", [[0.1f, 0.2f]]),
