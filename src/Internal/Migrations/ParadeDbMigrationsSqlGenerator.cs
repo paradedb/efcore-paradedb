@@ -76,9 +76,9 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
 
         if (
             operation.FindAnnotation(ParadeDbAnnotationNames.IndexPartitionBy)?.Value
-            is string partitionBy
+            is string[] partitionBy
         )
-            options.Add($"partition_by = {stringMapping.GenerateSqlLiteral(partitionBy)}");
+            options.Add($"partition_by = {stringMapping.GenerateSqlLiteral(string.Join(",", partitionBy))}");
         if (
             operation.FindAnnotation(ParadeDbAnnotationNames.IndexTargetSegmentCount)?.Value
             is int targetSegmentCount

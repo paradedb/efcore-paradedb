@@ -184,24 +184,14 @@ public sealed class ParadeDbIndexBuilder<TEntity>
     }
 
     /// <summary>Partition segments by single-valued columnar index field names.</summary>
-    public ParadeDbIndexBuilder<TEntity> HasPartitionBy(string partitionBy)
+    public ParadeDbIndexBuilder<TEntity> HasPartitionBy(params string[] partitionBy)
     {
-        if (
-            string.IsNullOrWhiteSpace(partitionBy)
-            || partitionBy.Split(',').Any(string.IsNullOrWhiteSpace)
-        )
-            throw new ArgumentException(
-                "Partition keys must be non-empty index field names.",
-                nameof(partitionBy)
-            );
         _indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexPartitionBy, partitionBy);
         return this;
     }
 
     public ParadeDbIndexBuilder<TEntity> HasTargetSegmentCount(int targetSegmentCount)
     {
-        if (targetSegmentCount < 1)
-            throw new ArgumentOutOfRangeException(nameof(targetSegmentCount));
         _indexBuilder.HasAnnotation(
             ParadeDbAnnotationNames.IndexTargetSegmentCount,
             targetSegmentCount
