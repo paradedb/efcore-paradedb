@@ -141,6 +141,11 @@ internal sealed class Translator : IMethodCallTranslator
                 3
             ),
             nameof(ParadeDbFunctionsExtensions.AggOver) => BuildAggregate(arguments, true),
+            nameof(ParadeDbFunctionsExtensions.CombineAggOver) => BuildAggregate(
+                arguments,
+                true,
+                combine: true
+            ),
             nameof(ParadeDbFunctionsExtensions.AggFilterOver) => BuildAggregate(
                 arguments,
                 true,
@@ -593,7 +598,8 @@ internal sealed class Translator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         bool over,
         SqlExpression? filter = null,
-        int exactArgumentIndex = 2
+        int exactArgumentIndex = 2,
+        bool combine = false
     )
     {
         if (arguments[1] is not SqlConstantExpression { Value: { } aggregate })
@@ -620,6 +626,19 @@ internal sealed class Translator : IMethodCallTranslator
         if (filter is not null)
         {
             function = new PdbFilteredAggregateExpression((SqlFunctionExpression)function, filter);
+        }
+
+        if (combine)
+        {
+            function = _sqlExpressionFactory.Function(
+                name: "combine_agg",
+                schema: "pdb",
+                nullable: true,
+                arguments: [function],
+                argumentsPropagateNullability: [false],
+                returnType: typeof(JsonElement),
+                typeMapping: PdbTypeMappings.JsonbElement
+            );
         }
 
         return over ? new PdbOverExpression((SqlFunctionExpression)function) : function;

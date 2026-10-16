@@ -29,6 +29,7 @@ internal sealed class ParadeDbEvaluatableExpressionFilterPlugin : IEvaluatableEx
                             or nameof(ParadeDbFunctionsExtensions.Agg)
                             or nameof(ParadeDbFunctionsExtensions.AggFilter)
                             or nameof(ParadeDbFunctionsExtensions.AggOver)
+                            or nameof(ParadeDbFunctionsExtensions.CombineAggOver)
                             or nameof(ParadeDbFunctionsExtensions.AggFilterOver)
                 )
             )
