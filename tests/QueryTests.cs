@@ -1599,6 +1599,51 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task Aggregate_CombineAcrossGroups(bool visibility)
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var groups = context.MockItems.Where(p => EF.Functions.All(p.Id)).GroupBy(p => p.InStock);
+        var query = visibility
+            ? groups.Select(g => new
+            {
+                InStock = g.Key,
+                GroupRows = g.Count(),
+                Total = EF.Functions.CombineAggOver(
+                    new { value_count = new { field = "Id" } },
+                    "transaction"
+                ),
+            })
+            : groups.Select(g => new
+            {
+                InStock = g.Key,
+                GroupRows = g.Count(),
+                Total = EF.Functions.CombineAggOver(new { value_count = new { field = "Id" } }),
+            });
+
+        var mode = visibility ? "'transaction'" : "TRUE";
+        AssertSql(
+            query,
+            $$$"""
+            SELECT m."InStock", count(*)::int AS "GroupRows", pdb.combine_agg(pdb.agg('{"value_count":{"field":"Id"}}', {{{mode}}})) OVER () AS "Total"
+            FROM "MockItems" AS m
+            WHERE m."Id" @@@ pdb.all()
+            GROUP BY m."InStock"
+            """
+        );
+
+        var rows = await query.ToListAsync();
+        rows.Count.ShouldBe(2);
+        var total = rows.Sum(row => row.GroupRows);
+        foreach (var row in rows)
+        {
+            row.Total!.Value.GetProperty("value").GetDouble().ShouldBe(total);
+        }
+    }
+
+    [Test]
     public async Task Aggregate_ValueCountFilter()
     {
         await using var context = DbFixture.CreateContext();

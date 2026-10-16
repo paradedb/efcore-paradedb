@@ -140,6 +140,24 @@ public static class ParadeDbFunctionsExtensions
         [NotParameterized] bool exact = true
     ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Agg)));
 
+    /// <summary>
+    /// Combines pdb.agg across GROUP BY groups using
+    /// pdb.combine_agg(pdb.agg(...)) OVER ().
+    /// </summary>
+    [DbFunction]
+    public static JsonElement? CombineAggOver(
+        this DbFunctions _,
+        [NotParameterized] object aggregate,
+        [NotParameterized] bool exact = true
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(CombineAggOver)));
+
+    [DbFunction]
+    public static JsonElement? CombineAggOver(
+        this DbFunctions _,
+        [NotParameterized] object aggregate,
+        [NotParameterized] string visibility
+    ) => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(CombineAggOver)));
+
     [DbFunction]
     public static JsonElement? AggFilter(
         this DbFunctions _,

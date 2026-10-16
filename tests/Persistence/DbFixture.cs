@@ -22,7 +22,7 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
             _container = new PostgreSqlBuilder("postgres:18")
                 .WithImage(
                     Environment.GetEnvironmentVariable("PARADEDB_IMAGE")
-                        ?? $"paradedb/paradedb:{Environment.GetEnvironmentVariable("PARADEDB_VERSION") ?? "0.26.0"}-pg{Environment.GetEnvironmentVariable("PARADEDB_POSTGRES_VERSION") ?? "18"}"
+                        ?? $"paradedb/paradedb:{Environment.GetEnvironmentVariable("PARADEDB_VERSION") ?? "0.26.2"}-pg{Environment.GetEnvironmentVariable("PARADEDB_POSTGRES_VERSION") ?? "18"}"
                 )
                 .WithDatabase("pg_search_test")
                 .WithUsername("test")
