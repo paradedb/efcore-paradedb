@@ -4,9 +4,15 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-16
+
 ### Added
 
-- Cross-group facets using `EF.Functions.CombineAggOver` (ParadeDB 0.26.2+).
+- Cross-group facets using `EF.Functions.CombineAggOver`.
+
+### Changed
+
+- **Breaking:** Require ParadeDB 0.26.2 or newer.
 
 ## [0.4.0] - 2026-10-07
 
@@ -69,6 +75,8 @@ All notable changes to this project will be documented in this file. The format 
 ### Added
 
 - Support for the ParadeDB query language, index management, and diagnostics.
+
+[0.5.0]: https://github.com/paradedb/efcore-paradedb/compare/v0.4.0...v0.5.0
 
 [0.4.0]: https://github.com/paradedb/efcore-paradedb/compare/v0.3.0...v0.4.0
 [0.2.0]: https://github.com/paradedb/efcore-paradedb/compare/v0.1.2...v0.2.0

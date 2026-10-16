@@ -142,7 +142,7 @@ public static class ParadeDbFunctionsExtensions
 
     /// <summary>
     /// Combines pdb.agg across GROUP BY groups using
-    /// pdb.combine_agg(pdb.agg(...)) OVER () (ParadeDB 0.26.2+).
+    /// pdb.combine_agg(pdb.agg(...)) OVER ().
     /// </summary>
     [DbFunction]
     public static JsonElement? CombineAggOver(
