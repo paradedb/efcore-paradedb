@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Added
 
 - Optional `ParadeDB.VectorData` package for cosine vector search through Microsoft's `IVectorSearchable<TRecord>` over an existing EF Core query.
+- Synonym search using `Pdb.Expand`, which expands the text of `MatchAny` and `MatchAll` with the rules of a synonym table. It needs a ParadeDB version with `pdb.expand`.
 
 ### Changed
 

@@ -35,6 +35,14 @@ internal sealed class Translator : IMethodCallTranslator
         {
             nameof(Pdb.Boost) or nameof(Pdb.Const) or nameof(Pdb.Fuzzy) or nameof(Pdb.Slop) =>
                 BuildModifier(arguments, method.Name),
+            nameof(Pdb.ExpandRule) => _sqlExpressionFactory.Function(
+                name: "pdb.expand",
+                nullable: true,
+                arguments: arguments,
+                argumentsPropagateNullability: [false, false],
+                returnType: typeof(string),
+                typeMapping: PdbTypeMappings.Text
+            ),
             nameof(ParadeDbFunctionsExtensions.MatchAny) => BuildOperator(
                 arguments,
                 PdbOperatorType.Disjunction

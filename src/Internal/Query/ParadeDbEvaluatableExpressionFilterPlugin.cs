@@ -19,6 +19,7 @@ internal sealed class ParadeDbEvaluatableExpressionFilterPlugin : IEvaluatableEx
                             or nameof(Pdb.Const)
                             or nameof(Pdb.Fuzzy)
                             or nameof(Pdb.Slop)
+                            or nameof(Pdb.Expand)
                     && call.Arguments.Count > 1
                 )
                 || (
