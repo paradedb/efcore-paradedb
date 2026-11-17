@@ -872,6 +872,29 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
+    public async Task ExplainScore()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
+            .Select(p => new { p.Id, Explanation = EF.Functions.ExplainScore(p.Id) });
+
+        var sql = """
+            SELECT m."Id", pdb.explain_score(m."Id") AS "Explanation"
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'rich'
+            """;
+
+        AssertSql(query, sql);
+
+        await SkipUnlessExplainScoreExistsAsync(context);
+        var rows = await query.ToListAsync();
+        rows.ShouldNotBeEmpty();
+        rows[0].Explanation.ShouldContain("TermQuery, product of...");
+    }
+
+    [Test]
     public async Task ScoreOrderBy()
     {
         await using var context = DbFixture.CreateContext();
@@ -2303,6 +2326,68 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
+    public void Expand_WithPhraseAndParse()
+    {
+        using var context = DbFixture.CreateContext();
+
+        var phrase = context.MockItems.Where(p =>
+            EF.Functions.Phrase(
+                p.Description,
+                Pdb.Expand("leather sofa", context.ShopSynonyms.Select(s => s.Rule))
+            )
+        );
+        var parse = context.MockItems.Where(p =>
+            EF.Functions.Parse(
+                p.Description,
+                Pdb.Fuzzy(
+                    Pdb.Expand("lether AND sofa", context.ShopSynonyms.Select(s => s.Rule)),
+                    1
+                )
+            )
+        );
+
+        AssertSql(
+            phrase,
+            """
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" ### (
+                SELECT pdb.expand('leather sofa', s."Rule")
+                FROM "ShopSynonyms" AS s
+                LIMIT 1)
+            """
+        );
+        AssertSql(
+            parse,
+            """
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ (
+                SELECT pdb.expand('lether AND sofa', s."Rule")
+                FROM "ShopSynonyms" AS s
+                LIMIT 1)::pdb.fuzzy(1)
+            """
+        );
+    }
+
+    [Test]
+    public void Expand_WithParseOptions_Throws()
+    {
+        using var context = DbFixture.CreateContext();
+
+        var query = context.MockItems.Where(p =>
+            EF.Functions.Parse(
+                p.Description,
+                Pdb.Expand("sofa", context.ShopSynonyms.Select(s => s.Rule)),
+                true
+            )
+        );
+
+        var exception = Should.Throw<InvalidOperationException>(() => query.ToQueryString());
+        exception.Message.ShouldBe("Parse options do not apply to an expansion.");
+    }
+
+    [Test]
     public async Task Expand_ReadsSynonymIndex()
     {
         await using var context = DbFixture.CreateContext();
@@ -2387,6 +2472,14 @@ public sealed class QueryTests : TestBase
         var sql = "SELECT to_regprocedure('pdb.expand(text, text)') IS NOT NULL AS \"Value\"";
         var exists = await context.Database.SqlQueryRaw<bool>(sql).SingleAsync();
         Skip.Unless(exists, "This ParadeDB version has no pdb.expand.");
+    }
+
+    private static async Task SkipUnlessExplainScoreExistsAsync(TestDbContext context)
+    {
+        var sql =
+            "SELECT to_regprocedure('pdb.explain_score(anyelement)') IS NOT NULL AS \"Value\"";
+        var exists = await context.Database.SqlQueryRaw<bool>(sql).SingleAsync();
+        Skip.Unless(exists, "This ParadeDB version has no pdb.explain_score.");
     }
 
     private static async Task<string> ExplainAsync(TestDbContext context, IQueryable query)

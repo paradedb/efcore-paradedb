@@ -6,8 +6,9 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
+- Synonym search using `Pdb.Expand`, which expands the text of `MatchAny`, `MatchAll`, `Phrase` and `Parse` with the rules of a synonym table. It needs a ParadeDB version with `pdb.expand`.
+- `EF.Functions.ExplainScore`, which explains the BM25 score of a row as JSON. It needs a ParadeDB version with `pdb.explain_score`.
 - Optional `ParadeDB.VectorData` package for cosine vector search through Microsoft's `IVectorSearchable<TRecord>` over an existing EF Core query.
-- Synonym search using `Pdb.Expand`, which expands the text of `MatchAny` and `MatchAll` with the rules of a synonym table. It needs a ParadeDB version with `pdb.expand`.
 
 ### Changed
 

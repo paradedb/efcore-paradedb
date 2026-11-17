@@ -87,9 +87,17 @@ internal sealed class Translator : IMethodCallTranslator
                     returnType: typeof(bool)
                 )
             ),
+            nameof(ParadeDbFunctionsExtensions.ExplainScore) => _sqlExpressionFactory.Function(
+                name: "explain_score",
+                schema: "pdb",
+                nullable: false,
+                arguments: [arguments[1]],
+                argumentsPropagateNullability: [false],
+                returnType: typeof(string)
+            ),
             nameof(ParadeDbFunctionsExtensions.Parse) => BuildQueryBuilderFunction(
                 arguments[1],
-                BuildParse(arguments)
+                IsExpansion(arguments[2]) ? BuildParseExpansion(arguments) : BuildParse(arguments)
             ),
             nameof(ParadeDbFunctionsExtensions.Regex) => BuildQueryBuilderFunction(
                 arguments[1],
@@ -162,6 +170,33 @@ internal sealed class Translator : IMethodCallTranslator
             ),
             _ => null,
         };
+    }
+
+    private static bool IsExpansion(SqlExpression expression)
+    {
+        while (expression is SqlUnaryExpression { OperatorType: ExpressionType.Convert } modifier)
+        {
+            expression = modifier.Operand;
+        }
+
+        if (expression is not ScalarSubqueryExpression subquery)
+        {
+            return false;
+        }
+
+        var projection = subquery.Subquery.Projection[0].Expression;
+        return projection is SqlFunctionExpression { Name: "pdb.expand" };
+    }
+
+    // `pdb.parse` takes only text, and `Pdb.Expand` already returns a query.
+    private static SqlExpression BuildParseExpansion(IReadOnlyList<SqlExpression> arguments)
+    {
+        if (arguments.Skip(3).Any(option => option is not SqlConstantExpression { Value: null }))
+        {
+            throw new InvalidOperationException("Parse options do not apply to an expansion.");
+        }
+
+        return arguments[2];
     }
 
     private PgFunctionExpression BuildParse(IReadOnlyList<SqlExpression> arguments)

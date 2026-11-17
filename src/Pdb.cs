@@ -65,8 +65,9 @@ public static class Pdb
 
     /// <summary>
     /// Expands <paramref name="text" /> with the synonym rules in <paramref name="rules" />, for
-    /// <c>MatchAny</c> or <c>MatchAll</c>. Write the values of a <c>Where</c> on the rules as
-    /// constants or with <c>EF.Constant</c>. A partial synonym index can't match a parameter.
+    /// <c>MatchAny</c>, <c>MatchAll</c>, <c>Phrase</c> or <c>Parse</c>. Write the values of a
+    /// <c>Where</c> on the rules as constants or with <c>EF.Constant</c>. A partial synonym index
+    /// can't match a parameter.
     /// </summary>
     public static string Expand(string text, IQueryable<string> rules) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Expand)));
