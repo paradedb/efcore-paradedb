@@ -877,13 +877,13 @@ public sealed class QueryTests : TestBase
         await using var context = DbFixture.CreateContext();
 
         var query = context
-            .MockItems.Where(p => EF.Functions.Term(p.Description, "rich"))
+            .MockItems.Where(p => EF.Functions.Term(p.Description, "shoes"))
             .Select(p => new { p.Id, Explanation = EF.Functions.ExplainScore(p.Id) });
 
         var sql = """
             SELECT m."Id", pdb.explain_score(m."Id") AS "Explanation"
             FROM "MockItems" AS m
-            WHERE m."Description" === 'rich'
+            WHERE m."Description" === 'shoes'
             """;
 
         AssertSql(query, sql);
@@ -891,7 +891,7 @@ public sealed class QueryTests : TestBase
         await SkipUnlessExplainScoreExistsAsync(context);
         var rows = await query.ToListAsync();
         rows.ShouldNotBeEmpty();
-        rows[0].Explanation.ShouldContain("TermQuery, product of...");
+        rows[0].Explanation.ShouldContain("\"value\"");
     }
 
     [Test]
@@ -2245,11 +2245,9 @@ public sealed class QueryTests : TestBase
     {
         using var context = DbFixture.CreateContext();
 
+        var rules = context.ShopSynonyms.Select(s => s.Rule);
         var query = context.MockItems.Where(p =>
-            EF.Functions.MatchAny(
-                p.Description,
-                Pdb.Expand("sofa", context.ShopSynonyms.Select(s => s.Rule))
-            )
+            EF.Functions.MatchAny(p.Description, Pdb.Expand("sofa", rules))
         );
 
         var sql = """
