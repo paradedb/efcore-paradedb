@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>ParadeDB.VectorData</PackageId>
+    <Product>ParadeDB.VectorData</Product>
+    <Title>ParadeDB VectorData Integration</Title>
+    <Description>Microsoft.Extensions.VectorData cosine search over ParadeDB Entity Framework Core queries.</Description>
+    <PackageTags>EntityFrameworkCore;ParadeDB;PostgreSQL;VectorData;Vector Search</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="NUGET-README.md" Pack="true" PackagePath="\" />
+    <ProjectReference Include="../ParadeDB.EntityFrameworkCore.csproj" />
+    <PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" />
+  </ItemGroup>
+</Project>

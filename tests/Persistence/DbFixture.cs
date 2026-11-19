@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
 using ParadeDB.EntityFrameworkCore.Extensions;
 using Testcontainers.PostgreSql;
@@ -116,4 +117,11 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
     }
 
     public TestDbContext CreateContext() => new(_options);
+
+    public TestDbContext CreateContext(IInterceptor interceptor) =>
+        new(
+            new DbContextOptionsBuilder<TestDbContext>(_options)
+                .AddInterceptors(interceptor)
+                .Options
+        );
 }

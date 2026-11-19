@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+### Added
+
+- Optional `ParadeDB.VectorData` package for cosine vector search through Microsoft's `IVectorSearchable<TRecord>` over an existing EF Core query.
+
 ## [0.5.0] - 2026-10-16
 
 ### Added

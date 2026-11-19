@@ -3,6 +3,7 @@
     "path": "ParadeDB.EntityFrameworkCore.slnx",
     "projects": [
       "src/ParadeDB.EntityFrameworkCore.csproj",
+      "src/VectorData/ParadeDB.VectorData.csproj",
       "tests/ParadeDB.EntityFrameworkCore.Tests.csproj"
     ]
   }
