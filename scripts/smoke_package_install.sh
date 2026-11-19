@@ -12,7 +12,6 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
-PROJECT="src/ParadeDB.EntityFrameworkCore.csproj"
 PACKAGE_ID="ParadeDB.EntityFrameworkCore"
 VECTOR_PACKAGE_ID="ParadeDB.VectorData"
 
