@@ -888,7 +888,6 @@ public sealed class QueryTests : TestBase
 
         AssertSql(query, sql);
 
-        await SkipUnlessExplainScoreExistsAsync(context);
         var rows = await query.ToListAsync();
         rows.ShouldNotBeEmpty();
         rows[0].Explanation.ShouldContain("\"value\"");
@@ -2389,7 +2388,6 @@ public sealed class QueryTests : TestBase
     public async Task Expand_ReadsSynonymIndex()
     {
         await using var context = DbFixture.CreateContext();
-        await SkipUnlessExpandExistsAsync(context);
 
         await context.Database.ExecuteSqlRawAsync(
             """
@@ -2424,7 +2422,6 @@ public sealed class QueryTests : TestBase
     public async Task Expand_WithSetFilter_ReadsPartialSynonymIndex()
     {
         await using var context = DbFixture.CreateContext();
-        await SkipUnlessExpandExistsAsync(context);
 
         await context.Database.ExecuteSqlRawAsync(
             """
@@ -2463,21 +2460,6 @@ public sealed class QueryTests : TestBase
         var items = await query.ToListAsync();
         items.ShouldHaveSingleItem().Description.ShouldBe("Classic leather sofa");
         (await ExplainAsync(context, query)).ShouldContain("Synonyms: synonyms_shop_idx");
-    }
-
-    private static async Task SkipUnlessExpandExistsAsync(TestDbContext context)
-    {
-        var sql = "SELECT to_regprocedure('pdb.expand(text, text)') IS NOT NULL AS \"Value\"";
-        var exists = await context.Database.SqlQueryRaw<bool>(sql).SingleAsync();
-        Skip.Unless(exists, "This ParadeDB version has no pdb.expand.");
-    }
-
-    private static async Task SkipUnlessExplainScoreExistsAsync(TestDbContext context)
-    {
-        var sql =
-            "SELECT to_regprocedure('pdb.explain_score(anyelement)') IS NOT NULL AS \"Value\"";
-        var exists = await context.Database.SqlQueryRaw<bool>(sql).SingleAsync();
-        Skip.Unless(exists, "This ParadeDB version has no pdb.explain_score.");
     }
 
     private static async Task<string> ExplainAsync(TestDbContext context, IQueryable query)
