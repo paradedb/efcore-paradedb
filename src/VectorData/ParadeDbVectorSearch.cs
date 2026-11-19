@@ -9,48 +9,13 @@ namespace ParadeDB.VectorData;
 
 /// <summary>Runs cosine similarity searches over an existing ParadeDB EF Core query.</summary>
 /// <remarks>
-/// <para>
-/// Map the embedding property to a PostgreSQL vector column and include it in a ParadeDB index
-/// with <c>vector_cosine_ops</c>. The source query needs a ParadeDB predicate for index-backed
-/// ranking. For filtered searches, include the filter columns in the index and use
-/// EF-translatable filters.
-/// </para>
-/// <para>
-/// Register the adapter in the same DI scope as its context. Enumerate results within that
-/// scope and complete or dispose the enumeration before using the context for another operation.
-/// EF Core continues to own writes, migrations, and transactions.
-/// </para>
+/// Use a ParadeDB index with <c>vector_cosine_ops</c>. For index-backed filtering, include the
+/// filter columns in the index. Enumerate results within the owning context’s scope and finish
+/// enumeration before starting another operation on that context.
 /// </remarks>
-/// <example>
-/// <code>
-/// services.AddScoped&lt;IVectorSearchable&lt;Document&gt;&gt;(provider =>
-/// {
-///     var db = provider.GetRequiredService&lt;AppDbContext&gt;();
-///     return new ParadeDbVectorSearch&lt;Document&gt;(
-///         db.Documents.Where(document => EF.Functions.All(document.Id)),
-///         nameof(Document.Embedding),
-///         document => new Document { Id = document.Id, Title = document.Title }
-///     );
-/// });
-///
-/// await foreach (var hit in search.SearchAsync(
-///     queryEmbedding,
-///     top: 10,
-///     options: new() { Filter = document => document.TenantId == tenantId },
-///     cancellationToken: cancellationToken
-/// ))
-/// {
-///     Console.WriteLine($"{hit.Record.Title}: {hit.Score}");
-/// }
-/// </code>
-/// </example>
-/// <param name="records">
-/// An EF Core entity query with a ParadeDB search predicate, such as EF.Functions.All on the index key.
-/// </param>
-/// <param name="embeddingProperty">The EF property name of the indexed float array embedding.</param>
-/// <param name="withoutVectors">
-/// A projection that returns the desired record fields without its embeddings.
-/// </param>
+/// <param name="records">An EF query with a ParadeDB predicate, such as <c>EF.Functions.All</c> on the index key.</param>
+/// <param name="embeddingProperty">The mapped <c>float[]</c> embedding property name.</param>
+/// <param name="withoutVectors">The record projection used when embeddings are omitted.</param>
 public sealed class ParadeDbVectorSearch<TRecord>(
     IQueryable<TRecord> records,
     string embeddingProperty,

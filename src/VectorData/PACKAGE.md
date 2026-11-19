@@ -9,5 +9,5 @@ Install `ParadeDB.VectorData` and use the same version of
 `ParadeDB.EntityFrameworkCore`. Configure your `float[]` embedding as a
 PostgreSQL vector column and include it in a ParadeDB index with
 `vector_cosine_ops`. See the XML documentation on
-`ParadeDB.VectorData.ParadeDbVectorSearch<TRecord>` for a scoped DI example
+`ParadeDB.VectorData.ParadeDbVectorSearch<TRecord>` for query requirements
 and supported search options.
