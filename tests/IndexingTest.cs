@@ -399,10 +399,10 @@ public sealed class IndexingTest : TestBase
         );
     }
 
-    private sealed class VectorIndexOptionsContext(
-        DbContextOptions<VectorIndexOptionsContext> options
-    ) : DbContext(options)
+    private class VectorIndexOptionsContext(DbContextOptions options) : DbContext(options)
     {
+        protected virtual bool Quantize => true;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<IndexingItem>(entity =>
@@ -413,19 +413,30 @@ public sealed class IndexingTest : TestBase
                 entity
                     .Property(e => e.EmbeddingCosine)
                     .HasColumnName("embedding_cosine")
-                    .HasColumnType("vector(3)");
+                    .HasColumnType("vector(64)");
 
-                entity
+                var index = entity
                     .HasParadeDbIndex("indexing_items_idx", e => e.Id)
                     .HasField(e => e.Description)
                     .HasField(e => e.EmbeddingCosine, VectorMetric.Cosine)
                     .HasTrainingSampleRatio(0.05)
                     .HasTargetLeafSize(64)
                     .HasPartitionBy("id")
-                    .HasTargetSegmentCount(8)
-                    .HasVectorQuantization(false);
+                    .HasTargetSegmentCount(8);
+
+                if (Quantize)
+                    index.HasVectorQuantization([1, 4]);
+                else
+                    index.HasVectorQuantization(0);
             });
         }
+    }
+
+    private sealed class UnquantizedVectorIndexOptionsContext(
+        DbContextOptions<UnquantizedVectorIndexOptionsContext> options
+    ) : VectorIndexOptionsContext(options)
+    {
+        protected override bool Quantize => false;
     }
 
     [Test]
@@ -438,7 +449,7 @@ public sealed class IndexingTest : TestBase
             CREATE TEMP TABLE indexing_items (
                 id int PRIMARY KEY,
                 description text,
-                embedding_cosine vector(3)
+                embedding_cosine vector(64)
             );
             """
         );
@@ -447,11 +458,21 @@ public sealed class IndexingTest : TestBase
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description, embedding_cosine vector_cosine_ops) WITH (training_sample_ratio = 0.05, target_leaf_size = 64, partition_by = 'id', target_segment_count = 8, quantization = '0');
+            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description, embedding_cosine vector_cosine_ops) WITH (training_sample_ratio = 0.05, target_leaf_size = 64, partition_by = 'id', target_segment_count = 8, quantization = '[1,4]');
 
             """
         );
         await context.Database.ExecuteSqlRawAsync(sql);
+
+        await context.Database.ExecuteSqlRawAsync("DROP INDEX indexing_items_idx");
+        var unquantizedSql = GenerateCreateIndexSql<
+            UnquantizedVectorIndexOptionsContext,
+            IndexingItem
+        >();
+        unquantizedSql.ShouldBe(
+            sql.Replace("quantization = '[1,4]'", "quantization = '0'", StringComparison.Ordinal)
+        );
+        await context.Database.ExecuteSqlRawAsync(unquantizedSql);
     }
 
     private sealed class TrainingSampleRatioIndexContext(
@@ -532,7 +553,9 @@ public sealed class IndexingTest : TestBase
         options.ShouldContain("mutable_segment_rows=1000");
     }
 
-    private static string GenerateCreateIndexSql<TContext, TEntity>()
+    private static string GenerateCreateIndexSql<TContext, TEntity>(
+        string indexName = "indexing_items_idx"
+    )
         where TContext : DbContext
     {
         using var context = (TContext)

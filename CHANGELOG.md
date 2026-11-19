@@ -4,10 +4,14 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+### Added
+
+- Optional `ParadeDB.VectorData` package for cosine vector search through Microsoft's `IVectorSearchable<TRecord>` over an existing EF Core query.
+
 ### Changed
 
 - **Breaking:** Require ParadeDB 0.27.0 or newer.
-- **Breaking:** Rename `HasMaxLeafSize` to `HasTargetLeafSize` and remove the field argument of `HasVectorQuantization` for ParadeDB 0.27.0. The quantization applies to every vector field of the index.
+- **Breaking:** Rename `HasMaxLeafSize` to `HasTargetLeafSize`. Configure index-wide quantization with `HasVectorQuantization(0)` or explicit layer widths such as `HasVectorQuantization([1, 4])`.
 
 ## [0.5.0] - 2026-10-16
 

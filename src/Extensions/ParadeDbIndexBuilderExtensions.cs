@@ -227,13 +227,22 @@ public sealed class ParadeDbIndexBuilder<TEntity>
         return this;
     }
 
-    /// <summary>Turn quantization of the vector fields on or off at CREATE INDEX or REINDEX time.</summary>
-    public ParadeDbIndexBuilder<TEntity> HasVectorQuantization(bool quantization) =>
-        SetVectorQuantization(quantization ? "[1,1]" : "0");
+    /// <summary>Pass zero to disable quantization for the vector index.</summary>
+    public ParadeDbIndexBuilder<TEntity> HasVectorQuantization(int quantization)
+    {
+        if (quantization != 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(quantization),
+                "Use zero or an array of layer widths."
+            );
+
+        return SetVectorQuantization("0");
+    }
 
     /// <summary>Configure one to three quantization layers, with one to four bits per layer.</summary>
-    public ParadeDbIndexBuilder<TEntity> HasVectorQuantization(params int[] layers)
+    public ParadeDbIndexBuilder<TEntity> HasVectorQuantization(int[] layers)
     {
+        ArgumentNullException.ThrowIfNull(layers);
         if (layers.Length is < 1 or > 3 || layers.Any(bits => bits is < 1 or > 4))
             throw new ArgumentException(
                 "Use one to three layers with one to four bits per layer.",

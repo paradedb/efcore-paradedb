@@ -20,5 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\src\ParadeDB.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\src\VectorData\ParadeDB.VectorData.csproj" />
   </ItemGroup>
 </Project>

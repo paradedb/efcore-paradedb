@@ -2,7 +2,7 @@
 #
 # smoke_package_install.sh
 #
-# Packs the NuGet package, restores it into a throwaway project from a local
+# Packs the NuGet packages, restores them into a throwaway project from a local
 # feed, and compiles against the public API. This catches packaging problems the
 # test suite cannot see, because the tests reference the project directly while
 # consumers get only what the .nupkg actually ships.
@@ -12,8 +12,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
-PROJECT="src/ParadeDB.EntityFrameworkCore.csproj"
-PACKAGE_ID="ParadeDB.EntityFrameworkCore"
+EFCORE_PACKAGE_ID="ParadeDB.EntityFrameworkCore"
+VECTOR_PACKAGE_ID="ParadeDB.VectorData"
 
 WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/efcore-paradedb-smoke.XXXXXX")"
 cleanup() {
@@ -24,18 +24,12 @@ trap cleanup EXIT
 FEED_DIR="${WORK_DIR}/feed"
 APP_DIR="${WORK_DIR}/app"
 
-echo "Packing ${PACKAGE_ID}..."
-dotnet pack "${PROJECT}" --configuration Release --output "${FEED_DIR}" >/dev/null
-
-NUPKG="$(find "${FEED_DIR}" -maxdepth 1 -name "${PACKAGE_ID}.*.nupkg" ! -name '*.symbols.nupkg' | head -1)"
-if [[ -z "${NUPKG}" ]]; then
-  echo "❌ dotnet pack produced no .nupkg" >&2
-  exit 1
-fi
-
-VERSION="$(basename "${NUPKG}")"
-VERSION="${VERSION#"${PACKAGE_ID}."}"
-VERSION="${VERSION%.nupkg}"
+VERSION="0.0.0-smoke"
+for project in src/ParadeDB.EntityFrameworkCore.csproj src/VectorData/ParadeDB.VectorData.csproj; do
+  echo "Packing ${project}..."
+  dotnet pack "${project}" --configuration Release \
+    --output "${FEED_DIR}" -p:PackageVersion="${VERSION}" --verbosity quiet
+done
 
 mkdir -p "${APP_DIR}"
 cd "${APP_DIR}"
@@ -77,7 +71,33 @@ Console.WriteLine($"Package smoke install passed for {type.Assembly.GetName().Na
 return 0;
 CSHARP
 
-dotnet add package "${PACKAGE_ID}" --version "${VERSION}" >/dev/null
+dotnet add package "${EFCORE_PACKAGE_ID}" --version "${VERSION}" >/dev/null
 dotnet run --configuration Release
 
-echo "✅ Package smoke install passed for ${PACKAGE_ID} ${VERSION}"
+echo "✅ Package smoke install passed for ${EFCORE_PACKAGE_ID} ${VERSION}"
+
+if grep -Fq 'Microsoft.Extensions.VectorData.Abstractions/' obj/project.assets.json; then
+  echo "VectorData must be opt-in for EF Core consumers" >&2
+  exit 1
+fi
+
+cat >Program.cs <<'CSHARP'
+using Microsoft.Extensions.VectorData;
+using ParadeDB.EntityFrameworkCore.Extensions;
+using ParadeDB.VectorData;
+
+if (!typeof(IVectorSearchable<object>).IsAssignableFrom(typeof(ParadeDbVectorSearch<object>)))
+{
+    Console.Error.WriteLine("Expected the packed adapter to implement IVectorSearchable");
+    return 1;
+}
+
+Console.WriteLine($"Loaded {typeof(ParadeDbVectorSearch<object>).Assembly.GetName().Name} over {typeof(ParadeDbFunctionsExtensions).Assembly.GetName().Name}");
+return 0;
+CSHARP
+
+dotnet remove package "${EFCORE_PACKAGE_ID}" >/dev/null
+dotnet add package "${VECTOR_PACKAGE_ID}" --version "${VERSION}" >/dev/null
+dotnet run --configuration Release
+
+echo "✅ Package smoke install passed for ${VECTOR_PACKAGE_ID} ${VERSION}"
