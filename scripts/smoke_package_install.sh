@@ -12,7 +12,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
-PACKAGE_ID="ParadeDB.EntityFrameworkCore"
+EFCORE_PACKAGE_ID="ParadeDB.EntityFrameworkCore"
 VECTOR_PACKAGE_ID="ParadeDB.VectorData"
 
 WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/efcore-paradedb-smoke.XXXXXX")"
@@ -71,10 +71,10 @@ Console.WriteLine($"Package smoke install passed for {type.Assembly.GetName().Na
 return 0;
 CSHARP
 
-dotnet add package "${PACKAGE_ID}" --version "${VERSION}" >/dev/null
+dotnet add package "${EFCORE_PACKAGE_ID}" --version "${VERSION}" >/dev/null
 dotnet run --configuration Release
 
-echo "✅ Package smoke install passed for ${PACKAGE_ID} ${VERSION}"
+echo "✅ Package smoke install passed for ${EFCORE_PACKAGE_ID} ${VERSION}"
 
 if grep -Fq 'Microsoft.Extensions.VectorData.Abstractions/' obj/project.assets.json; then
   echo "VectorData must be opt-in for EF Core consumers" >&2
@@ -96,7 +96,7 @@ Console.WriteLine($"Loaded {typeof(ParadeDbVectorSearch<object>).Assembly.GetNam
 return 0;
 CSHARP
 
-dotnet remove package "${PACKAGE_ID}" >/dev/null
+dotnet remove package "${EFCORE_PACKAGE_ID}" >/dev/null
 dotnet add package "${VECTOR_PACKAGE_ID}" --version "${VERSION}" >/dev/null
 dotnet run --configuration Release
 
