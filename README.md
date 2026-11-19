@@ -48,6 +48,59 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 | pgvector             | 0.7.0+ (provides vector types for ParadeDB’s [native vector search](https://www.paradedb.com/docs/reference/vector/overview)) |
 | ParadeDB / pg_search | 0.26.2+                                                                                                                       |
 
+## VectorData search
+
+Use `ParadeDbVectorSearch<TRecord>` when your retrieval code expects Microsoft's
+`IVectorSearchable<TRecord>`. It runs a cosine search over an EF Core query.
+Your existing `DbContext` still handles writes, migrations, and transactions.
+
+Configure `Document.Embedding` as a `float[]` mapped to a PostgreSQL vector
+column and include it in a ParadeDB index with `vector_cosine_ops`. Register
+the adapter in the same DI scope as your context.
+
+```csharp
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.VectorData;
+using ParadeDB.EntityFrameworkCore.Extensions;
+using ParadeDB.EntityFrameworkCore.VectorData;
+
+services.AddScoped<IVectorSearchable<Document>>(services =>
+{
+    var db = services.GetRequiredService<AppDbContext>();
+    return new ParadeDbVectorSearch<Document>(
+        db.Documents.Where(document => EF.Functions.All(document.Id)),
+        nameof(Document.Embedding),
+        document => new Document { Id = document.Id, Title = document.Title }
+    );
+});
+```
+
+The source query needs a ParadeDB search predicate to use the index for
+ranking. `EF.Functions.All` matches every row through the index. For filtered
+search, include the filter columns in the index and use EF-translatable filters.
+The projection selects which fields to return when embeddings are omitted.
+
+```csharp
+await foreach (var hit in search.SearchAsync(
+    queryEmbedding,
+    top: 10,
+    options: new() { Filter = document => document.TenantId == tenantId },
+    cancellationToken: cancellationToken
+))
+{
+    Console.WriteLine($"{hit.Record.Title}: {hit.Score}");
+}
+```
+
+Supply a precomputed `float[]` or `ReadOnlyMemory<float>` with the indexed
+dimension. Scores are cosine similarity (`1 - cosine distance`), with higher
+scores ranked first. The adapter supports `Filter` and `IncludeVectors`.
+Setting `IncludeVectors` returns the full untracked entity.
+`Skip`, `ScoreThreshold`, and `VectorProperty` are unsupported. Enumerate
+results within the context's lifetime and complete or dispose the enumeration
+before starting another operation on the same context.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, running tests, linting, and the PR workflow.
