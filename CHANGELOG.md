@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking:** Require ParadeDB 0.27.0 or newer.
+- **Breaking:** Rename `HasMaxLeafSize` to `HasTargetLeafSize` and remove the field argument of `HasVectorQuantization` for ParadeDB 0.27.0. The quantization applies to every vector field of the index.
+
 ## [0.5.0] - 2026-10-16
 
 ### Added

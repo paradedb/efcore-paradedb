@@ -91,13 +91,13 @@ internal sealed class ParadeDbAnnotationProvider : NpgsqlAnnotationProvider
         string[] vectorOptionNames =
         [
             ParadeDbAnnotationNames.IndexTrainingSampleRatio,
-            ParadeDbAnnotationNames.IndexMaxLeafSize,
+            ParadeDbAnnotationNames.IndexTargetLeafSize,
             ParadeDbAnnotationNames.IndexMutableSegmentRows,
             ParadeDbAnnotationNames.IndexBackgroundLayerSizes,
             ParadeDbAnnotationNames.IndexLayerSizes,
             ParadeDbAnnotationNames.IndexPartitionBy,
             ParadeDbAnnotationNames.IndexTargetSegmentCount,
-            ParadeDbAnnotationNames.IndexVectorFields,
+            ParadeDbAnnotationNames.IndexQuantization,
         ];
         foreach (var name in vectorOptionNames)
         {

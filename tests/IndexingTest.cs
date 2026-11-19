@@ -386,31 +386,17 @@ public sealed class IndexingTest : TestBase
     }
 
     [Test]
-    public async Task ParadeDbIndex_WithVectorFields()
+    public void ParadeDbIndex_WithVectorFields()
     {
-        await using var context = DbFixture.CreateContext();
-        await context.Database.OpenConnectionAsync();
-        await context.Database.ExecuteSqlRawAsync(
-            """
-            CREATE TEMP TABLE indexing_items (
-                id int PRIMARY KEY,
-                description text,
-                embedding_l2 vector(3),
-                embedding_cosine vector(3),
-                embedding_ip vector(3)
-            );
-            """
-        );
-
         var sql = GenerateCreateIndexSql<VectorIndexContext, IndexingItem>();
 
+        // ParadeDB takes one vector field for each index, so this statement does not run.
         sql.ShouldBe(
             """
             CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description, embedding_l2 vector_l2_ops, embedding_cosine vector_cosine_ops, (embedding_ip) vector_ip_ops);
 
             """
         );
-        await context.Database.ExecuteSqlRawAsync(sql);
     }
 
     private sealed class VectorIndexOptionsContext(
@@ -434,25 +420,38 @@ public sealed class IndexingTest : TestBase
                     .HasField(e => e.Description)
                     .HasField(e => e.EmbeddingCosine, VectorMetric.Cosine)
                     .HasTrainingSampleRatio(0.05)
-                    .HasMaxLeafSize(64)
+                    .HasTargetLeafSize(64)
                     .HasPartitionBy("id")
                     .HasTargetSegmentCount(8)
-                    .HasVectorQuantization("embedding_cosine", false);
+                    .HasVectorQuantization(false);
             });
         }
     }
 
     [Test]
-    public void ParadeDbIndex_WithVectorIndexOptions()
+    public async Task ParadeDbIndex_WithVectorIndexOptions()
     {
+        await using var context = DbFixture.CreateContext();
+        await context.Database.OpenConnectionAsync();
+        await context.Database.ExecuteSqlRawAsync(
+            """
+            CREATE TEMP TABLE indexing_items (
+                id int PRIMARY KEY,
+                description text,
+                embedding_cosine vector(3)
+            );
+            """
+        );
+
         var sql = GenerateCreateIndexSql<VectorIndexOptionsContext, IndexingItem>();
 
         sql.ShouldBe(
             """
-            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description, embedding_cosine vector_cosine_ops) WITH (training_sample_ratio = 0.05, max_leaf_size = 64, partition_by = 'id', target_segment_count = 8, vector_fields = '{"embedding_cosine":{"quantization":false}}');
+            CREATE INDEX indexing_items_idx ON indexing_items USING paradedb (id, description, embedding_cosine vector_cosine_ops) WITH (training_sample_ratio = 0.05, target_leaf_size = 64, partition_by = 'id', target_segment_count = 8, quantization = '0');
 
             """
         );
+        await context.Database.ExecuteSqlRawAsync(sql);
     }
 
     private sealed class TrainingSampleRatioIndexContext(

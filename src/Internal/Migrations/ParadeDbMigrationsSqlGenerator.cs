@@ -67,11 +67,13 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
         }
 
         if (
-            operation.FindAnnotation(ParadeDbAnnotationNames.IndexMaxLeafSize)?.Value
-            is int maxLeafSize
+            operation.FindAnnotation(ParadeDbAnnotationNames.IndexTargetLeafSize)?.Value
+            is int targetLeafSize
         )
         {
-            options.Add($"max_leaf_size = {maxLeafSize.ToString(CultureInfo.InvariantCulture)}");
+            options.Add(
+                $"target_leaf_size = {targetLeafSize.ToString(CultureInfo.InvariantCulture)}"
+            );
         }
 
         if (
@@ -89,10 +91,10 @@ internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenera
                 $"target_segment_count = {targetSegmentCount.ToString(CultureInfo.InvariantCulture)}"
             );
         if (
-            operation.FindAnnotation(ParadeDbAnnotationNames.IndexVectorFields)?.Value
-            is string vectorFields
+            operation.FindAnnotation(ParadeDbAnnotationNames.IndexQuantization)?.Value
+            is string quantization
         )
-            options.Add($"vector_fields = {stringMapping.GenerateSqlLiteral(vectorFields)}");
+            options.Add($"quantization = {stringMapping.GenerateSqlLiteral(quantization)}");
 
         foreach (
             var (annotation, name) in new[]
