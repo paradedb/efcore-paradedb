@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.VectorData;
 using ParadeDB.EntityFrameworkCore.Extensions;
 
-namespace ParadeDB.EntityFrameworkCore.VectorData;
+namespace ParadeDB.VectorData;
 
 /// <summary>Runs cosine similarity searches over an existing ParadeDB EF Core query.</summary>
 /// <remarks>

@@ -114,13 +114,15 @@ jobs:
           )
           echo "is_latest=${IS_LATEST}" >> "$GITHUB_OUTPUT"
 
-      - name: Build package
+      - name: Build packages
         run: |
           set -euo pipefail
-          dotnet pack src/ParadeDB.EntityFrameworkCore.csproj \
-            --configuration Release \
-            --output "${PACKAGES_OUTPUT_DIR}" \
-            -p:PackageVersion="${VERSION}"
+          for project in src/ParadeDB.EntityFrameworkCore.csproj src/VectorData/ParadeDB.VectorData.csproj; do
+            dotnet pack "${project}" \
+              --configuration Release \
+              --output "${PACKAGES_OUTPUT_DIR}" \
+              -p:PackageVersion="${VERSION}"
+          done
           ls -l "${PACKAGES_OUTPUT_DIR}"
 
       - name: Publish to NuGet
@@ -128,9 +130,12 @@ jobs:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           set -euo pipefail
-          dotnet nuget push "${PACKAGES_OUTPUT_DIR}"/*.nupkg \
-            --api-key "${NUGET_API_KEY}" \
-            --source https://api.nuget.org/v3/index.json
+          for package in ParadeDB.EntityFrameworkCore ParadeDB.VectorData; do
+            dotnet nuget push "${PACKAGES_OUTPUT_DIR}/${package}."*.nupkg \
+              --api-key "${NUGET_API_KEY}" \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate
+          done
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3
@@ -150,6 +155,7 @@ jobs:
             echo "## Released v${VERSION}"
             echo
             echo "- NuGet: \`ParadeDB.EntityFrameworkCore ${VERSION}\` published"
+            echo "- NuGet: \`ParadeDB.VectorData ${VERSION}\` published"
             echo "- GitHub tag: \`v${VERSION}\` created from ${GITHUB_SHA}"
-            echo "- GitHub release: created and package attached"
+            echo "- GitHub release: created and packages attached"
           } >> "${GITHUB_STEP_SUMMARY}"

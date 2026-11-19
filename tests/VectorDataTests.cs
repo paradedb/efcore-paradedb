@@ -6,7 +6,7 @@ using Microsoft.Extensions.VectorData;
 using Npgsql;
 using ParadeDB.EntityFrameworkCore.Extensions;
 using ParadeDB.EntityFrameworkCore.Tests.Persistence;
-using ParadeDB.EntityFrameworkCore.VectorData;
+using ParadeDB.VectorData;
 using Shouldly;
 
 namespace ParadeDB.EntityFrameworkCore.Tests;
