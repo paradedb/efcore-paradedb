@@ -100,6 +100,7 @@ public sealed class ParadeDbVectorSearch<TRecord>(
                 EF.Property<float[]?>(record, _embeddingProperty),
                 embedding
             );
+        // Exclude rows with no cosine distance, including when PostgreSQL scans the table.
         var ranked = query
             .Where(record => EF.Property<float[]?>(record, _embeddingProperty) != null)
             .OrderBy(distance)

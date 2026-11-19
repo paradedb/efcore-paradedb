@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -75,12 +76,16 @@ public sealed class VectorDataTests : TestBase
         context.ChangeTracker.Entries().ShouldBeEmpty();
 
         await using var explain = capture.Command.ShouldNotBeNull();
-        explain.CommandText.ShouldContain("@@@ pdb.all()");
-        explain.CommandText.ShouldContain("ORDER BY");
-        explain.CommandText.ShouldContain("LIMIT");
-        explain
-            .CommandText[..explain.CommandText.IndexOf("FROM", StringComparison.Ordinal)]
-            .ShouldNotContain(".\"Embedding\",");
+        const string expectedSql = """
+            SELECT m."Id", m."Rating", 1.0 - (m."Embedding" <=> @embedding)
+            FROM "MockItems" AS m
+            WHERE (m."Id" @@@ pdb.all()) AND m."Id" >= @firstId AND m."Rating" = 5 AND m."Embedding" IS NOT NULL
+            ORDER BY m."Embedding" <=> @embedding
+            LIMIT @p
+            """;
+        Regex
+            .Replace(explain.CommandText.Trim().ReplaceLineEndings("\n"), @"@__(\w+?)_\d+", "@$1")
+            .ShouldBe(expectedSql.ReplaceLineEndings("\n"));
         explain.CommandText = "EXPLAIN " + explain.CommandText;
         explain.Transaction = (NpgsqlTransaction)transaction.GetDbTransaction();
         await using (var reader = await explain.ExecuteReaderAsync())
@@ -91,19 +96,29 @@ public sealed class VectorDataTests : TestBase
             string.Join(Environment.NewLine, plan).ShouldContain("TopKScanExecState");
         }
 
+        // A query without a ParadeDB predicate can use PostgreSQL's ordinary SQL execution.
+        var fallback = new ParadeDbVectorSearch<MockItem>(
+            context.MockItems,
+            nameof(MockItem.Embedding),
+            item => new MockItem { Id = item.Id }
+        );
+        matches.Clear();
         await foreach (
-            var match in adapter.SearchAsync(
+            var match in fallback.SearchAsync(
                 queryEmbedding,
-                1,
-                new() { Filter = item => item.Id == firstId, IncludeVectors = true }
+                5,
+                new()
+                {
+                    Filter = item => item.Id == firstId || item.Id == firstId + 4,
+                    IncludeVectors = true,
+                }
             )
         )
-        {
-            match.Record.Embedding.ShouldBe(queryEmbedding);
-            return;
-        }
+            matches.Add(match);
 
-        throw new InvalidOperationException("Expected a match with its embedding.");
+        var matchWithVector = matches.ShouldHaveSingleItem();
+        matchWithVector.Record.Id.ShouldBe(firstId);
+        matchWithVector.Record.Embedding.ShouldBe(queryEmbedding);
     }
 
     private sealed class SearchCommandCapture : DbCommandInterceptor
