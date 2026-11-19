@@ -8,6 +8,42 @@ using ParadeDB.EntityFrameworkCore.Extensions;
 namespace ParadeDB.EntityFrameworkCore.VectorData;
 
 /// <summary>Runs cosine similarity searches over an existing ParadeDB EF Core query.</summary>
+/// <remarks>
+/// <para>
+/// Map the embedding property to a PostgreSQL vector column and include it in a ParadeDB index
+/// with <c>vector_cosine_ops</c>. The source query needs a ParadeDB predicate for index-backed
+/// ranking. For filtered searches, include the filter columns in the index and use
+/// EF-translatable filters.
+/// </para>
+/// <para>
+/// Register the adapter in the same DI scope as its context. Enumerate results within that
+/// scope and complete or dispose the enumeration before using the context for another operation.
+/// EF Core continues to own writes, migrations, and transactions.
+/// </para>
+/// </remarks>
+/// <example>
+/// <code>
+/// services.AddScoped&lt;IVectorSearchable&lt;Document&gt;&gt;(provider =>
+/// {
+///     var db = provider.GetRequiredService&lt;AppDbContext&gt;();
+///     return new ParadeDbVectorSearch&lt;Document&gt;(
+///         db.Documents.Where(document => EF.Functions.All(document.Id)),
+///         nameof(Document.Embedding),
+///         document => new Document { Id = document.Id, Title = document.Title }
+///     );
+/// });
+///
+/// await foreach (var hit in search.SearchAsync(
+///     queryEmbedding,
+///     top: 10,
+///     options: new() { Filter = document => document.TenantId == tenantId },
+///     cancellationToken: cancellationToken
+/// ))
+/// {
+///     Console.WriteLine($"{hit.Record.Title}: {hit.Score}");
+/// }
+/// </code>
+/// </example>
 /// <param name="records">
 /// An EF Core entity query with a ParadeDB search predicate, such as EF.Functions.All on the index key.
 /// </param>
@@ -34,6 +70,17 @@ public sealed class ParadeDbVectorSearch<TRecord>(
         withoutVectors ?? throw new ArgumentNullException(nameof(withoutVectors));
 
     /// <summary>Returns up to <paramref name="top"/> records ordered by decreasing cosine similarity.</summary>
+    /// <param name="searchValue">
+    /// A precomputed <c>float[]</c> or <c>ReadOnlyMemory&lt;float&gt;</c> of the indexed dimension.
+    /// </param>
+    /// <param name="top">Maximum number of matches.</param>
+    /// <param name="options">
+    /// Supports <c>Filter</c> and <c>IncludeVectors</c>. Enabling <c>IncludeVectors</c>
+    /// returns the full untracked entity. <c>Skip</c>, <c>ScoreThreshold</c>, and
+    /// <c>VectorProperty</c> are unsupported.
+    /// </param>
+    /// <param name="cancellationToken">Cancels query execution and result enumeration.</param>
+    /// <returns>Matches with cosine similarity scores computed as one minus cosine distance.</returns>
     public async IAsyncEnumerable<VectorSearchResult<TRecord>> SearchAsync<TInput>(
         TInput searchValue,
         int top,
