@@ -52,6 +52,13 @@ public static class ParadeDbFunctionsExtensions
     public static float Score<TProperty>(this DbFunctions _, TProperty property) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Score)));
 
+    /// <summary>
+    /// Explains the BM25 score of the row as JSON. Pass the same property as to <c>Score</c>.
+    /// </summary>
+    [DbFunction]
+    public static string ExplainScore<TProperty>(this DbFunctions _, TProperty property) =>
+        throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(ExplainScore)));
+
     [DbFunction]
     public static string? Snippet<TProperty>(this DbFunctions _, TProperty property) =>
         throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Snippet)));

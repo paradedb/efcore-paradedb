@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -28,6 +29,7 @@ internal sealed class ParadeDbOptionsExtension : IDbContextOptionsExtension
         services.AddScoped<IMigrationsSqlGenerator, ParadeDbMigrationsSqlGenerator>();
         services.AddSingleton<IRelationalAnnotationProvider, ParadeDbAnnotationProvider>();
         services.AddScoped<IMethodCallTranslatorPlugin, ParadeDbMethodCallTranslatorPlugin>();
+        services.AddScoped<IInterceptor, ParadeDbExpandInterceptor>();
         services.AddSingleton<
             IRelationalTypeMappingSourcePlugin,
             ParadeDbTypeMappingSourcePlugin

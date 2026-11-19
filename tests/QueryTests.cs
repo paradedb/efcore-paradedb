@@ -872,6 +872,28 @@ public sealed class QueryTests : TestBase
     }
 
     [Test]
+    public async Task ExplainScore()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        var query = context
+            .MockItems.Where(p => EF.Functions.Term(p.Description, "shoes"))
+            .Select(p => new { p.Id, Explanation = EF.Functions.ExplainScore(p.Id) });
+
+        var sql = """
+            SELECT m."Id", pdb.explain_score(m."Id") AS "Explanation"
+            FROM "MockItems" AS m
+            WHERE m."Description" === 'shoes'
+            """;
+
+        AssertSql(query, sql);
+
+        var rows = await query.ToListAsync();
+        rows.ShouldNotBeEmpty();
+        rows[0].Explanation.ShouldContain("\"value\"");
+    }
+
+    [Test]
     public async Task ScoreOrderBy()
     {
         await using var context = DbFixture.CreateContext();
@@ -2215,5 +2237,243 @@ public sealed class QueryTests : TestBase
         var sql = query.ToQueryString();
         sql.ShouldContain("\"limit\" => 1");
         sql.ShouldContain("\"offset\" => 1");
+    }
+
+    [Test]
+    public void Expand()
+    {
+        using var context = DbFixture.CreateContext();
+
+        var rules = context.ShopSynonyms.Select(s => s.Rule);
+        var query = context.MockItems.Where(p =>
+            EF.Functions.MatchAny(p.Description, Pdb.Expand("sofa", rules))
+        );
+
+        var sql = """
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" ||| (
+                SELECT pdb.expand('sofa', s."Rule")
+                FROM "ShopSynonyms" AS s
+                LIMIT 1)
+            """;
+
+        AssertSql(query, sql);
+    }
+
+    [Test]
+    public void Expand_WithFuzzyAndBoost()
+    {
+        using var context = DbFixture.CreateContext();
+
+        var query = context.MockItems.Where(p =>
+            EF.Functions.MatchAll(
+                p.Description,
+                Pdb.Boost(
+                    Pdb.Fuzzy(Pdb.Expand("sofa", context.ShopSynonyms.Select(s => s.Rule)), 1),
+                    2
+                )
+            )
+        );
+
+        var sql = """
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" &&& (
+                SELECT pdb.expand('sofa', s."Rule")
+                FROM "ShopSynonyms" AS s
+                LIMIT 1)::pdb.fuzzy(1)::pdb.boost(2)
+            """;
+
+        AssertSql(query, sql);
+    }
+
+    [Test]
+    public void Expand_WithSetFilter()
+    {
+        using var context = DbFixture.CreateContext();
+
+        string text = "sofa";
+        string setName = "shop";
+
+        var query = context.MockItems.Where(p =>
+            EF.Functions.MatchAny(
+                p.Description,
+                Pdb.Expand(
+                    text,
+                    context
+                        .Synonyms.Where(s => s.SetName == EF.Constant(setName))
+                        .Select(s => s.Rule)
+                )
+            )
+        );
+
+        var sql = """
+            -- @text='sofa'
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" ||| (
+                SELECT pdb.expand(@text, s."Rule")
+                FROM "Synonyms" AS s
+                WHERE s."SetName" = 'shop'
+                LIMIT 1)
+            """;
+
+        AssertSql(query, sql);
+    }
+
+    [Test]
+    public void Expand_WithPhraseAndParse()
+    {
+        using var context = DbFixture.CreateContext();
+
+        var phrase = context.MockItems.Where(p =>
+            EF.Functions.Phrase(
+                p.Description,
+                Pdb.Expand("leather sofa", context.ShopSynonyms.Select(s => s.Rule))
+            )
+        );
+        var parse = context.MockItems.Where(p =>
+            EF.Functions.Parse(
+                p.Description,
+                Pdb.Fuzzy(
+                    Pdb.Expand("lether AND sofa", context.ShopSynonyms.Select(s => s.Rule)),
+                    1
+                )
+            )
+        );
+
+        AssertSql(
+            phrase,
+            """
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" ### (
+                SELECT pdb.expand('leather sofa', s."Rule")
+                FROM "ShopSynonyms" AS s
+                LIMIT 1)
+            """
+        );
+        AssertSql(
+            parse,
+            """
+            SELECT m."Id", m."Category", m."CreatedAt", m."Description", m."Embedding", m."InStock", m."LastUpdatedDate", m."LatestAvailableTime", m."Metadata", m."Rating", m."WeightRange"
+            FROM "MockItems" AS m
+            WHERE m."Description" @@@ (
+                SELECT pdb.expand('lether AND sofa', s."Rule")
+                FROM "ShopSynonyms" AS s
+                LIMIT 1)::pdb.fuzzy(1)
+            """
+        );
+    }
+
+    [Test]
+    public void Expand_WithParseOptions_Throws()
+    {
+        using var context = DbFixture.CreateContext();
+
+        var query = context.MockItems.Where(p =>
+            EF.Functions.Parse(
+                p.Description,
+                Pdb.Expand("sofa", context.ShopSynonyms.Select(s => s.Rule)),
+                true
+            )
+        );
+
+        var exception = Should.Throw<InvalidOperationException>(() => query.ToQueryString());
+        exception.Message.ShouldBe("Parse options do not apply to an expansion.");
+    }
+
+    [Test]
+    public async Task Expand_ReadsSynonymIndex()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        await context.Database.ExecuteSqlRawAsync(
+            """
+            DROP TABLE IF EXISTS "ShopSynonyms";
+            CREATE TABLE "ShopSynonyms" ("Rule" pdb.synonym_rule NOT NULL)
+            """
+        );
+        await context.Database.ExecuteSqlRawAsync(
+            """
+            INSERT INTO "ShopSynonyms" VALUES ('couch, sofa, divan')
+            """
+        );
+        await context.Database.ExecuteSqlRawAsync(
+            """
+            CREATE INDEX shop_synonyms_idx ON "ShopSynonyms" USING paradedb ("Rule")
+            """
+        );
+
+        var query = context.MockItems.Where(p =>
+            EF.Functions.MatchAny(
+                p.Description,
+                Pdb.Expand("couch", context.ShopSynonyms.Select(s => s.Rule))
+            )
+        );
+
+        var items = await query.ToListAsync();
+        items.ShouldHaveSingleItem().Description.ShouldBe("Classic leather sofa");
+        (await ExplainAsync(context, query)).ShouldContain("Synonyms: shop_synonyms_idx");
+    }
+
+    [Test]
+    public async Task Expand_WithSetFilter_ReadsPartialSynonymIndex()
+    {
+        await using var context = DbFixture.CreateContext();
+
+        await context.Database.ExecuteSqlRawAsync(
+            """
+            DROP TABLE IF EXISTS "Synonyms";
+            CREATE TABLE "Synonyms" ("SetName" text NOT NULL, "Rule" pdb.synonym_rule NOT NULL)
+            """
+        );
+        await context.Database.ExecuteSqlRawAsync(
+            """
+            INSERT INTO "Synonyms" VALUES ('shop', 'couch, sofa, divan'), ('sports', 'couch, shoes')
+            """
+        );
+        await context.Database.ExecuteSqlRawAsync(
+            """
+            CREATE INDEX synonyms_shop_idx ON "Synonyms"
+            USING paradedb ("Rule") WHERE "SetName" = 'shop'
+            """
+        );
+        await context.Database.ExecuteSqlRawAsync(
+            """
+            CREATE INDEX synonyms_sports_idx ON "Synonyms"
+            USING paradedb ("Rule") WHERE "SetName" = 'sports'
+            """
+        );
+
+        var query = context.MockItems.Where(p =>
+            EF.Functions.MatchAny(
+                p.Description,
+                Pdb.Expand(
+                    "couch",
+                    context.Synonyms.Where(s => s.SetName == "shop").Select(s => s.Rule)
+                )
+            )
+        );
+
+        var items = await query.ToListAsync();
+        items.ShouldHaveSingleItem().Description.ShouldBe("Classic leather sofa");
+        (await ExplainAsync(context, query)).ShouldContain("Synonyms: synonyms_shop_idx");
+    }
+
+    private static async Task<string> ExplainAsync(TestDbContext context, IQueryable query)
+    {
+        await context.Database.OpenConnectionAsync();
+        await using var command = context.Database.GetDbConnection().CreateCommand();
+        command.CommandText = $"EXPLAIN (COSTS OFF) {query.ToQueryString()}";
+        await using var reader = await command.ExecuteReaderAsync();
+        var plan = new List<string>();
+        while (await reader.ReadAsync())
+        {
+            plan.Add(reader.GetString(0));
+        }
+
+        return string.Join('\n', plan);
     }
 }

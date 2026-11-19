@@ -9,6 +9,10 @@ public sealed class TestDbContext : DbContext
 
     public DbSet<MockItem> MockItems => Set<MockItem>();
 
+    public DbSet<ShopSynonym> ShopSynonyms => Set<ShopSynonym>();
+
+    public DbSet<Synonym> Synonyms => Set<Synonym>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -18,5 +22,8 @@ public sealed class TestDbContext : DbContext
             entity.HasKey(p => p.Id);
             entity.Property(p => p.Embedding).HasColumnType("vector(8)");
         });
+
+        modelBuilder.Entity<ShopSynonym>().HasNoKey();
+        modelBuilder.Entity<Synonym>().HasNoKey();
     }
 }
