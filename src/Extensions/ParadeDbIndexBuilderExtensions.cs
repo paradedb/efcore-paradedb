@@ -204,9 +204,9 @@ public sealed class ParadeDbIndexBuilder<TEntity>
         return this;
     }
 
-    public ParadeDbIndexBuilder<TEntity> HasMaxLeafSize(int maxLeafSize)
+    public ParadeDbIndexBuilder<TEntity> HasTargetLeafSize(int targetLeafSize)
     {
-        _indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexMaxLeafSize, maxLeafSize);
+        _indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexTargetLeafSize, targetLeafSize);
 
         return this;
     }
@@ -227,37 +227,33 @@ public sealed class ParadeDbIndexBuilder<TEntity>
         return this;
     }
 
-    /// <summary>Configure quantization for a vector index field at CREATE INDEX or REINDEX time.</summary>
-    public ParadeDbIndexBuilder<TEntity> HasVectorQuantization(string field, bool quantization) =>
-        SetVectorQuantization(field, quantization);
+    /// <summary>Pass zero to disable quantization for the vector index.</summary>
+    public ParadeDbIndexBuilder<TEntity> HasVectorQuantization(int quantization)
+    {
+        if (quantization != 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(quantization),
+                "Use zero or an array of layer widths."
+            );
+
+        return SetVectorQuantization("0");
+    }
 
     /// <summary>Configure one to three quantization layers, with one to four bits per layer.</summary>
-    public ParadeDbIndexBuilder<TEntity> HasVectorQuantization(string field, params int[] layers)
+    public ParadeDbIndexBuilder<TEntity> HasVectorQuantization(int[] layers)
     {
+        ArgumentNullException.ThrowIfNull(layers);
         if (layers.Length is < 1 or > 3 || layers.Any(bits => bits is < 1 or > 4))
             throw new ArgumentException(
                 "Use one to three layers with one to four bits per layer.",
                 nameof(layers)
             );
-        return SetVectorQuantization(field, new { layers });
+        return SetVectorQuantization($"[{string.Join(",", layers)}]");
     }
 
-    private ParadeDbIndexBuilder<TEntity> SetVectorQuantization(string field, object quantization)
+    private ParadeDbIndexBuilder<TEntity> SetVectorQuantization(string quantization)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(field);
-        var fields = _indexBuilder
-            .Metadata.FindAnnotation(ParadeDbAnnotationNames.IndexVectorFields)
-            ?.Value
-            is string json
-            ? System.Text.Json.JsonSerializer.Deserialize<
-                Dictionary<string, System.Text.Json.JsonElement>
-            >(json)!
-            : new Dictionary<string, System.Text.Json.JsonElement>();
-        fields[field] = System.Text.Json.JsonSerializer.SerializeToElement(new { quantization });
-        _indexBuilder.HasAnnotation(
-            ParadeDbAnnotationNames.IndexVectorFields,
-            System.Text.Json.JsonSerializer.Serialize(fields)
-        );
+        _indexBuilder.HasAnnotation(ParadeDbAnnotationNames.IndexQuantization, quantization);
         return this;
     }
 
