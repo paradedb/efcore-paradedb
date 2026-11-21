@@ -49,43 +49,14 @@ jobs:
         run: bash scripts/smoke_package_install.sh
 
   build:
-    name: .NET ${{ matrix.framework }} / PG ${{ matrix.postgres-version }}
+    name: .NET net${{ matrix.dotnet-major }}.0 / PG ${{ matrix.postgres-version }}
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - dotnet: "8.0.x"
-            framework: "net8.0"
-            postgres-version: "18"
-          - dotnet: "9.0.x"
-            framework: "net9.0"
-            postgres-version: "18"
-          - dotnet: "10.0.x"
-            framework: "net10.0"
-            postgres-version: "18"
-          - dotnet: "10.0.x"
-            framework: "net10.0"
-            postgres-version: "15"
-          - dotnet: "10.0.x"
-            framework: "net10.0"
-            postgres-version: "16"
-          - dotnet: "10.0.x"
-            framework: "net10.0"
-            postgres-version: "17"
-          - dotnet: "11.0.x"
-            framework: "net11.0"
-            postgres-version: "18"
-          - dotnet: "11.0.x"
-            framework: "net11.0"
-            postgres-version: "15"
-          - dotnet: "11.0.x"
-            framework: "net11.0"
-            postgres-version: "16"
-          - dotnet: "11.0.x"
-            framework: "net11.0"
-            postgres-version: "17"
+        postgres-version: ["15", "16", "17", "18"]
+        dotnet-major: ["8", "9", "10", "11"]
 
     services:
       paradedb:
@@ -112,29 +83,29 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
-          dotnet-version: ${{ matrix.dotnet }}
+          dotnet-version: ${{ matrix.dotnet-major }}.0.x
 
       - name: Restore
         run: dotnet restore build.slnf
 
       - name: Build
-        run: dotnet build build.slnf --configuration Release --framework ${{ matrix.framework }} --no-restore
+        run: dotnet build build.slnf --configuration Release --framework net${{ matrix.dotnet-major }}.0 --no-restore
 
       - name: Test
         run: |
           dotnet test \
             --no-build \
             --configuration Release \
-            --framework ${{ matrix.framework }} \
-            --results-directory TestResults/${{ matrix.framework }} \
+            --framework net${{ matrix.dotnet-major }}.0 \
+            --results-directory TestResults/net${{ matrix.dotnet-major }}.0 \
             --coverlet \
             --coverlet-output-format cobertura
 
       - name: Upload to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         with:
-          directory: TestResults/${{ matrix.framework }}
-          flags: ${{ matrix.framework }},pg${{ matrix.postgres-version }}
+          directory: TestResults/net${{ matrix.dotnet-major }}.0
+          flags: net${{ matrix.dotnet-major }}.0,pg${{ matrix.postgres-version }}
           fail_ci_if_error: false
           verbose: true
         env:
