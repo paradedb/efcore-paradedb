@@ -53,7 +53,7 @@ public sealed class DbFixture : IAsyncInitializer, IAsyncDisposable
             .Options;
 
         await using var isolatedContext = new TestDbContext(_options);
-        await isolatedContext.Database.ExecuteSqlInterpolatedAsync(
+        await isolatedContext.Database.ExecuteSqlAsync(
             $"CALL paradedb.create_paradedb_test_table(schema_name => {_schemaName}, table_name => 'mock_items')"
         );
 

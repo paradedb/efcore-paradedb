@@ -11,4 +11,4 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
-dotnet test --framework "${DOTNET_FRAMEWORK:-net10.0}" "$@"
+dotnet test --framework "${DOTNET_FRAMEWORK:-net11.0}" "$@"

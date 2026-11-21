@@ -31,7 +31,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: 11.0.x
 
       - name: Restore .NET tools
         run: dotnet tool restore
@@ -65,14 +65,17 @@ jobs:
           - dotnet: "10.0.x"
             framework: "net10.0"
             postgres-version: "18"
-          - dotnet: "10.0.x"
-            framework: "net10.0"
+          - dotnet: "11.0.x"
+            framework: "net11.0"
+            postgres-version: "18"
+          - dotnet: "11.0.x"
+            framework: "net11.0"
             postgres-version: "15"
-          - dotnet: "10.0.x"
-            framework: "net10.0"
+          - dotnet: "11.0.x"
+            framework: "net11.0"
             postgres-version: "16"
-          - dotnet: "10.0.x"
-            framework: "net10.0"
+          - dotnet: "11.0.x"
+            framework: "net11.0"
             postgres-version: "17"
 
     services:
@@ -139,13 +142,13 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: 11.0.x
 
       - name: Restore
-        run: dotnet restore build.slnf -p:TargetFramework=net10.0
+        run: dotnet restore build.slnf -p:TargetFramework=net11.0
 
       - name: Build
-        run: dotnet build build.slnf --configuration Release --framework net10.0 --no-restore
+        run: dotnet build build.slnf --configuration Release --framework net11.0 --no-restore
 
   check-api-coverage:
     name: Check API Coverage
