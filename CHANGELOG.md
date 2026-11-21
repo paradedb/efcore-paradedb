@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-21
+
+### Added
+
+- Support .NET 11 and EF Core 11.
+
 ### Changed
 
 - **Breaking:** Require .NET 10 and EF Core 10 or newer. Microsoft ended support for EF Core 8 and 9.
@@ -93,6 +99,7 @@ All notable changes to this project will be documented in this file. The format 
 
 - Support for the ParadeDB query language, index management, and diagnostics.
 
+[0.7.0]: https://github.com/paradedb/efcore-paradedb/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/paradedb/efcore-paradedb/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/paradedb/efcore-paradedb/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/paradedb/efcore-paradedb/compare/v0.3.0...v0.4.0
