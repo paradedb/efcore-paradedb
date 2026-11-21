@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking:** Require .NET 10 and EF Core 10 or newer. Microsoft ended support for EF Core 8 and 9.
+
 ## [0.6.0] - 2026-11-19
 
 ### Added
