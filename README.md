@@ -24,7 +24,7 @@
 
 <p align="center">
   <a href="https://www.nuget.org/packages/ParadeDB.EntityFrameworkCore"><img src="https://img.shields.io/nuget/v/ParadeDB.EntityFrameworkCore" alt="NuGet Version"></a>&nbsp;
-  <a href="https://www.nuget.org/packages/ParadeDB.EntityFrameworkCore"><img src="https://img.shields.io/badge/.NET-8%20%7C%209%20%7C%2010-blue?logo=dotnet" alt=".NET Versions"></a>&nbsp;
+  <a href="https://www.nuget.org/packages/ParadeDB.EntityFrameworkCore"><img src="https://img.shields.io/badge/.NET-10%20%7C%2011-blue?logo=dotnet" alt=".NET Versions"></a>&nbsp;
   <a href="https://www.nuget.org/packages/ParadeDB.EntityFrameworkCore"><img src="https://img.shields.io/nuget/dt/ParadeDB.EntityFrameworkCore" alt="NuGet Downloads"></a>&nbsp;
   <a href="https://codecov.io/gh/paradedb/efcore-paradedb"><img src="https://codecov.io/gh/paradedb/efcore-paradedb/graph/badge.svg" alt="Codecov"></a>&nbsp;
   <a href="https://github.com/paradedb/efcore-paradedb?tab=MIT-1-ov-file#readme"><img src="https://img.shields.io/github/license/paradedb/efcore-paradedb?color=blue" alt="License"></a>&nbsp;
@@ -42,8 +42,8 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 
 | Component            | Supported                                                                                                                     |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| .NET                 | 8.0+                                                                                                                          |
-| EF Core              | 8.0+                                                                                                                          |
+| .NET                 | 10.0+                                                                                                                         |
+| EF Core              | 10.0+                                                                                                                         |
 | PostgreSQL           | 15+                                                                                                                           |
 | pgvector             | 0.7.0+ (provides vector types for ParadeDB’s [native vector search](https://www.paradedb.com/docs/reference/vector/overview)) |
 | ParadeDB / pg_search | 0.27.0+                                                                                                                       |

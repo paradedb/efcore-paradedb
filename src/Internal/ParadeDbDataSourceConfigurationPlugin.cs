@@ -1,4 +1,3 @@
-#if !NET8_0
 using Npgsql;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using ParadeDB.EntityFrameworkCore.Internal.Storage;
@@ -10,4 +9,3 @@ internal sealed class ParadeDbDataSourceConfigurationPlugin : INpgsqlDataSourceC
     public void Configure(NpgsqlDataSourceBuilder npgsqlDataSourceBuilder) =>
         npgsqlDataSourceBuilder.AddTypeInfoResolverFactory(new PdbVectorTypeInfoResolverFactory());
 }
-#endif

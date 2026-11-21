@@ -6,8 +6,8 @@ The official [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 
 | Component            | Supported                                                                                                                     |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| .NET                 | 8.0+                                                                                                                          |
-| EF Core              | 8.0+                                                                                                                          |
+| .NET                 | 10.0+                                                                                                                         |
+| EF Core              | 10.0+                                                                                                                         |
 | PostgreSQL           | 15+                                                                                                                           |
 | pgvector             | 0.7.0+ (provides vector types for ParadeDB’s [native vector search](https://www.paradedb.com/docs/reference/vector/overview)) |
 | ParadeDB / pg_search | 0.27.0+                                                                                                                       |

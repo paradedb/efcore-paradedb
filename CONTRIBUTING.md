@@ -47,7 +47,7 @@ Run the tests to verify every change. This targets a single .NET version for spe
 bash scripts/run_tests.sh
 ```
 
-Or run against .NET 8, 9, 10, and 11:
+Or run against .NET 10 and 11:
 
 ```bash
 dotnet test
