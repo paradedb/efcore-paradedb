@@ -55,7 +55,12 @@ internal sealed class PdbVectorConverter : PgStreamingConverter<float[]>
         return vector;
     }
 
-    public override Size GetSize(SizeContext context, float[] value, ref object? writeState) =>
+#if NET11_0_OR_GREATER
+    protected
+#else
+    public
+#endif
+    override Size GetSize(SizeContext context, float[] value, ref object? writeState) =>
         2 * sizeof(ushort) + sizeof(float) * value.Length;
 
     public override void Write(PgWriter writer, float[] value)

@@ -2,6 +2,7 @@ using System.Globalization;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Query;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.Internal;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Migrations;
@@ -11,11 +12,20 @@ namespace ParadeDB.EntityFrameworkCore.Internal.Migrations;
 
 internal sealed class ParadeDbMigrationsSqlGenerator : NpgsqlMigrationsSqlGenerator
 {
+#if NET11_0_OR_GREATER
+    public ParadeDbMigrationsSqlGenerator(
+        MigrationsSqlGeneratorDependencies dependencies,
+        INpgsqlSingletonOptions npgsqlSingletonOptions,
+        IQuerySqlGeneratorFactory querySqlGeneratorFactory
+    )
+        : base(dependencies, npgsqlSingletonOptions, querySqlGeneratorFactory) { }
+#else
     public ParadeDbMigrationsSqlGenerator(
         MigrationsSqlGeneratorDependencies dependencies,
         INpgsqlSingletonOptions npgsqlSingletonOptions
     )
         : base(dependencies, npgsqlSingletonOptions) { }
+#endif
 
     protected override void Generate(
         CreateIndexOperation operation,
