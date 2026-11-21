@@ -26,7 +26,7 @@ If you find yourself unable to make progress, don't hesitate to seek help in the
 
 ### Development Setup
 
-efcore-paradedb is a NuGet package that provides Entity Framework Core integration for ParadeDB.
+efcore-paradedb is a NuGet package that provides Entity Framework Core integration for ParadeDB. Install the .NET 11 SDK to restore and build the repository. Running tests on older targets also requires the corresponding .NET runtimes.
 
 ```bash
 git clone https://github.com/paradedb/efcore-paradedb.git
@@ -47,7 +47,7 @@ Run the tests to verify every change. This targets a single .NET version for spe
 bash scripts/run_tests.sh
 ```
 
-Or run against .NET 8, 9, and 10:
+Or run against .NET 8, 9, 10, and 11:
 
 ```bash
 dotnet test
