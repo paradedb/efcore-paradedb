@@ -49,14 +49,22 @@ jobs:
         run: bash scripts/smoke_package_install.sh
 
   build:
-    name: .NET net${{ matrix.dotnet-major }}.0 / PG ${{ matrix.postgres-version }}
+    name: .NET ${{ matrix.runtime.framework }} / PG ${{ matrix.postgres-version }}
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
         postgres-version: ["15", "16", "17", "18"]
-        dotnet-major: ["8", "9", "10", "11"]
+        runtime:
+          - dotnet-version: "8.0.x"
+            framework: "net8.0"
+          - dotnet-version: "9.0.x"
+            framework: "net9.0"
+          - dotnet-version: "10.0.x"
+            framework: "net10.0"
+          - dotnet-version: "11.0.x"
+            framework: "net11.0"
 
     services:
       paradedb:
@@ -83,29 +91,29 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
-          dotnet-version: ${{ matrix.dotnet-major }}.0.x
+          dotnet-version: ${{ matrix.runtime.dotnet-version }}
 
       - name: Restore
         run: dotnet restore build.slnf
 
       - name: Build
-        run: dotnet build build.slnf --configuration Release --framework net${{ matrix.dotnet-major }}.0 --no-restore
+        run: dotnet build build.slnf --configuration Release --framework ${{ matrix.runtime.framework }} --no-restore
 
       - name: Test
         run: |
           dotnet test \
             --no-build \
             --configuration Release \
-            --framework net${{ matrix.dotnet-major }}.0 \
-            --results-directory TestResults/net${{ matrix.dotnet-major }}.0 \
+            --framework ${{ matrix.runtime.framework }} \
+            --results-directory TestResults/${{ matrix.runtime.framework }} \
             --coverlet \
             --coverlet-output-format cobertura
 
       - name: Upload to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         with:
-          directory: TestResults/net${{ matrix.dotnet-major }}.0
-          flags: net${{ matrix.dotnet-major }}.0,pg${{ matrix.postgres-version }}
+          directory: TestResults/${{ matrix.runtime.framework }}
+          flags: ${{ matrix.runtime.framework }},pg${{ matrix.postgres-version }}
           fail_ci_if_error: false
           verbose: true
         env:
